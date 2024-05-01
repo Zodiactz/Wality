@@ -108,26 +108,10 @@ class SignInPage extends StatelessWidget {
                       child: const Text(
                         'Sign in',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontFamily: 'SairaCondensed',
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SignUpPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Haven’t has an account yet?",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
@@ -137,13 +121,33 @@ class SignInPage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
+                              builder: (context) => const SignUpPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Haven’t has an account yet ?",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontFamily: 'SairaCondensed',
+                          fontSize: 16
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
                               builder: (context) => const ForgetpasswordPage()),
                         );
                       },
                       child: const Text(
-                        "Forgot password?",
+                        "Forgot password ?",
                         style: TextStyle(
                           decoration: TextDecoration.underline,
+                          fontFamily: 'SairaCondensed',
+                          fontSize: 16
                         ),
                       ),
                     ),

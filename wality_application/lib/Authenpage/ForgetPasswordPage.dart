@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
+import 'package:wality_application/Authenpage/SignInPage.dart';
 
 class ForgetpasswordPage extends StatelessWidget {
   const ForgetpasswordPage({super.key});
@@ -31,7 +32,7 @@ class ForgetpasswordPage extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ChooseWayPage()),
+                        builder: (context) => const SignInPage()),
                   );
                 },
               ),

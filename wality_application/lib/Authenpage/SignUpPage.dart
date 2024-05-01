@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
+import 'package:wality_application/Authenpage/SignInPage.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -74,7 +75,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 28),
                     SizedBox(
                       height: 50.0,
                       width: 300.0,
@@ -91,7 +92,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 28),
                     SizedBox(
                       height: 50.0,
                       width: 300.0,
@@ -108,7 +109,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 36),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -123,26 +124,28 @@ class SignUpPage extends StatelessWidget {
                       child: const Text(
                         'Sign up',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontFamily: 'SairaCondensed',
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ChooseWayPage()),
+                              builder: (context) => const SignInPage()),
                         );
                       },
                       child: const Text(
                         "Already have an account ?",
                         style: TextStyle(
                           decoration: TextDecoration.underline,
+                          fontFamily: 'SairaCondensed',
+                          fontSize: 16
                         ),
                       ),
                     ),

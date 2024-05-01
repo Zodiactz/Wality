@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wality_application/InsideApp/SettingPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -51,16 +52,21 @@ class _HomePageState extends State<HomePage> {
                         'Home',
                         style: TextStyle(
                           fontSize: 24,
+                          fontFamily: 'SairaCondensed',
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 24),
+                      padding: const EdgeInsets.only(right: 16),
                       child: IconButton(
                         onPressed: () {
-                          // Add your onPressed logic here
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SettingPage()),
+                          );
                         },
                         icon: Icon(
                           Icons.settings,
