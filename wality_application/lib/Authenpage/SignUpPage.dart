@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
+import 'package:wality_application/InsideApp/HomePage.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -113,7 +114,7 @@ class SignUpPage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ChooseWayPage()),
+                              builder: (context) => const HomePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

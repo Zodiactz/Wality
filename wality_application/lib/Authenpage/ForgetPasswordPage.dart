@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
-import 'package:wality_application/Authenpage/ForgetPasswordPage.dart';
-import 'package:wality_application/Authenpage/SignUpPage.dart';
-import 'package:wality_application/InsideApp/HomePage.dart';
 
-class SignInPage extends StatelessWidget {
-  const SignInPage({Key? key});
+class ForgetpasswordPage extends StatelessWidget {
+  const ForgetpasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +25,7 @@ class SignInPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(5, 20, 0, 0),
               child: IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 color: Colors.black,
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -87,7 +84,7 @@ class SignInPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
                           ),
-                          hintText: 'Password',
+                          hintText: 'Confirm Email',
                           filled: true,
                           fillColor: Colors.white,
                         ),
@@ -99,51 +96,19 @@ class SignInPage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => const ChooseWayPage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF342056),
                           fixedSize: const Size(300, 50)),
                       child: const Text(
-                        'Sign in',
+                        'Send Email',
                         style: TextStyle(
                           fontSize: 15,
                           fontFamily: 'SairaCondensed',
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SignUpPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Haven’t has an account yet?",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ForgetpasswordPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Forgot password?",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
