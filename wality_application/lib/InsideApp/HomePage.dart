@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
+import 'package:wality_application/widget/NavBar.dart';
+import 'package:wality_application/widget/MachineBox.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -43,41 +46,48 @@ class _HomePageState extends State<HomePage> {
                     topRight: Radius.zero,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child: Text(
-                        'Home',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'SairaCondensed',
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24),
+                        child: Text(
+                          'Home',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontFamily: 'SairaCondensed',
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SettingPage()),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.settings,
-                          color: Colors.grey[350],
-                          size: 24,
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SettingPage()),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.settings,
+                            color: Colors.grey[350],
+                            size: 24,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+            ),
+            Padding( 
+              padding: const EdgeInsets.only(top: 160),
+              child: MachineBox()
             ),
           ],
         ),
