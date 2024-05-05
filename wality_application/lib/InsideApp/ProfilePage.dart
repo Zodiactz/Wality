@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:wality_application/InsideApp/ProfilePage.dart';
+import 'package:flutter/widgets.dart';
+import 'package:wality_application/InsideApp/HomePage.dart';
 import 'package:wality_application/InsideApp/QRScannerPage.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
 import 'package:wality_application/widget/MachineBox.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  String currentPage = 'HomePage.dart';
+class _ProfilePageState extends State<ProfilePage> {
+  String currentPage = 'ProfilePage.dart';
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +21,9 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight + 40),
+        preferredSize: const Size.fromHeight(kToolbarHeight + 40),
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF0083AB),
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
@@ -33,7 +34,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
               title: const Text(
-                'Home',
+                'Profile',
                 style: TextStyle(
                   fontSize: 24,
                   fontFamily: 'SairaCondensed',
@@ -75,9 +76,22 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 160),
-            child: MachineBox(),
-          ),
+            padding: const EdgeInsets.only(top: 160,left:16),
+      child: ClipOval(
+              child: Image.asset(
+                'assets/images/cat.jpg',
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
+            ),
+    ),
+    const Padding(padding: EdgeInsets.only(top: 160,left:216),
+    child: Row(
+      children: [
+        Text('Username',style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
+      ],
+    ),),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -122,40 +136,45 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 16,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 12,
         color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 36),
-              child: currentPage == 'HomePage.dart'
-                  ? Icon(Icons.home, color: Color(0xFF0083AB), size: 36)
-                  : IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomePage(),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.home, color: Colors.black, size: 36),
-                    ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 36),
               child: IconButton(
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
+                      builder: (context) => const HomePage(),
                     ),
                   );
                 },
-                icon: Icon(Icons.account_box),
+                icon: Icon(Icons.home,
+                    color: currentPage == 'HomePage.dart'
+                        ? const Color(0xFF0083AB)
+                        : Colors.black),
+                iconSize: 36,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 36),
+              child: IconButton(
+                onPressed: currentPage == 'ProfilePage.dart' ? null : () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.account_box,
+                    color: currentPage == 'ProfilePage.dart'
+                        ? const Color(0xFF0083AB)
+                        : Colors.black),
                 iconSize: 36,
               ),
             ),

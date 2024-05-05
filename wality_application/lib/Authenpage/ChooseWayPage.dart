@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/SignInPage.dart';
 import 'package:wality_application/Authenpage/SignUpPage.dart';
@@ -42,48 +41,46 @@ class ChooseWayPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SignInPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF342056),
-                      fixedSize: const Size(250, 50)),
-                  child: const Text(
-                    'Sign in',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'SairaCondensed',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignInPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF342056),
+                    fixedSize: const Size(250, 50)),
+                child: const Text(
+                  'Sign in',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'SairaCondensed',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  ),
-                  const SizedBox(height: 20),
+                ),
+              ),
+              const SizedBox(height: 20),
               ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SignUpPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF342056),
-                      fixedSize: const Size(250, 50)),
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'SairaCondensed',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUpPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF342056),
+                    fixedSize: const Size(250, 50)),
+                child: const Text(
+                  'Sign up',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'SairaCondensed',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  ),
+                ),
+              ),
             ],
           ),
         ),
