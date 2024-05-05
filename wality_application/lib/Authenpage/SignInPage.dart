@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
+import 'package:wality_application/Authenpage/ForgetPasswordPage.dart';
+import 'package:wality_application/Authenpage/SignUpPage.dart';
+import 'package:wality_application/InsideApp/HomePage.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({Key? key});
@@ -96,7 +99,7 @@ class SignInPage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ChooseWayPage()),
+                              builder: (context) => HomePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -105,26 +108,10 @@ class SignInPage extends StatelessWidget {
                       child: const Text(
                         'Sign in',
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontFamily: 'SairaCondensed',
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ChooseWayPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Haven’t has an account yet?",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
@@ -134,13 +121,33 @@ class SignInPage extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ChooseWayPage()),
+                              builder: (context) => const SignUpPage()),
                         );
                       },
                       child: const Text(
-                        "Forgot password?",
+                        "Haven’t has an account yet ?",
                         style: TextStyle(
                           decoration: TextDecoration.underline,
+                          fontFamily: 'SairaCondensed',
+                          fontSize: 16
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ForgetpasswordPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Forgot password ?",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontFamily: 'SairaCondensed',
+                          fontSize: 16
                         ),
                       ),
                     ),

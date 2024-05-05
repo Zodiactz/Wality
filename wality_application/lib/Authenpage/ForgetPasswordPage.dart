@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
 import 'package:wality_application/Authenpage/SignInPage.dart';
-import 'package:wality_application/InsideApp/HomePage.dart';
 
-class SignUpPage extends StatelessWidget {
-  const SignUpPage({super.key});
+class ForgetpasswordPage extends StatelessWidget {
+  const ForgetpasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +26,13 @@ class SignUpPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(5, 20, 0, 0),
               child: IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 color: Colors.black,
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ChooseWayPage()),
+                        builder: (context) => const SignInPage()),
                   );
                 },
               ),
@@ -69,30 +68,13 @@ class SignUpPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
                           ),
-                          hintText: 'Username',
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    SizedBox(
-                      height: 50.0,
-                      width: 300.0,
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide.none,
-                          ),
                           hintText: 'Email',
                           filled: true,
                           fillColor: Colors.white,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 40),
                     SizedBox(
                       height: 50.0,
                       width: 300.0,
@@ -103,49 +85,31 @@ class SignUpPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
                           ),
-                          hintText: 'Password',
+                          hintText: 'Confirm Email',
                           filled: true,
                           fillColor: Colors.white,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 40),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>  HomePage()),
+                              builder: (context) => const ChooseWayPage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF342056),
                           fixedSize: const Size(300, 50)),
                       child: const Text(
-                        'Sign up',
+                        'Send Email',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontFamily: 'SairaCondensed',
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SignInPage()),
-                        );
-                      },
-                      child: const Text(
-                        "Already have an account ?",
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontFamily: 'SairaCondensed',
-                          fontSize: 16
                         ),
                       ),
                     ),
