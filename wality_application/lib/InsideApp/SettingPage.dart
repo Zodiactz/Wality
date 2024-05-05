@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
-import 'package:wality_application/InsideApp/HomePage.dart';
+
 
 class SettingPage extends StatelessWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -13,9 +13,9 @@ class SettingPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.pop(
               context,
-              MaterialPageRoute(builder: (context) =>  HomePage()),
+              
             );
           },
         ),

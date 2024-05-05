@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
 import 'package:wality_application/InsideApp/QRScannerPage.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
-import 'package:wality_application/widget/MachineBox.dart';
+
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -44,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
               actions: [
                 IconButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const SettingPage(),
@@ -97,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [
               Color(0xFF26CBFF),
               Color(0xFF6980FD),
@@ -122,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.0),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   Color(0xFF26CBFF),
                   Color(0xFF6980FD),
@@ -131,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: Icon(Icons.water_drop, color: Colors.black, size: 36),
+            child: const Icon(Icons.water_drop, color: Colors.black, size: 36),
           ),
         ),
       ),

@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 IconButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const SettingPage(),
