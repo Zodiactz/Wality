@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(top: 16),
             child: AppBar(
               title: const Text(
-                'Home',
+                'Homey',
                 style: TextStyle(
                   fontSize: 24,
                   fontFamily: 'SairaCondensed',
