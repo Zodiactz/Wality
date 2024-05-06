@@ -32,7 +32,10 @@ class SignUpPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 20, 0, 0),
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(
+                  Icons.chevron_left,
+                  size: 32,
+                ),
                   color: Colors.black,
                   onPressed: () {
                     Navigator.pushReplacement(

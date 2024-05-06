@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:wality_application/InsideApp/HomePage.dart';
-import 'package:wality_application/InsideApp/QRScannerPage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
+import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart';
+import 'package:wality_application/widget/CustomBottomAppBar.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -20,25 +21,9 @@ class _ProfilePageState extends State<ProfilePage> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Set automaticallyImplyLeading to false here
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingPage(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.settings),
-            ),
-          ),
-        ],
       ),
       body: Stack(
         children: [
@@ -55,28 +40,28 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          const ProfileHeader(), // Include the profile header widget here
+          const ProfileHeader(),
         ],
       ),
+      // All Navbar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF26CBFF),
-              Color(0xFF6980FD),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(50.0),
-        ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 12),
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => QRScannerPage()),
-            );
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.camera);
+            if (image != null) {
+              setState(() {});
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      WaterFilterMachinePage(image: File(image.path)),
+                ),
+              );
+            }
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -84,6 +69,8 @@ class _ProfilePageState extends State<ProfilePage> {
             borderRadius: BorderRadius.circular(50.0),
           ),
           child: Container(
+            height: 100,
+            width: 100,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.0),
               gradient: const LinearGradient(
@@ -95,64 +82,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: const Icon(Icons.water_drop, color: Colors.black, size: 36),
+            child: const Icon(Icons.water_drop, color: Colors.black, size: 40),
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 12,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 36),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.home,
-                    color: currentPage == 'HomePage.dart'
-                        ? const Color(0xFF0083AB)
-                        : Colors.black),
-                iconSize: 36,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 36),
-              child: IconButton(
-                onPressed: currentPage == 'ProfilePage.dart'
-                    ? null
-                    : () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomePage(),
-                          ),
-                        );
-                      },
-                icon: Icon(Icons.account_box,
-                    color: currentPage == 'ProfilePage.dart'
-                        ? const Color(0xFF0083AB)
-                        : Colors.black),
-                iconSize: 36,
-              ),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar:
+          const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
+      // All Navbar
     );
   }
 }
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+  const ProfileHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -191,38 +133,57 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 28),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 70),
+                      Padding(
+                        padding: EdgeInsets.only(top: 60),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Username',
                               style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'SairaCondensed'),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'SairaCondensed',
+                              ),
                             ),
                             Text(
                               'UID: 999999',
                               style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'SairaCondensed'),
+                                fontSize: 24,
+                                fontFamily: 'SairaCondensed',
+                              ),
                             ),
+                            Container(
+                              width: 70,
+                              height:
+                                  20,
+                              margin: EdgeInsets.only(top: 8),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF342056),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Owner',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            )
                           ],
                         ),
                       ),
                     ],
                   ),
-                  
                 ],
               ),
             ),
           ),
         ),
         Positioned(
-          top: kToolbarHeight + 120, // Adjust the top position as needed
+          top: kToolbarHeight + 120,
           left: 16,
           right: 16,
           child: Container(
@@ -271,7 +232,7 @@ class ProfileHeader extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 20, fontFamily: 'SairaCondensed'),
                         ),
-                        const Spacer(), // Add Spacer widget here to move the Divider to the right end
+                        const Spacer(),
                         const Padding(
                           padding: EdgeInsets.only(right: 28),
                           child: Icon(Icons.chevron_right, size: 32),
@@ -280,8 +241,7 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 8), // Adjust vertical padding as needed
+                    padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(
                       color: Colors.grey,
                       thickness: 1,
@@ -318,7 +278,7 @@ class ProfileHeader extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 20, fontFamily: 'SairaCondensed'),
                         ),
-                        const Spacer(), // Add Spacer widget here to move the Divider to the right end
+                        const Spacer(),
                         const Padding(
                           padding: EdgeInsets.only(right: 28),
                           child: Icon(Icons.chevron_right, size: 32),
@@ -327,8 +287,99 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 8), // Adjust vertical padding as needed
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      indent: 2,
+                      endIndent: 16,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingPage(),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                          ),
+                          padding: const EdgeInsets.all(5.0),
+                          child: const Icon(
+                            Icons.star,
+                            size: 44,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'Payment',
+                          style: TextStyle(
+                              fontSize: 20, fontFamily: 'SairaCondensed'),
+                        ),
+                        const Spacer(),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 28),
+                          child: Icon(Icons.chevron_right, size: 32),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(
+                      color: Colors.grey,
+                      thickness: 1,
+                      indent: 2,
+                      endIndent: 16,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingPage(),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                          ),
+                          padding: const EdgeInsets.all(5.0),
+                          child: const Icon(
+                            Icons.star,
+                            size: 44,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'Setting',
+                          style: TextStyle(
+                              fontSize: 20, fontFamily: 'SairaCondensed'),
+                        ),
+                        const Spacer(),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 28),
+                          child: Icon(Icons.chevron_right, size: 32),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
                     child: Divider(
                       color: Colors.grey,
                       thickness: 1,

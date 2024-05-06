@@ -2,20 +2,27 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
-import 'package:wality_application/InsideApp/ProfilePage.dart';
-import 'package:wality_application/InsideApp/QRScannerPage.dart';
-import 'package:wality_application/InsideApp/SettingPage.dart';
+
+import 'package:wality_application/widget/CustomBottomAppBar.dart';
 
 class WaterFilterMachinePage extends StatefulWidget {
-  const WaterFilterMachinePage({Key? key}) : super(key: key);
+  File image;
+
+  WaterFilterMachinePage({super.key, required this.image});
 
   @override
   State<WaterFilterMachinePage> createState() => _WaterFilterMachinePageState();
 }
 
 class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
-  XFile? _selectedImage;
+  late File image;
   String currentPage = 'WaterFilterMachinePage.dart';
+
+  @override
+  void initState() {
+    super.initState();
+    image = widget.image; // Initialize image variable
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,15 +46,18 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
               elevation: 0,
               automaticallyImplyLeading: false,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  size: 32,
+                ),
                 onPressed: () {
                   Navigator.pop(context);
                 },
               ),
-              title: Padding(
-                padding: const EdgeInsets.only(right: 50),
-                child: Container(
-                  child: const Text(
+              title: const Padding(
+                padding: EdgeInsets.only(right: 50),
+                child: Center(
+                  child: Text(
                     'Water Filter Machine',
                     style: TextStyle(
                       fontSize: 24,
@@ -83,47 +93,15 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final ImagePicker _picker = ImagePicker();
-                      final XFile? image =
-                          await _picker.pickImage(source: ImageSource.gallery);
-                      if (image != null) {
-                        setState(() {
-                          _selectedImage = image;
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 340,
-                      height: 140,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                        // Check if an image is selected and use it in decoration
-                        image: _selectedImage != null
-                            ? DecorationImage(
-                                image: FileImage(File(_selectedImage!.path)),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
+                  Container(
+                    width: 340,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      image: DecorationImage(
+                        image: FileImage(image),
+                        fit: BoxFit.cover,
                       ),
-                      child: _selectedImage == null
-                          ? const Center(
-                              child: Icon(
-                                Icons.add_a_photo_rounded,
-                                size: 60,
-                              ),
-                            )
-                          : null,
                     ),
                   ),
                   const SizedBox(
@@ -132,15 +110,15 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF342056),
                       fixedSize: const Size(300, 50),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            10), // Adjust the radius as needed
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
@@ -159,25 +137,25 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
           ),
         ],
       ),
+      //All Navbar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF26CBFF),
-              Color(0xFF6980FD),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(50.0),
-        ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 12),
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => QRScannerPage()),
-            );
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.camera);
+            if (image != null) {
+              setState(() {});
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      WaterFilterMachinePage(image: File(image.path)),
+                ),
+              );
+            }
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -185,6 +163,8 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
             borderRadius: BorderRadius.circular(50.0),
           ),
           child: Container(
+            height: 100,
+            width: 100,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.0),
               gradient: const LinearGradient(
@@ -196,52 +176,13 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: const Icon(Icons.water_drop, color: Colors.black, size: 36),
+            child: const Icon(Icons.water_drop, color: Colors.black, size: 40),
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 16,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 36),
-              child: currentPage == 'HomePage.dart'
-                  ? const Icon(Icons.home, color: Color(0xFF0083AB), size: 36)
-                  : IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomePage(),
-                          ),
-                        );
-                      },
-                      icon:
-                          const Icon(Icons.home, color: Colors.black, size: 36),
-                    ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 36),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.account_box),
-                iconSize: 36,
-              ),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar:
+          const CustomBottomNavBar(currentPage: 'WaterFilterMachinePage.dart'),
+      //All Navbar
     );
   }
 }

@@ -1,17 +1,22 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:wality_application/InsideApp/ProfilePage.dart';
-import 'package:wality_application/InsideApp/QRScannerPage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
+import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart';
+import 'package:wality_application/widget/CustomBottomAppBar.dart';
+
 import 'package:wality_application/widget/MachineBox.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  XFile? _selectedImage;
   String currentPage = 'HomePage.dart';
 
   @override
@@ -20,9 +25,9 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight + 40),
+        preferredSize: const Size.fromHeight(kToolbarHeight + 40),
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0xFF0083AB),
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
@@ -50,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.settings),
+                  icon: const Icon(Icons.settings,color: Colors.grey,),
                 ),
               ],
               backgroundColor: Colors.transparent,
@@ -75,41 +80,45 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 160),
+          const Padding(
+            padding: EdgeInsets.only(top: 160),
             child: MachineBox(),
           ),
         ],
       ),
+      //All Navbar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF26CBFF),
-              Color(0xFF6980FD),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(50.0),
-        ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 12),
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => QRScannerPage()),
-            );
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.camera);
+            if (image != null) {
+              setState(() {
+                _selectedImage = image;
+              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      WaterFilterMachinePage(image: File(image.path)),
+                ),
+              );
+            }
           },
-          backgroundColor: Colors.transparent, 
-          elevation: 0, 
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50.0),
           ),
           child: Container(
+            height: 100,
+            width: 100,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50.0),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   Color(0xFF26CBFF),
                   Color(0xFF6980FD),
@@ -118,51 +127,12 @@ class _HomePageState extends State<HomePage> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: Icon(Icons.water_drop, color: Colors.black, size: 36),
+            child: const Icon(Icons.water_drop, color: Colors.black, size: 40),
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 16,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 36),
-              child: currentPage == 'HomePage.dart'
-                  ? Icon(Icons.home, color: Color(0xFF0083AB), size: 36)
-                  : IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomePage(),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.home, color: Colors.black, size: 36),
-                    ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 36),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.account_box),
-                iconSize: 36,
-              ),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(currentPage: 'HomePage.dart'),
+      //All Navbar
     );
   }
 }
