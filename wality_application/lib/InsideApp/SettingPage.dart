@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/ChooseWayPage.dart';
+import 'package:wality_application/InsideApp/HomePage.dart';
 
 
 class SettingPage extends StatelessWidget {
@@ -13,15 +14,12 @@ class SettingPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(
-              context,
-              
-            );
+            Navigator.pop(context);
           },
         ),
         title: Padding(
           padding: const EdgeInsets.only(right:50),
-          child: Center(
+          child: Container(
             child: Text(
               'Settings',
               style: TextStyle(

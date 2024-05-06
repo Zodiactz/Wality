@@ -101,26 +101,30 @@ class SignInPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 40),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomePage()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF342056),
-                            fixedSize: const Size(300, 50)),
-                        child: const Text(
-                          'Sign in',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'SairaCondensed',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF342056),
+                      fixedSize: const Size(300, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            10), // Adjust the radius as needed
                       ),
+                    ),
+                    child: const Text(
+                      'Sign in',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'SairaCondensed',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                       const SizedBox(height: 32),
                       GestureDetector(
                         onTap: () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
-
+import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart'; // Import the WaterFilterMachinePage.dart file
 
 class QRScannerPage extends StatefulWidget {
   @override
@@ -27,6 +27,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
             );
           },
         ),
+        backgroundColor: Color(0xFFD6F1F3),
       ),
       body: Column(
         children: <Widget>[
@@ -46,6 +47,14 @@ class _QRScannerPageState extends State<QRScannerPage> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       print('Scanned data: ${scanData.code}');
+      if (scanData.code == 'some_condition') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WaterFilterMachinePage(),
+          ),
+        );
+      }
     });
   }
 
