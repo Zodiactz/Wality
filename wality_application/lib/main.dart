@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/Authenpage/LogoPage.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
+import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +15,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Wality',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.transparent,
       ),
       //home: const HomePage(),
       home: const LogoPage(),
+      //home: const WaterFilterMachinePage(),
 
     );
   }
