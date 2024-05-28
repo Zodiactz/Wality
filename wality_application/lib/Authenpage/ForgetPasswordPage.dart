@@ -150,12 +150,74 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                         },
                       ),
                     ),
-                  ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 50.0,
+                        width: 300.0,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide.none,
+                            ),
+                            hintText: 'Email',
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        height: 50.0,
+                        width: 300.0,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide.none,
+                            ),
+                            hintText: 'Confirm Email',
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChooseWayPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF342056),
+                      fixedSize: const Size(300, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            10), // Adjust the radius as needed
+                      ),
+                    ),
+                    child: const Text(
+                      'Send Email',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'SairaCondensed',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+          
+        ],
         ),
+          ),
+        
       ),
     );
   }
