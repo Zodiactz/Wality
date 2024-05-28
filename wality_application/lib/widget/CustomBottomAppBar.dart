@@ -17,42 +17,51 @@ class CustomBottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 36),
-            child: currentPage == 'HomePage.dart'
-                ? const Icon(Icons.home, color: Color(0xFF0083AB), size: 36)
-                : IconButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomePage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.home, color: Colors.black, size: 36),
-                  ),
+            padding: const EdgeInsets.only(left: 40),
+            child: Center(
+              child: IconButton(
+                onPressed: currentPage == 'HomePage.dart'
+                    ? null
+                    : () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                        );
+                      },
+                icon: Icon(
+                  Icons.home,
+                  color: currentPage == 'HomePage.dart' ? Color(0xFF0083AB) : Colors.black,
+                  size: 36,
+                ),
+              ),
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 36),
-            child: currentPage == 'ProfilePage.dart'
-                ? const Icon(Icons.account_box, color: Color(0xFF0083AB), size: 36)
-                : IconButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.account_box),
-                    iconSize: 36,
-                  ),
+            padding: const EdgeInsets.only(right: 40),
+            child: Center(
+              child: IconButton(
+                onPressed: currentPage == 'ProfilePage.dart'
+                    ? null
+                    : () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfilePage(),
+                          ),
+                        );
+                      },
+                icon: Icon(
+                  Icons.account_box,
+                  color: currentPage == 'ProfilePage.dart' ? Color(0xFF0083AB) : Colors.black,
+                  size: 36,
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      
     );
-    
   }
 }

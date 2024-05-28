@@ -45,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 12,),
         child: FloatingActionButton(
           onPressed: () async {
             final ImagePicker picker = ImagePicker();

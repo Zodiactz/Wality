@@ -89,8 +89,9 @@ class _HomePageState extends State<HomePage> {
         child: FloatingActionButton(
           onPressed: () async {
             final ImagePicker picker = ImagePicker();
-            final XFile? image = await picker.pickImage(source: ImageSource.camera);
-            print('Picked image: ${image?.path}');
+            final XFile? image = await picker.pickImage(
+              source: ImageSource.camera,
+            );
             if (image != null) {
               setState(() {
                 _selectedImage = image;
