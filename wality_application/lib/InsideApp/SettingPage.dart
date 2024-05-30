@@ -33,7 +33,7 @@ class SettingPage extends StatelessWidget {
                           color: Colors.black,
                         ),
                         onPressed: () {
-                          // Add your onPressed functionality here
+                          
                           Navigator.pop(context);
                         },
                       ),

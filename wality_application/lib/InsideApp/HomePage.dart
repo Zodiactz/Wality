@@ -1,11 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wality_application/InsideApp/SettingPage.dart';
 import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart';
 import 'package:wality_application/widget/CustomBottomAppBar.dart';
-
 import 'package:wality_application/widget/MachineBox.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,7 +15,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   XFile? _selectedImage;
-  String currentPage = 'HomePage.dart';
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.settings,color: Colors.grey,),
+                  icon: const Icon(Icons.settings, color: Colors.grey),
                 ),
               ],
               backgroundColor: Colors.transparent,
@@ -86,15 +83,15 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      //All Navbar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(top: 12),
         child: FloatingActionButton(
           onPressed: () async {
             final ImagePicker picker = ImagePicker();
-            final XFile? image =
-                await picker.pickImage(source: ImageSource.camera);
+            final XFile? image = await picker.pickImage(
+              source: ImageSource.camera,
+            );
             if (image != null) {
               setState(() {
                 _selectedImage = image;
@@ -102,8 +99,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      WaterFilterMachinePage(image: File(image.path)),
+                  builder: (context) => WaterFilterMachinePage(image: File(image.path)),
                 ),
               );
             }
@@ -132,7 +128,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentPage: 'HomePage.dart'),
-      //All Navbar
     );
   }
 }

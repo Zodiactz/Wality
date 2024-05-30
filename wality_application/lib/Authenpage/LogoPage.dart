@@ -29,11 +29,11 @@ class LogoPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/cat.jpg',
-                width: 150,
-                height: 150,
+                'assets/images/Logo.png',
+                width: 250,
+                height: 250,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 1),
               const Text(
                 'Wality',
                 style: TextStyle(

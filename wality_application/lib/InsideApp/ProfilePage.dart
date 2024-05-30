@@ -6,14 +6,13 @@ import 'package:wality_application/InsideApp/WaterFilterMachinePage.dart';
 import 'package:wality_application/widget/CustomBottomAppBar.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String currentPage = 'ProfilePage.dart';
 
   @override
   Widget build(BuildContext context) {
@@ -43,22 +42,22 @@ class _ProfilePageState extends State<ProfilePage> {
           const ProfileHeader(),
         ],
       ),
-      // All Navbar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(top: 12),
         child: FloatingActionButton(
           onPressed: () async {
             final ImagePicker picker = ImagePicker();
-            final XFile? image =
-                await picker.pickImage(source: ImageSource.camera);
+            final XFile? image = await picker.pickImage(
+              source: ImageSource.camera,
+            );
             if (image != null) {
-              setState(() {});
+              setState(() {
+              });
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      WaterFilterMachinePage(image: File(image.path)),
+                  builder: (context) => WaterFilterMachinePage(image: File(image.path)),
                 ),
               );
             }
@@ -86,15 +85,13 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar:
-          const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
-      // All Navbar
+      bottomNavigationBar: const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
     );
   }
 }
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({Key? key}) : super(key: key);
+  const ProfileHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -116,78 +113,71 @@ class ProfileHeader extends StatelessWidget {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const SizedBox(width: 16),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 32),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/cat.jpg',
-                            width: 96,
-                            height: 96,
-                            fit: BoxFit.cover,
+                  const SizedBox(width: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 32,top: 60),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/cat.jpg',
+                        width: 96,
+                        height: 96,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 28),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 56),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Username',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'SairaCondensed',
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 28),
-                      Padding(
-                        padding: EdgeInsets.only(top: 60),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Username',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'SairaCondensed',
-                              ),
-                            ),
-                            Text(
-                              'UID: 999999',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontFamily: 'SairaCondensed',
-                              ),
-                            ),
-                            Container(
-                              width: 70,
-                              height:
-                                  20,
-                              margin: EdgeInsets.only(top: 8),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF342056),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Owner',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
+                        const Text(
+                          'UID: 999999',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontFamily: 'SairaCondensed',
+                          ),
                         ),
-                      ),
-                    ],
+                        Container(
+                          width: 70,
+                          height: 20,
+                          margin: const EdgeInsets.only(top: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF342056),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Owner',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
         ),
-        Positioned(
-          top: kToolbarHeight + 120,
-          left: 16,
-          right: 16,
+        Padding(
+          padding: const EdgeInsets.only(top: 180, left: 16, right: 16, bottom: 36),
           child: Container(
-            height: 535,
+            height: 480,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
@@ -203,41 +193,43 @@ class ProfileHeader extends StatelessWidget {
               padding: const EdgeInsets.only(top: 40, left: 16),
               child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingPage(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingPage(),
                           ),
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
-                            Icons.star,
-                            size: 44,
-                            color: Colors.black,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF6D8093).withOpacity(0.2),
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: const Icon(
+                              Icons.star,
+                              size: 44,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          'Purchase Requisition History',
-                          style: TextStyle(
-                              fontSize: 20, fontFamily: 'SairaCondensed'),
-                        ),
-                        const Spacer(),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 28),
-                          child: Icon(Icons.chevron_right, size: 32),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Purchase Requisition History',
+                            style: TextStyle(
+                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                          ),
+                          const Spacer(),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 28),
+                            child: Icon(Icons.chevron_right, size: 32),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const Padding(
@@ -249,41 +241,43 @@ class ProfileHeader extends StatelessWidget {
                       endIndent: 16,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingPage(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingPage(),
                           ),
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
-                            Icons.star,
-                            size: 44,
-                            color: Colors.black,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF6D8093).withOpacity(0.2),
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: const Icon(
+                              Icons.star,
+                              size: 44,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          'Summary graph',
-                          style: TextStyle(
-                              fontSize: 20, fontFamily: 'SairaCondensed'),
-                        ),
-                        const Spacer(),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 28),
-                          child: Icon(Icons.chevron_right, size: 32),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Summary graph',
+                            style: TextStyle(
+                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                          ),
+                          const Spacer(),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 28),
+                            child: Icon(Icons.chevron_right, size: 32),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const Padding(
@@ -295,41 +289,43 @@ class ProfileHeader extends StatelessWidget {
                       endIndent: 16,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingPage(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingPage(),
                           ),
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
-                            Icons.star,
-                            size: 44,
-                            color: Colors.black,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF6D8093).withOpacity(0.2),
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: const Icon(
+                              Icons.star,
+                              size: 44,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          'Payment',
-                          style: TextStyle(
-                              fontSize: 20, fontFamily: 'SairaCondensed'),
-                        ),
-                        const Spacer(),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 28),
-                          child: Icon(Icons.chevron_right, size: 32),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Payment',
+                            style: TextStyle(
+                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                          ),
+                          const Spacer(),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 28),
+                            child: Icon(Icons.chevron_right, size: 32),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const Padding(
@@ -341,41 +337,43 @@ class ProfileHeader extends StatelessWidget {
                       endIndent: 16,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingPage(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFF6D8093).withOpacity(0.2),
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingPage(),
                           ),
-                          padding: const EdgeInsets.all(5.0),
-                          child: const Icon(
-                            Icons.star,
-                            size: 44,
-                            color: Colors.black,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF6D8093).withOpacity(0.2),
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: const Icon(
+                              Icons.star,
+                              size: 44,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Text(
-                          'Setting',
-                          style: TextStyle(
-                              fontSize: 20, fontFamily: 'SairaCondensed'),
-                        ),
-                        const Spacer(),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 28),
-                          child: Icon(Icons.chevron_right, size: 32),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Setting',
+                            style: TextStyle(
+                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                          ),
+                          const Spacer(),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 28),
+                            child: Icon(Icons.chevron_right, size: 32),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const Padding(

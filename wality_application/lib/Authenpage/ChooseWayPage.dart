@@ -21,17 +21,17 @@ class ChooseWayPage extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 16,bottom: 40),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/images/cat.jpg',
-                  width: 150,
-                  height: 150,
+                  'assets/images/Logo.png',
+                  width: 250,
+                  height: 250,
                 ),
-                const SizedBox(height: 4),
+                
                 const Text(
                   'Wality',
                   style: TextStyle(
