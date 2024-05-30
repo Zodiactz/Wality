@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tflite_v2/tflite_v2.dart';
 import 'package:wality_application/InsideApp/HomePage.dart';
 import 'package:wality_application/widget/CustomBottomAppBar.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:tflite_v2/tflite_v2.dart';
 
 class WaterFilterMachinePage extends StatefulWidget {
   File image;
@@ -17,10 +20,61 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
   late File image;
   String currentPage = 'WaterFilterMachinePage.dart';
 
+  List? _recognitions;
+  String v = "";
+  String filteredResults = "";
+
+  loadmodel() async {
+    await Tflite.loadModel(
+        model: "assets/model/best_float32.tflite",
+        labels: "assets/model/label.txt");
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile =
+          await picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        setState(() {});
+        detectimage(image);
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
+
+  Future detectimage(File image) async {
+    int startTime = DateTime.now().millisecondsSinceEpoch;
+    var recognitions = await Tflite.runModelOnImage(
+        path: image.path,
+        numResults: 6,
+        threshold: 0.05,
+        imageMean: 127.5,
+        imageStd: 127.5);
+    setState(() {
+      _recognitions = recognitions;
+      v = recognitions.toString();
+      filteredResults = _recognitions
+              ?.where((recognition) => recognition['confidence'] > 0.8)
+              .map((recognition) =>
+                  "${recognition['label']}: ${(recognition['confidence'] * 100).toStringAsFixed(2)}%")
+              .join("\n") ??
+          "No results above 80% confidence";
+    });
+    print("//////////////////////////////////");
+    print(_recognitions);
+    print("//////////////////////////////////");
+    int endTime = new DateTime.now().millisecondsSinceEpoch;
+    print("Inference took ${endTime - startTime}ms");
+  }
+
   @override
   void initState() {
     super.initState();
     image = widget.image; // Initialize image variable
+    loadmodel();
+    detectimage(image);
   }
 
   @override
@@ -107,10 +161,33 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                       height: 20), // Space between container and button
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()),
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("water quality results"),
+                            content: SingleChildScrollView(
+                              child: ListBody(
+                                children: <Widget>[
+                                  Text(filteredResults),
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Confirmmmm'),
+                                onPressed: () {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const HomePage()),
+                                      (Route<dynamic> route) => false);
+                                  // _pickImage();
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -129,7 +206,7 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                         color: Colors.white,
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
