@@ -20,7 +20,7 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
   late File image;
   String currentPage = 'WaterFilterMachinePage.dart';
 
-  List? _recognitions;
+  List<dynamic> _recognitions = [];
   String v = "";
   String filteredResults = "";
 
@@ -53,14 +53,18 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
         imageMean: 127.5,
         imageStd: 127.5);
     setState(() {
-      _recognitions = recognitions;
-      v = recognitions.toString();
-      filteredResults = _recognitions
-              ?.where((recognition) => recognition['confidence'] > 0.8)
-              .map((recognition) =>
-                  "${recognition['label']}: ${(recognition['confidence'] * 100).toStringAsFixed(2)}%")
-              .join("\n") ??
-          "No results above 80% confidence";
+      _recognitions = recognitions ?? [];
+      List filteredList = _recognitions
+          .where((recognition) => recognition['confidence'] > 0.7)
+          .toList();
+      if (filteredList.isNotEmpty) {
+        filteredResults = filteredList
+            .map((recognition) =>
+                "${recognition['label']}: ${(recognition['confidence'] * 100).toStringAsFixed(2)}%")
+            .join("\n");
+      } else {
+        filteredResults = "No results above 70% confidence";
+      }
     });
     print("//////////////////////////////////");
     print(_recognitions);
@@ -141,14 +145,14 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 320),
+            padding: const EdgeInsets.only(bottom: 320,top:150),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: 340,
-                    height: 340,
+                    height: 300,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),
                       image: DecorationImage(
