@@ -56,11 +56,11 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
       _recognitions = recognitions;
       v = recognitions.toString();
       filteredResults = _recognitions
-              ?.where((recognition) => recognition['confidence'] > 0.8)
+              ?.where((recognition) => recognition['confidence'] > 0.7)
               .map((recognition) =>
                   "${recognition['label']}: ${(recognition['confidence'] * 100).toStringAsFixed(2)}%")
               .join("\n") ??
-          "No results above 80% confidence";
+          "No results above 70% confidence";
     });
     print("//////////////////////////////////");
     print(_recognitions);
