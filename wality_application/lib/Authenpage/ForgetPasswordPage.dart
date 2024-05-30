@@ -12,13 +12,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _confirmEmailController = TextEditingController();
 
-  @override
-  _ForgetpasswordPageState createState() => _ForgetpasswordPageState();
-}
 
-class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _confirmEmailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +161,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                     
                   ],
                 ),
-          
+              ),
         ],
         ),
           ),

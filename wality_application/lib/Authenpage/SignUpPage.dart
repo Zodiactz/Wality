@@ -125,15 +125,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ],
                           ),
-                          color: Colors.black,
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ChooseWayPage(),
-                              ),
-                            );
-                          },
+                          
                         ),
                     ],
                   ),
