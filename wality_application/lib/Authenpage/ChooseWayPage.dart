@@ -36,7 +36,7 @@ class ChooseWayPage extends StatelessWidget {
                   'Wality',
                   style: TextStyle(
                     fontSize: 96,
-                    fontFamily: 'SairaCondensed',
+                    fontFamily: 'RobotoCondensed',
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -61,7 +61,7 @@ class ChooseWayPage extends StatelessWidget {
                       'Sign in',
                       style: TextStyle(
                         fontSize: 16,
-                        fontFamily: 'SairaCondensed',
+                        fontFamily: 'RobotoCondensed',
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -87,7 +87,7 @@ class ChooseWayPage extends StatelessWidget {
                       'Sign up',
                       style: TextStyle(
                         fontSize: 16,
-                        fontFamily: 'SairaCondensed',
+                        fontFamily: 'RobotoCondensed',
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

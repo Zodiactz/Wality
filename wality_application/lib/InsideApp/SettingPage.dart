@@ -45,7 +45,7 @@ class SettingPage extends StatelessWidget {
                             fontSize: 20,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'SairaCondensed'),
+                            fontFamily: 'RobotoCondensed',),
                       ),
                     ],
                   ),
@@ -75,7 +75,7 @@ class SettingPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -89,7 +89,7 @@ class SettingPage extends StatelessWidget {
                             'Current Password',
                             style: TextStyle(
                               fontSize: 20,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -104,7 +104,7 @@ class SettingPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 20,
                               decoration: TextDecoration.underline,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -118,7 +118,7 @@ class SettingPage extends StatelessWidget {
                             'New username:',
                             style: TextStyle(
                               fontSize: 20,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -171,7 +171,7 @@ class SettingPage extends StatelessWidget {
                                 'Change',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontFamily: 'SairaCondensed',
+                                  fontFamily: 'RobotoCondensed',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -199,7 +199,7 @@ class SettingPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -213,7 +213,7 @@ class SettingPage extends StatelessWidget {
                             'New password',
                             style: TextStyle(
                               fontSize: 20,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -250,7 +250,7 @@ class SettingPage extends StatelessWidget {
                             'Confirm new password:',
                             style: TextStyle(
                               fontSize: 20,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
                         ],
@@ -303,7 +303,7 @@ class SettingPage extends StatelessWidget {
                                 'Change',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontFamily: 'SairaCondensed',
+                                  fontFamily: 'RobotoCondensed',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),

@@ -93,7 +93,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 'Wality',
                                 style: TextStyle(
                                   fontSize: 96,
-                                  fontFamily: 'SairaCondensed',
+                                  fontFamily: 'RobotoCondensed',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -205,7 +205,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             'Sign up',
                             style: TextStyle(
                               fontSize: 16,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -225,7 +225,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             "Already have an account ?",
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                               fontSize: 16,
                             ),
                           ),

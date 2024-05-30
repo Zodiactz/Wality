@@ -76,7 +76,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                               'Wality',
                               style: TextStyle(
                                 fontSize: 96,
-                                fontFamily: 'SairaCondensed',
+                                fontFamily: 'RobotoCondensed',
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -148,7 +148,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                 'Send Email',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontFamily: 'SairaCondensed',
+                                  fontFamily: 'RobotoCondensed',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),

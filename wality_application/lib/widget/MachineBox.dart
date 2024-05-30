@@ -37,7 +37,7 @@ class _MachineBoxState extends State<MachineBox> {
                       'Machine A',
                       style: TextStyle(
                         fontSize: 24,
-                        fontFamily: 'SairaCondensed',
+                        fontFamily: 'RobotoCondensed',
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
@@ -47,7 +47,7 @@ class _MachineBoxState extends State<MachineBox> {
                       'Good',
                       style: TextStyle(
                         fontSize: 24,
-                        fontFamily: 'SairaCondensed',
+                        fontFamily: 'RobotoCondensed',
                         color: Color(0xFF42B21B),
                         fontWeight: FontWeight.bold,
                       ),

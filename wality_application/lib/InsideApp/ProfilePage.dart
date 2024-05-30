@@ -13,7 +13,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +43,9 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(top: 12,),
+        padding: const EdgeInsets.only(
+          top: 12,
+        ),
         child: FloatingActionButton(
           onPressed: () async {
             final ImagePicker picker = ImagePicker();
@@ -52,12 +53,12 @@ class _ProfilePageState extends State<ProfilePage> {
               source: ImageSource.camera,
             );
             if (image != null) {
-              setState(() {
-              });
+              setState(() {});
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => WaterFilterMachinePage(image: File(image.path)),
+                  builder: (context) =>
+                      WaterFilterMachinePage(image: File(image.path)),
                 ),
               );
             }
@@ -85,7 +86,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
+      bottomNavigationBar:
+          const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
     );
   }
 }
@@ -117,7 +119,7 @@ class ProfileHeader extends StatelessWidget {
                 children: [
                   const SizedBox(width: 16),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 32,top: 60),
+                    padding: const EdgeInsets.only(bottom: 32, top: 60),
                     child: ClipOval(
                       child: Image.asset(
                         'assets/images/cat.jpg',
@@ -138,14 +140,14 @@ class ProfileHeader extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'SairaCondensed',
+                            fontFamily: 'RobotoCondensed',
                           ),
                         ),
                         const Text(
                           'UID: 999999',
                           style: TextStyle(
                             fontSize: 24,
-                            fontFamily: 'SairaCondensed',
+                            fontFamily: 'RobotoCondensed',
                           ),
                         ),
                         Container(
@@ -162,6 +164,7 @@ class ProfileHeader extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
+                                fontFamily: 'RobotoCondensed',
                               ),
                             ),
                           ),
@@ -175,7 +178,8 @@ class ProfileHeader extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 180, left: 16, right: 16, bottom: 36),
+          padding:
+              const EdgeInsets.only(top: 180, left: 16, right: 16, bottom: 36),
           child: Container(
             height: 480,
             decoration: BoxDecoration(
@@ -221,7 +225,9 @@ class ProfileHeader extends StatelessWidget {
                           const Text(
                             'Purchase Requisition History',
                             style: TextStyle(
-                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                              fontSize: 18,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
                           const Spacer(),
                           const Padding(
@@ -269,7 +275,9 @@ class ProfileHeader extends StatelessWidget {
                           const Text(
                             'Summary graph',
                             style: TextStyle(
-                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                              fontSize: 18,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
                           const Spacer(),
                           const Padding(
@@ -317,7 +325,9 @@ class ProfileHeader extends StatelessWidget {
                           const Text(
                             'Payment',
                             style: TextStyle(
-                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                              fontSize: 18,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
                           const Spacer(),
                           const Padding(
@@ -365,7 +375,9 @@ class ProfileHeader extends StatelessWidget {
                           const Text(
                             'Setting',
                             style: TextStyle(
-                                fontSize: 18, fontFamily: 'SairaCondensed'),
+                              fontSize: 18,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
                           const Spacer(),
                           const Padding(

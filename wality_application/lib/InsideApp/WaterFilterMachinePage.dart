@@ -118,7 +118,7 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                     'Water Filter Machine',
                     style: TextStyle(
                       fontSize: 24,
-                      fontFamily: 'SairaCondensed',
+                      fontFamily: 'RobotoCondensed',
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
@@ -205,7 +205,7 @@ class _WaterFilterMachinePageState extends State<WaterFilterMachinePage> {
                       'Confirm',
                       style: TextStyle(
                         fontSize: 16,
-                        fontFamily: 'SairaCondensed',
+                        fontFamily: 'RobotoCondensed',
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

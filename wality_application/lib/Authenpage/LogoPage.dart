@@ -38,7 +38,7 @@ class LogoPage extends StatelessWidget {
                 'Wality',
                 style: TextStyle(
                   fontSize: 96,
-                  fontFamily: 'SairaCondensed',
+                  fontFamily: 'RobotoCondensed',
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

@@ -90,7 +90,7 @@ class _SignInPageState extends State<SignInPage> {
                                 'Wality',
                                 style: TextStyle(
                                   fontSize: 96,
-                                  fontFamily: 'SairaCondensed',
+                                  fontFamily: 'RobotoCondensed',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -186,7 +186,7 @@ class _SignInPageState extends State<SignInPage> {
                             'Sign in',
                             style: TextStyle(
                               fontSize: 16,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -206,7 +206,7 @@ class _SignInPageState extends State<SignInPage> {
                             "Haven’t has an account yet ?",
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                               fontSize: 16,
                             ),
                           ),
@@ -225,7 +225,7 @@ class _SignInPageState extends State<SignInPage> {
                             "Forgot password ?",
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              fontFamily: 'SairaCondensed',
+                              fontFamily: 'RobotoCondensed',
                               fontSize: 16,
                             ),
                           ),

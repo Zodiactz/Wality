@@ -80,6 +80,7 @@ flutter:
     - assets/images/
     - assets/model/best_float32.tflite
     - assets/model/label.txt
+    - assets/gif/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -101,7 +102,14 @@ flutter:
       - asset: assets/fonts/SairaCondensed-Medium.ttf
       - asset: assets/fonts/SairaCondensed-SemiBold.ttf
       - asset: assets/fonts/SairaCondensed-Thin.ttf
-  
+  - family: RobotoCondensed
+    fonts:
+      - asset: assets/fonts/RobotoCondensed-Regular.ttf
+      - asset: assets/fonts/RobotoCondensed-Bold.ttf
+      - asset: assets/fonts/RobotoCondensed-Light.ttf
+      - asset: assets/fonts/RobotoCondensed-Medium.ttf
+      - asset: assets/fonts/RobotoCondensed-SemiBold.ttf
+      - asset: assets/fonts/RobotoCondensed-Thin.ttf
   
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
