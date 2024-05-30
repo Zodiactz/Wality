@@ -123,6 +123,15 @@ class _SignInPageState extends State<SignInPage> {
                               ),
                             ],
                           ),
+                          color: Colors.black,
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChooseWayPage(),
+                              ),
+                            );
+                          },
                         ),
                       
                     ],
