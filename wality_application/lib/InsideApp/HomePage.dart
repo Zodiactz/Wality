@@ -206,7 +206,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               children: [
                                 if (gifBytes2 != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 60),
+                                    padding: const EdgeInsets.only(right: 40),
                                     child: Column(
                                       children: [
                                         Image.memory(
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                                 if (gifBytes != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 60),
+                                    padding: const EdgeInsets.only(left: 40),
                                     child: Column(
                                       children: [
                                         Image.memory(
