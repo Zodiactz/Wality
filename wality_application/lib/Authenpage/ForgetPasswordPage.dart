@@ -12,11 +12,9 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _confirmEmailController = TextEditingController();
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+return Scaffold(
       body: SingleChildScrollView(
         reverse: true,
         child: Container(
@@ -34,54 +32,72 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
               stops: [0.1, 1.0],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                      padding: const EdgeInsets.only(top: 68, left: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.chevron_left,
-                              size: 32,
-                            ),
-                            color: Colors.black,
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(5, 20, 0, 0),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                          
-                            Image.asset(
-                              'assets/images/Logo.png',
-                              width: 220,
-                              height: 220,
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Wality',
-                              style: TextStyle(
-                                fontSize: 96,
-                                fontFamily: 'RobotoCondensed',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 80),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 32,
                               ),
+                              Image.asset(
+                                'assets/images/Logo.png',
+                                width: 220,
+                                height: 220,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Wality',
+                                style: TextStyle(
+                                  fontSize: 96,
+                                  fontFamily: 'RobotoCondensed',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.chevron_left,
+                                size: 32,
+                              ),
+                              color: Colors.black,
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChooseWayPage(),
+                                  ),
+                                );
+                              },
                             ),
-                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 8),
                             SingleChildScrollView(
                               child: Column(
                                 children: [
@@ -104,8 +120,8 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
-                                  SizedBox(
+                        const SizedBox(height: 20),
+                        SizedBox(
                                     height: 50.0,
                                     width: 300.0,
                                     child: TextFormField(
@@ -127,46 +143,42 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const ChooseWayPage()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF342056),
-                                fixedSize: const Size(300, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      10), 
-                                ),
-                              ),
-                              child: const Text(
-                                'Send Email',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'RobotoCondensed',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                        const SizedBox(height: 28),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ChooseWayPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF342056),
+                            fixedSize: const Size(300, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                  ],
-                ),
-              ),
-        ],
-        ),
-          ),
-        
+                          ),
+                          child: const Text(
+                            'Sign in',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'RobotoCondensed',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
       ),
+                  ),
+                ],
+              ),
+              )
+        ),
+      ),
+
+
     );
   }
 

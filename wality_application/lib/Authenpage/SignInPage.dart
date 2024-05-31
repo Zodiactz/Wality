@@ -49,7 +49,9 @@ class _SignInPageState extends State<SignInPage> {
           }
         },
         child: SingleChildScrollView(
-          physics: isScrollable ? AlwaysScrollableScrollPhysics() : NeverScrollableScrollPhysics(),
+          physics: isScrollable
+              ? AlwaysScrollableScrollPhysics()
+              : NeverScrollableScrollPhysics(),
           reverse: true,
           child: Container(
             constraints: BoxConstraints(
@@ -79,7 +81,9 @@ class _SignInPageState extends State<SignInPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(height: 32,),
+                              SizedBox(
+                                height: 32,
+                              ),
                               Image.asset(
                                 'assets/images/Logo.png',
                                 width: 220,
@@ -100,32 +104,29 @@ class _SignInPageState extends State<SignInPage> {
                           ),
                         ),
                       ),
-                   
-                        Padding(
-                          padding: const EdgeInsets.only(top: 88, left: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  Icons.chevron_left,
-                                  size: 32,
-                                ),
-                                color: Colors.black,
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ChooseWayPage(),
-                                    ),
-                                  );
-                                },
+                      Padding(
+                        padding: const EdgeInsets.only(top: 88, left: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.chevron_left,
+                                size: 32,
                               ),
-                            ],
-                          ),
-                         
+                              color: Colors.black,
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChooseWayPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      
+                      ),
                     ],
                   ),
                   Center(
@@ -172,7 +173,8 @@ class _SignInPageState extends State<SignInPage> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => HomePage()),
+                              MaterialPageRoute(
+                                  builder: (context) => HomePage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -217,7 +219,8 @@ class _SignInPageState extends State<SignInPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ForgetpasswordPage(),
+                                builder: (context) =>
+                                    const ForgetpasswordPage(),
                               ),
                             );
                           },

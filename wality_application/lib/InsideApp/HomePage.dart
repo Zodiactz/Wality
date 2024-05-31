@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.only(bottom: 20 ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
