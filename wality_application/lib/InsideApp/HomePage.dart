@@ -41,8 +41,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       vsync: this,
     )..repeat();
 
-    
-
     // Check initial state
     _checkAndIncrementSavedCount();
   }
@@ -100,7 +98,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xFF0083AB), Color(0xFF003545)],
-                    stops: [0.0, 0.67],
+                    stops: [0.0, 1],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
@@ -116,7 +114,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
                 const Padding(
                   padding: EdgeInsets.only(left: 20.0),
                   child: Text(
@@ -135,7 +133,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.only(bottom: 8,top: 4),
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -189,49 +187,79 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'You saved',
-                          style: TextStyle(
-                            fontSize: 35,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoCondensed',
+                       SizedBox(height: 2),
+                         Text(
+                            'You saved',
+                            style: TextStyle(
+                              fontSize: 35,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
-                        ),
-                        
+                       
+                     
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 20 ),
+                            padding: const EdgeInsets.only(bottom: 40),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (gifBytes2 != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 40),
-                                    child: Image.memory(
-                                      gifBytes2!,
-                                      width: 100, // Set desired width
-                                      height: 100, // Set desired height
+                                    padding: const EdgeInsets.only(right: 60),
+                                    child: Column(
+                                      children: [
+                                        Image.memory(
+                                          gifBytes2!,
+                                          width: 80, // Set desired width
+                                          height: 80, // Set desired height
+                                        ),
+                                        const Text(
+                                          "Bottles",
+                                          style: TextStyle(
+                                            fontSize: 35,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'RobotoCondensed',
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   )
                                 else
                                   const CircularProgressIndicator(),
-                                Text(
-                                  '$savedCount',
-                                  style: const TextStyle(
-                                    fontSize: 96,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 40,right:20),
+                                  child: Text(
+                                    '$savedCount',
+                                    style: const TextStyle(
+                                      fontSize: 96,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
                                   ),
                                 ),
                                 if (gifBytes != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 40),
-                                    child: Image.memory(
-                                      gifBytes!,
-                                      width: 100, // Set desired width
-                                      height: 100, // Set desired height
+                                    padding: const EdgeInsets.only(left: 60),
+                                    child: Column(
+                                      children: [
+                                        Image.memory(
+                                          gifBytes!,
+                                          width: 80, // Set desired width
+                                          height: 80, // Set desired height
+                                        ),
+                                        const Text(
+                                          "Lives",
+                                          style: TextStyle(
+                                            fontSize: 35,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'RobotoCondensed',
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   )
                                 else
@@ -239,9 +267,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ],
                             ),
                           ),
-                        
+                    
                       ],
-                    ),
+                    
+                  ),
                   ),
                 ),
               ],

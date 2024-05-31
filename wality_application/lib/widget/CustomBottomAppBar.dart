@@ -34,7 +34,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 icon: Icon(
                   Icons.home,
                   color: currentPage == 'HomePage.dart' ? Color(0xFF0083AB) : Colors.black,
-                  size: 36,
+                  size: 40,
                 ),
               ),
             ),
@@ -56,7 +56,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 icon: Icon(
                   Icons.account_box,
                   color: currentPage == 'ProfilePage.dart' ? Color(0xFF0083AB) : Colors.black,
-                  size: 36,
+                  size: 40,
                 ),
               ),
             ),
