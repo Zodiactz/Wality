@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -57,12 +59,43 @@ class _authenPageState extends State<SignUpPage> {
             passwordController.text);
 
         if (isValidForSignUp) {
-          Navigator.pushNamed(context, '/homepage');
-        }
-        else {
+          try {
+            // Send HTTP POST request to backend
+            final response = await http.post(
+              Uri.parse(
+                  'http://localhost:8080/create'), // Replace with your backend URL
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode(<String, String>{
+                'username': usernameController.text.trim(),
+                'email': emailController.text.trim(),
+                'password': passwordController.text.trim(),
+              }),
+            );
+
+            // Check if the sign-up was successful
+            if (response.statusCode == 200) {
+              print("User created successfully: ${response.body}");
+              Navigator.pushNamed(context, '/homepage');
+            } else {
+              print("Failed to create user: ${response.body}");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Sign-up failed: ${response.body}')),
+              );
+            }
+          } catch (e) {
+            print("Error during sign-up: $e");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error during sign-up: $e')),
+            );
+          }
+        } else {
+          // Validation failed, show error messages
           showErrorSnackBar(authenvm);
         }
       } else {
+        // Form not valid, show error messages
         showErrorSnackBar(authenvm);
       }
     }
