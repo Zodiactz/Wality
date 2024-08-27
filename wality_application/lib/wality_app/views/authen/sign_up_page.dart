@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
+import 'package:wality_application/wality_app/models/user.dart';
+import 'package:realm/realm.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -21,6 +23,9 @@ class _authenPageState extends State<SignUpPage> {
   final FocusNode usernameFocusNode = FocusNode();
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
+
+  // Initialize Realm App
 
   @override
   Widget build(BuildContext context) {
@@ -52,51 +57,67 @@ class _authenPageState extends State<SignUpPage> {
     }
 
     void signUp(AuthenticationViewModel authenvm) async {
-      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-        bool isValidForSignUp = await authenvm.validateAllSignUp(
-            usernameController.text,
-            emailController.text,
-            passwordController.text);
+      if (_formKey.currentState!.validate()) {
+        try {
+          final credentials = Credentials.emailPassword(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
+          EmailPasswordAuthProvider authProvider =
+              EmailPasswordAuthProvider(app);
+          // Register a new user
+          await authProvider.registerUser(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
 
-        if (isValidForSignUp) {
-          try {
-            // Send HTTP POST request to backend
-            final response = await http.post(
-              Uri.parse(
-                  'http://localhost:8080/create'), // Replace with your backend URL
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-              },
-              body: jsonEncode(<String, String>{
-                'username': usernameController.text.trim(),
-                'email': emailController.text.trim(),
-                'password': passwordController.text.trim(),
-              }),
-            );
+          // Log the user in after registration
+          final user = await app.logIn(credentials);
 
-            // Check if the sign-up was successful
-            if (response.statusCode == 200) {
-              print("User created successfully: ${response.body}");
-              Navigator.pushNamed(context, '/homepage');
-            } else {
-              print("Failed to create user: ${response.body}");
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Sign-up failed: ${response.body}')),
-              );
-            }
-          } catch (e) {
-            print("Error during sign-up: $e");
+          // Create a User instance
+
+          final newUser = Users(
+              userId: user.id,
+              userName: usernameController.text.trim(),
+              email: emailController.text.trim(),
+              currentMl: 0,
+              totalMl: 0,
+              botLiv: 0,
+              profileImg_link: "",
+              faceImg_link: "");
+
+          final response = await http.post(
+            Uri.parse(
+                'http://10.0.2.2:8080/create'), // Replace with your backend URL
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(newUser.toJson()),
+          );
+          if (response.statusCode == 200) {
+            print('User created and logged in: ${user.id}');
+            print(
+                "User created and data stored successfully: ${response.body}");
+            Navigator.pushNamed(context, '/homepage');
+          } else {
+            print("Failed to create user data: ${response.body}");
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error during sign-up: $e')),
+              SnackBar(
+                  content:
+                      Text('Failed to create user data: ${response.body}')),
             );
           }
-        } else {
-          // Validation failed, show error messages
-          showErrorSnackBar(authenvm);
+        } catch (e) {
+          print('Failed to sign up: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign-up failed: $e')),
+          );
         }
       } else {
-        // Form not valid, show error messages
-        showErrorSnackBar(authenvm);
+        // Validation failed, show error messages
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please fill in all fields correctly')),
+        );
       }
     }
 

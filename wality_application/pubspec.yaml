@@ -54,6 +54,7 @@ dependencies:
   http: ^1.2.1
   get: ^4.6.6
   fl_chart: ^0.68.0
+  realm: ^3.4.1
   
 
   

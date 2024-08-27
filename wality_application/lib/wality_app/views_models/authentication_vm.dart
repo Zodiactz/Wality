@@ -112,4 +112,8 @@ class AuthenticationViewModel extends ChangeNotifier {
 
     return !_showValidationMessage;
   }
+
+  
+
+  
 }
