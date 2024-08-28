@@ -5,6 +5,7 @@ class AuthenticationViewModel extends ChangeNotifier {
   String? emailError;
   String? passwordError;
   String? confirmEmailError;
+  String? confirmPassErrs;
   String? allError;
   final bool _isScrollable = false;
   bool _passwordVisible = false;
@@ -51,16 +52,26 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
-  Future<bool> validateAllSignUp(
-      String usernameVal, String emailVal, String passwordVal) async {
+  String? validateConfirmPass(String? value, String? value2) {
+    if (value2 == null || value2.isEmpty) {
+      return 'Confirm passoword is required';
+    } else if (value2 != value) {
+      return 'passwords does not match';
+    }
+    return null;
+  }
+
+  Future<bool> validateAllSignUp(String usernameVal, String emailVal,
+      String passwordVal, String confirmPassEr) async {
     usernameError = validateUsername(usernameVal);
     emailError = validateEmail(emailVal);
     passwordError = validatePassword(passwordVal);
+    confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
-    if (usernameVal.isEmpty && emailVal.isEmpty && passwordVal.isEmpty) {
-      allError = 'Username, Email, and Password are required';
-    } else if (emailVal.isEmpty && passwordVal.isEmpty) {
-      allError = 'Email and Password are required';
+    if (usernameVal.isEmpty || emailVal.isEmpty || passwordVal.isEmpty) {
+      allError = 'Username, Email, Password, and Confirm Password are required';
+    } else if (passwordVal != confirmPassEr) {
+      allError = "passwords arn't match";
     } else {
       allError = null;
     }
@@ -68,6 +79,7 @@ class AuthenticationViewModel extends ChangeNotifier {
     _showValidationMessage = usernameError != null ||
         emailError != null ||
         passwordError != null ||
+        confirmPassErrs != null ||
         allError != null;
 
     notifyListeners();
@@ -112,8 +124,4 @@ class AuthenticationViewModel extends ChangeNotifier {
 
     return !_showValidationMessage;
   }
-
-  
-
-  
 }

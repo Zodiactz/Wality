@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,7 +39,8 @@ func main() {
 
     // Define routes
     app.Post("/create", createPerson)
-    app.Get("/users/:name", getPerson)
+    app.Get("/users/:username", getPerson)
+    app.Get("/userId/:user_id", getUserById)
     app.Put("/update/:name", updatePerson)
     app.Delete("/delete/:name", deletePerson)
 
@@ -63,12 +65,24 @@ func createPerson(c *fiber.Ctx) error {
 // Get a person by name
 func getPerson(c *fiber.Ctx) error {
     collection := client.Database("Wality_DB").Collection("Users")
-    name := c.Params("name")
+    username := c.Params("username")
 
     var result bson.M
-    err := collection.FindOne(context.Background(), bson.M{"name": name}).Decode(&result)
+    err := collection.FindOne(context.Background(), bson.M{"username": username}).Decode(&result)
     if err != nil {
-        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "Person not found!"})
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "userName not found!"})
+    }
+    return c.Status(http.StatusOK).JSON(result)
+}
+
+func getUserById(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    var result bson.M
+    err := collection.FindOne(context.Background(), bson.M{"user_id": user_id}).Decode(&result)
+    if err != nil {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "userName not found!"})
     }
     return c.Status(http.StatusOK).JSON(result)
 }

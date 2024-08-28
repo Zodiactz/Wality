@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
+import 'package:realm/realm.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -18,6 +19,7 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController passwordController = TextEditingController();
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +44,17 @@ class _SignInPageState extends State<SignInPage> {
       }
     }
 
-    void signIn(AuthenticationViewModel authenvm) async {
-      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-        bool isValidForSignIn = await authenvm.validateAllSignIn(
-          emailController.text,
-          passwordController.text,
+    void signIn() async {
+      final email = emailController.text.trim();
+      final pass = passwordController.text.trim();
+      try {
+        final emailPwCredentials = Credentials.emailPassword(email, pass);
+        await app.logIn(emailPwCredentials);
+        openHomePage(context);
+      } on Exception catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign-in failed: $e')),
         );
-
-        if (isValidForSignIn) {
-          Navigator.pushNamed(context, '/homepage');
-        } else {
-          showErrorSnackBar(authenvm);
-        }
-      } else {
-        showErrorSnackBar(authenvm);
       }
     }
 
@@ -197,7 +196,7 @@ class _SignInPageState extends State<SignInPage> {
                               const SizedBox(height: 28),
                               ElevatedButton(
                                 onPressed: () {
-                                  signIn(authenvm);
+                                  signIn();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF342056),

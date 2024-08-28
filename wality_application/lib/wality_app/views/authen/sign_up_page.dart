@@ -20,9 +20,11 @@ class _authenPageState extends State<SignUpPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordController2 = TextEditingController();
   final FocusNode usernameFocusNode = FocusNode();
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmPassFocusNote = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
 
   // Initialize Realm App
@@ -35,7 +37,7 @@ class _authenPageState extends State<SignUpPage> {
 
     void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllSignUp(usernameController.text, emailController.text,
-          passwordController.text);
+          passwordController.text, passwordController2.text);
 
       if (authenvm.allError != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -57,61 +59,70 @@ class _authenPageState extends State<SignUpPage> {
     }
 
     void signUp(AuthenticationViewModel authenvm) async {
-      if (_formKey.currentState!.validate()) {
-        try {
-          final credentials = Credentials.emailPassword(
-            emailController.text.trim(),
-            passwordController.text.trim(),
-          );
-          EmailPasswordAuthProvider authProvider =
-              EmailPasswordAuthProvider(app);
-          // Register a new user
-          await authProvider.registerUser(
-            emailController.text.trim(),
-            passwordController.text.trim(),
-          );
+      if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+        bool isValidForSignUp = await authenvm.validateAllSignUp(
+            usernameController.text,
+            emailController.text,
+            passwordController.text,
+            passwordController2.text);
+        if (isValidForSignUp) {
+          try {
+            final credentials = Credentials.emailPassword(
+              emailController.text.trim(),
+              passwordController.text.trim(),
+            );
+            EmailPasswordAuthProvider authProvider =
+                EmailPasswordAuthProvider(app);
+            // Register a new user
+            await authProvider.registerUser(
+              emailController.text.trim(),
+              passwordController.text.trim(),
+            );
 
-          // Log the user in after registration
-          final user = await app.logIn(credentials);
+            // Log the user in after registration
+            final user = await app.logIn(credentials);
 
-          // Create a User instance
+            // Create a User instance
 
-          final newUser = Users(
-              userId: user.id,
-              userName: usernameController.text.trim(),
-              email: emailController.text.trim(),
-              currentMl: 0,
-              totalMl: 0,
-              botLiv: 0,
-              profileImg_link: "",
-              faceImg_link: "");
+            final newUser = Users(
+                userId: user.id,
+                userName: usernameController.text.trim(),
+                email: emailController.text.trim(),
+                currentMl: 0,
+                totalMl: 0,
+                botLiv: 0,
+                profileImg_link: "",
+                faceImg_link: "");
 
-          final response = await http.post(
-            Uri.parse(
-                'http://10.0.2.2:8080/create'), // Replace with your backend URL
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode(newUser.toJson()),
-          );
-          if (response.statusCode == 200) {
-            print('User created and logged in: ${user.id}');
-            print(
-                "User created and data stored successfully: ${response.body}");
-            Navigator.pushNamed(context, '/homepage');
-          } else {
-            print("Failed to create user data: ${response.body}");
+            final response = await http.post(
+              Uri.parse(
+                  'http://10.0.2.2:8080/create'), // Replace with your backend URL
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode(newUser.toJson()),
+            );
+            if (response.statusCode == 200) {
+              print('User created and logged in: ${user.id}');
+              print(
+                  "User created and data stored successfully: ${response.body}");
+              Navigator.pushNamed(context, '/homepage');
+            } else {
+              print("Failed to create user data: ${response.body}");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text('Failed to create user data: ${response.body}')),
+              );
+            }
+          } catch (e) {
+            print('Failed to sign up: $e');
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content:
-                      Text('Failed to create user data: ${response.body}')),
+              SnackBar(content: Text('Sign-up failed: $e')),
             );
           }
-        } catch (e) {
-          print('Failed to sign up: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-up failed: $e')),
-          );
+        } else {
+          showErrorSnackBar(authenvm);
         }
       } else {
         // Validation failed, show error messages
@@ -247,6 +258,27 @@ class _authenPageState extends State<SignUpPage> {
                               hintText: "Password",
                               obscureText: !authenvm.passwordVisible,
                               focusNode: passwordFocusNode,
+                              suffixIcon: IconButton(
+                                icon: Icon(authenvm.passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
+                                color: Colors.grey,
+                                onPressed: () {
+                                  authenvm.togglePasswordVisibility();
+                                },
+                              ),
+                              errorMessage: passwordError,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 50.0,
+                            width: 300.0,
+                            child: TextFormFieldAuthen(
+                              controller: passwordController2,
+                              hintText: "Confirm Password",
+                              obscureText: !authenvm.passwordVisible,
+                              focusNode: confirmPassFocusNote,
                               suffixIcon: IconButton(
                                 icon: Icon(authenvm.passwordVisible
                                     ? Icons.visibility
