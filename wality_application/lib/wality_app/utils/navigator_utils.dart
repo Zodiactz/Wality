@@ -44,6 +44,18 @@ void openSummaryGraphPage(BuildContext context) async {
   Navigator.pushNamed(context, '/summarygraphpage');
 }
 
+void openChoosechangePage(BuildContext context) async {
+  Navigator.pushNamed(context, '/choosechange');
+}
+
+void openRewardPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/rewardpage');
+}
+
+void openRankingPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/rankingpage');
+}
+
 void openWaterCheckingPage(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
   final XFile? image = await picker.pickImage(source: ImageSource.camera);
@@ -72,12 +84,7 @@ void GoBack(BuildContext context) async {
 }
 
 void ConfirmAtWaterChecking(BuildContext context) async {
-                                        Navigator.of(context)
-                                            .pushAndRemoveUntil(
-                                                MaterialPageRoute(
-                                                    builder:
-                                                        (context) =>
-                                                            const HomePage()),
-                                                (Route<dynamic> route) =>
-                                                    false);
-                                      }
+  Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const HomePage()),
+      (Route<dynamic> route) => false);
+}

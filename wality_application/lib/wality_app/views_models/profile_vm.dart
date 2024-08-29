@@ -39,11 +39,6 @@ class ProfileViewModel extends ChangeNotifier {
                 fontFamily: 'RobotoCondensed',
               ),
             ),
-            const Spacer(),
-            const Padding(
-              padding: EdgeInsets.only(right: 28),
-              child: Icon(Icons.chevron_right, size: 32),
-            ),
           ],
         ),
       ),

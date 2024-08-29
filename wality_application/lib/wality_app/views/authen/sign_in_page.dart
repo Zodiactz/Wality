@@ -179,15 +179,15 @@ class _SignInPageState extends State<SignInPage> {
                                 child: TextFormFieldAuthen(
                                   controller: passwordController,
                                   hintText: "Password",
-                                  obscureText: !authenvm.passwordVisible,
+                                  obscureText: !authenvm.passwordVisible1,
                                   focusNode: passwordFocusNode,
                                   suffixIcon: IconButton(
-                                    icon: Icon(authenvm.passwordVisible
+                                    icon: Icon(authenvm.passwordVisible1
                                         ? Icons.visibility
                                         : Icons.visibility_off),
                                     color: Colors.grey,
                                     onPressed: () {
-                                      authenvm.togglePasswordVisibility();
+                                      authenvm.togglePasswordVisibility1();
                                     },
                                   ),
                                   errorMessage: passwordError,

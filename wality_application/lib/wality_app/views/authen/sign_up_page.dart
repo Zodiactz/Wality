@@ -256,15 +256,15 @@ class _authenPageState extends State<SignUpPage> {
                             child: TextFormFieldAuthen(
                               controller: passwordController,
                               hintText: "Password",
-                              obscureText: !authenvm.passwordVisible,
+                              obscureText: !authenvm.passwordVisible1,
                               focusNode: passwordFocusNode,
                               suffixIcon: IconButton(
-                                icon: Icon(authenvm.passwordVisible
+                                icon: Icon(authenvm.passwordVisible1
                                     ? Icons.visibility
                                     : Icons.visibility_off),
                                 color: Colors.grey,
                                 onPressed: () {
-                                  authenvm.togglePasswordVisibility();
+                                  authenvm.togglePasswordVisibility1();
                                 },
                               ),
                               errorMessage: passwordError,
@@ -277,15 +277,15 @@ class _authenPageState extends State<SignUpPage> {
                             child: TextFormFieldAuthen(
                               controller: passwordController2,
                               hintText: "Confirm Password",
-                              obscureText: !authenvm.passwordVisible,
+                              obscureText: !authenvm.passwordVisible2,
                               focusNode: confirmPassFocusNote,
                               suffixIcon: IconButton(
-                                icon: Icon(authenvm.passwordVisible
+                                icon: Icon(authenvm.passwordVisible2
                                     ? Icons.visibility
                                     : Icons.visibility_off),
                                 color: Colors.grey,
                                 onPressed: () {
-                                  authenvm.togglePasswordVisibility();
+                                  authenvm.togglePasswordVisibility2();
                                 },
                               ),
                               errorMessage: passwordError,

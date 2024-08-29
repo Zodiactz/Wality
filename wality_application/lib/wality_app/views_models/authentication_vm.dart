@@ -8,15 +8,22 @@ class AuthenticationViewModel extends ChangeNotifier {
   String? confirmPassErrs;
   String? allError;
   final bool _isScrollable = false;
-  bool _passwordVisible = false;
+  bool _passwordVisible1 = false;
+  bool _passwordVisible2 = false;
   bool _showValidationMessage = false;
 
   bool get isScrollable => _isScrollable;
-  bool get passwordVisible => _passwordVisible;
+  bool get passwordVisible1 => _passwordVisible1;
+  bool get passwordVisible2 => _passwordVisible2;
   bool get showValidationMessage => _showValidationMessage;
 
-  void togglePasswordVisibility() {
-    _passwordVisible = !_passwordVisible;
+  void togglePasswordVisibility1() {
+    _passwordVisible1 = !_passwordVisible1;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility2() {
+    _passwordVisible2 = !_passwordVisible2;
     notifyListeners();
   }
 

@@ -4,11 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
+import 'package:wality_application/wality_app/views/choose_change_page.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views/change_info_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
+import 'package:wality_application/wality_app/views/ranking_page.dart';
+import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
 import 'package:wality_application/wality_app/views/summary_graph.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
@@ -54,6 +57,9 @@ class MyApp extends StatelessWidget {
         '/changeinfopage': (context) => const ChangeInfoPage(),
         '/settingpage': (context) => const SettingPage(),
         '/summarygraphpage': (context) => const SummaryGraphPage(),
+        '/choosechange': (context) => const ChooseChangePage(),
+        '/rewardpage': (context) => const RewardPage(),
+        '/rankingpage': (context) => const RankingPage(),
       },
     );
   }

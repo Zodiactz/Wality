@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 
-class SettingPage extends StatelessWidget {
-  const SettingPage({super.key});
+class ChooseChangePage extends StatelessWidget {
+  const ChooseChangePage({super.key});
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Consumer<ProfileViewModel>(builder: (context, profilevm, child) {
       return Scaffold(
@@ -38,7 +38,7 @@ class SettingPage extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Setting',
+                        'User',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -71,8 +71,8 @@ class SettingPage extends StatelessWidget {
                         profilevm.buildProfileOption(
                           context,
                           icon: Icons.person,
-                          title: 'Change Information',
-                          onTap: () => openChoosechangePage(context),
+                          title: 'Picture',
+                          onTap: () => openChangeInfoPage(context),
                         ),
                         const SizedBox(
                           height: 12,
@@ -83,14 +83,27 @@ class SettingPage extends StatelessWidget {
                         ),
                         profilevm.buildProfileOption(
                           context,
-                          icon: Icons.logout,
-                          title: 'Log out',
-                          onTap: () => LogOutToOutsite(context),
+                          icon: Icons.person,
+                          title: 'Name',
+                          onTap: () => openChangeInfoPage(context),
                         ),
                         const SizedBox(
                           height: 12,
                         ),
-                      
+                        profilevm.buildDivider(),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        profilevm.buildProfileOption(
+                          context,
+                          icon: Icons.person,
+                          title: 'Password',
+                          onTap: () => openChangeInfoPage(context),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        
                       ],
                     ),
                   ),

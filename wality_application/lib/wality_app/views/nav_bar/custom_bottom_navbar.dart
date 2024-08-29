@@ -44,7 +44,7 @@ class CustomBottomNavBar extends StatelessWidget {
                         openProfilePage(context);
                       },
                 icon: Icon(
-                  Icons.account_box,
+                  Icons.account_circle,
                   color: currentPage == 'ProfilePage.dart'
                       ? const Color(0xFF0083AB)
                       : Colors.black,
