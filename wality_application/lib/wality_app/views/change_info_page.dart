@@ -39,7 +39,7 @@ class ChangeInfoPage extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Change Username and Password',
+                        'Change Password',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -70,85 +70,6 @@ class ChangeInfoPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Username",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Current username :',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Note',
-                          style: TextStyle(
-                            fontSize: 20,
-                            decoration: TextDecoration.underline,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'New username :',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: changevm.usernameController,
-                            hintText: "",
-                            obscureText: false,
-                            focusNode: changevm.usernameFocusNode,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ProfilePage(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF342056),
-                              fixedSize: const Size(300, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Change',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'RobotoCondensed',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1,
-                        ),
                         const Text(
                           'Password',
                           style: TextStyle(

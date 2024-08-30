@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 
 class RewardPage extends StatefulWidget {
   const RewardPage({super.key});

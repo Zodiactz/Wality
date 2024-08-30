@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               );
                             } else if (snapshot.hasError) {
                               return const Text(
-                                'Error loading username',
+                                'Error',
                                 style: TextStyle(
                                   fontSize: 36,
                                   color: Colors.white,

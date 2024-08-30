@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       );
                                     } else if (snapshot.hasError) {
                                       return const Text(
-                                        'Error loading username',
+                                        'Error',
                                         style: TextStyle(
                                           fontSize: 24,
                                           color: Colors.white,
@@ -159,25 +159,47 @@ class _ProfilePageState extends State<ProfilePage> {
                                     fontFamily: 'RobotoCondensed',
                                   ),
                                 ),
-                                /*Container(
-                                  width: 70,
-                                  height: 20,
-                                  margin: const EdgeInsets.only(top: 8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF342056),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: const Center(
-                                    child: Text(
-                                      'Owner',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontFamily: 'RobotoCondensed',
-                                      ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF342056),
+                                    minimumSize: const Size(70, 20),
+                                    padding: const EdgeInsets.only(top: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
                                   ),
-                                ),*/
+                                  onPressed: () {
+                                    // Add your onPressed logic here
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(bottom: 4),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize
+                                          .min, // To adjust to content size
+                                      children: [
+                                        Icon(
+                                          Icons
+                                              .edit, // Use the desired icon here
+                                          size:
+                                              16, // Adjust icon size as needed
+                                          color: Colors.white,
+                                        ),
+                                         SizedBox(
+                                            width:
+                                                4),
+                                        Text(
+                                          'edit',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontFamily: 'RobotoCondensed',
+                                          ),
+                                        ),
+                                      
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -224,7 +246,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),*/
                           profilevm.buildProfileOption(
                             context,
-                            icon: Icons.person,
+                            icon: Icons.workspace_premium_sharp,
                             title: 'Reward',
                             onTap: () => openRewardPage(context),
                           ),
@@ -237,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           profilevm.buildProfileOption(
                             context,
-                            icon: Icons.payment,
+                            icon: Icons.leaderboard_rounded,
                             title: 'Ranking',
                             onTap: () => openRankingPage(context),
                           ),

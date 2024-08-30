@@ -70,9 +70,9 @@ class SettingPage extends StatelessWidget {
                       children: [
                         profilevm.buildProfileOption(
                           context,
-                          icon: Icons.person,
-                          title: 'Change Information',
-                          onTap: () => openChoosechangePage(context),
+                          icon: Icons.key_sharp,
+                          title: 'Change password',
+                          onTap: () => openChangeInfoPage(context),
                         ),
                         const SizedBox(
                           height: 12,

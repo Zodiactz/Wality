@@ -86,7 +86,7 @@ class WaterCheckingPage extends StatelessWidget {
                       children: [
                         Container(
                           width: 340,
-                          height: 300,
+                          height: 250,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.0),
                             image: DecorationImage(
@@ -95,7 +95,7 @@ class WaterCheckingPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () {
                             showDialog(
