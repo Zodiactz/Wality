@@ -12,6 +12,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
   int mlSaved = 0;
   int maxMl = 550;
   int savedCount = 0;
+  int fillCount = 0; // Counter for the number of fills
+  bool _isFillingStopped = false; // Flag to stop filling
   late AnimationController _waveAnimationController;
   late AnimationController _turtleAnimationController;
   late Animation<double> _turtleAnimation;
@@ -48,18 +50,25 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
     _fillLevelAnimation = Tween<double>(begin: 0.0, end: mlSaved / maxMl).animate(_fillLevelController);
 
     _splashController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: Duration(milliseconds: 1500), // Duration for splash effect
       vsync: this,
     );
 
     _splashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _splashController,
-      curve: Curves.easeOut,
+      curve: Curves.easeOutQuart,
     ))..addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         setState(() {
           mlSaved = 0; // Reset mlSaved to zero after splash
           _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(_fillLevelController);
+          fillCount++; // Increment the fill count
+
+          if (fillCount >= 2) {
+            // Show popup after two fills
+            _isFillingStopped = true; // Stop filling
+            _showCongratulationsPopup();
+          }
         });
         _splashController.reset(); // Reset splash controller for the next cycle
       }
@@ -89,28 +98,80 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
   }
 
   void _incrementWaterLevel(int increment) {
-    if (mlSaved < maxMl) {
-      setState(() {
-        mlSaved += increment;
-        _fillLevelAnimation = Tween<double>(
-          begin: _fillLevelAnimation.value,
-          end: mlSaved / maxMl,
-        ).animate(_fillLevelController);
+    if (_isFillingStopped) return; // Stop filling if the process is stopped
 
-        _fillLevelController.forward(from: 0);
-      });
+    setState(() {
+      mlSaved += increment;
+      if (mlSaved > maxMl) {
+        // If water exceeds maxMl, trigger splash animation
+        if (!_splashController.isAnimating) {
+          _splashController.forward();
+          setState(() {
+            savedCount += 1; // Increment the saved count
+          });
+        }
+        mlSaved -= maxMl; // Reset mlSaved after splash
+      }
 
-      // Call increment again with a delay to simulate continuous filling
-      Future.delayed(Duration(milliseconds: 50), () {
-        _incrementWaterLevel(increment); // Recursively call to increment water level
-      });
-    } else if (!_splashController.isAnimating) {
-      // Trigger the splash animation when full
-      _splashController.forward();
-      setState(() {
-        savedCount += 1; // Increment the saved count
-      });
-    }
+      _fillLevelAnimation = Tween<double>(
+        begin: _fillLevelAnimation.value,
+        end: mlSaved / maxMl,
+      ).animate(_fillLevelController);
+
+      _fillLevelController.forward(from: 0);
+    });
+
+    // Call increment again with a delay to simulate continuous filling
+    Future.delayed(Duration(milliseconds: 50), () {
+      _incrementWaterLevel(increment); // Recursively call to increment water level
+    });
+  }
+
+  void _showCongratulationsPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Congratulations!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'You have reduced one plastic bottle\nand helped a turtle.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pushReplacementNamed('/homepage'); // Navigate to Homepage
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -192,8 +253,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
                                 animation: _splashAnimation,
                                 builder: (context, child) {
                                   return CustomPaint(
-                                    painter: SplashPainter(_splashAnimation.value),
-                                    size: Size(280, 280),
+                                    painter: OutsideSplashPainter(_splashAnimation.value),
+                                    size: Size(400, 400), // Increased size for a larger splash effect
                                   );
                                 },
                               ),
@@ -304,26 +365,47 @@ class WavePainter extends CustomPainter {
   }
 }
 
-class SplashPainter extends CustomPainter {
+class OutsideSplashPainter extends CustomPainter {
   final double progress;
 
-  SplashPainter(this.progress);
+  OutsideSplashPainter(this.progress);
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.blueAccent.withOpacity(1.0 - progress)
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2.0;
 
     double maxRadius = size.width / 2;
     double radius = maxRadius * progress;
 
-    for (int i = 0; i < 5; i++) {
-      canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2),
-        radius * (1 - i * 0.2),
-        paint..color = paint.color.withOpacity(1.0 - i * 0.2),
+    // Draw splash arcs
+    for (int i = 0; i < 12; i++) { // Increased from 8 to 12 for more splash lines
+      double angle = (pi / 6) * i; // Evenly spaced around the circle
+      double startX = size.width / 2 + cos(angle) * maxRadius;
+      double startY = size.height / 2 + sin(angle) * maxRadius;
+      double endX = size.width / 2 + cos(angle) * (maxRadius + 60 * progress); // Increased length for a bigger splash
+      double endY = size.height / 2 + sin(angle) * (maxRadius + 60 * progress); // Increased length for a bigger splash
+
+      paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.6);
+      paint.strokeCap = StrokeCap.round;
+
+      canvas.drawLine(
+        Offset(startX, startY),
+        Offset(endX, endY),
+        paint..strokeWidth = 8 * (1.0 - progress), // Increased line thickness for more visibility
       );
+    }
+
+    // Draw water droplets
+    for (int i = 0; i < 30; i++) { // Increased number of droplets
+      final randomAngle = Random().nextDouble() * 2 * pi;
+      final randomRadius = radius + Random().nextDouble() * 80 * progress; // Increased range for droplets
+      final x = (size.width / 2) + randomRadius * cos(randomAngle);
+      final y = (size.height / 2) + randomRadius * sin(randomAngle);
+
+      paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.5);
+      canvas.drawCircle(Offset(x, y), 8 * (1 - progress), paint); // Increased droplet size
     }
   }
 
