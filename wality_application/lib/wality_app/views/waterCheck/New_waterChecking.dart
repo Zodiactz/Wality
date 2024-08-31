@@ -9,7 +9,7 @@ class NewWaterChecking extends StatefulWidget {
 }
 
 class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProviderStateMixin {
-  int mlSaved = 0; // Initialize mlSaved to 0
+  int mlSaved = 0;
   int maxMl = 550;
   int savedCount = 0;
   late AnimationController _waveAnimationController;
@@ -48,22 +48,24 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
     _fillLevelAnimation = Tween<double>(begin: 0.0, end: mlSaved / maxMl).animate(_fillLevelController);
 
     _splashController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 800),
       vsync: this,
     );
 
-    _splashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_splashController)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          setState(() {
-            mlSaved = 0;
-            _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(_fillLevelController);
-          });
-          _splashController.reset();
-        }
-      });
+    _splashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _splashController,
+      curve: Curves.easeOut,
+    ))..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          mlSaved = 0; // Reset mlSaved to zero after splash
+          _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(_fillLevelController);
+        });
+        _splashController.reset(); // Reset splash controller for the next cycle
+      }
+    });
 
-    _checkAndIncrementSavedCount();
+    _incrementWaterLevel(1); // Start filling the water level incrementally
   }
 
   Future<void> _loadGif() async {
@@ -86,10 +88,10 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
     super.dispose();
   }
 
-  void _checkAndIncrementSavedCount() {
+  void _incrementWaterLevel(int increment) {
     if (mlSaved < maxMl) {
       setState(() {
-        mlSaved++;
+        mlSaved += increment;
         _fillLevelAnimation = Tween<double>(
           begin: _fillLevelAnimation.value,
           end: mlSaved / maxMl,
@@ -97,10 +99,16 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
 
         _fillLevelController.forward(from: 0);
       });
-    } else {
+
+      // Call increment again with a delay to simulate continuous filling
+      Future.delayed(Duration(milliseconds: 50), () {
+        _incrementWaterLevel(increment); // Recursively call to increment water level
+      });
+    } else if (!_splashController.isAnimating) {
+      // Trigger the splash animation when full
       _splashController.forward();
       setState(() {
-        savedCount += 1;
+        savedCount += 1; // Increment the saved count
       });
     }
   }
@@ -108,7 +116,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Set to transparent
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           Positioned.fill(
@@ -247,24 +255,6 @@ class _NewWaterCheckingState extends State<NewWaterChecking> with TickerProvider
       ),
     );
   }
-}
-
-class CurvedClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.lineTo(0, size.height - 50);
-    var firstControlPoint = Offset(size.width / 2, size.height);
-    var firstEndPoint = Offset(size.width, size.height - 50);
-    path.quadraticBezierTo(
-        firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
 class WavePainter extends CustomPainter {
