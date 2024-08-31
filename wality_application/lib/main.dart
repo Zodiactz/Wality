@@ -13,11 +13,13 @@ import 'package:wality_application/wality_app/views/ranking_page.dart';
 import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
 import 'package:wality_application/wality_app/views/summary_graph.dart';
+import 'package:wality_application/wality_app/views/waterCheck/New_waterChecking.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
+
 
 void main() {
   runApp(
@@ -44,13 +46,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: /*const LogoPage(),*/ const HomePage(),
+      home:  NewWaterChecking(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
         '/signinpage': (context) => const SignInPage(),
         '/signuppage': (context) => const SignUpPage(),
         '/forgetpasswordpage': (context) => const ForgetpasswordPage(),
+        '/waterChecking': (context) => NewWaterChecking(),
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
         '/changeinfopage': (context) => const ChangeInfoPage(),
