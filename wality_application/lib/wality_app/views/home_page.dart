@@ -21,14 +21,13 @@ final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  late Future<String?> usernameFuture;
+  Future<String?>? usernameFuture;
 
   @override
   void initState() {
     super.initState();
     // Initialize the Future to fetch the username when the widget is created
-    usernameFuture =
-        fetchUsername(userId!); // Assuming userId is not null here.
+    usernameFuture = fetchUsername(userId!);
   }
 
   Future<String?> fetchUsername(String userId) async {
@@ -80,7 +79,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     children: [
                       const SizedBox(height: 8),
                       Padding(
-                        padding: EdgeInsets.only(left: 20.0),
+                        padding: const EdgeInsets.only(left: 20.0),
                         child: FutureBuilder<String?>(
                           future: usernameFuture,
                           builder: (context, snapshot) {
@@ -131,148 +130,148 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       Expanded(
                         child: Center(
-                            child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8, top: 4),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 300,
-                                    height: 300,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          blurRadius: 10,
-                                          offset: const Offset(5, 5),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8, top: 4),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      width: 300,
+                                      height: 300,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.3),
+                                            blurRadius: 10,
+                                            offset: const Offset(5, 5),
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 10,
                                         ),
-                                      ],
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 10,
                                       ),
                                     ),
-                                  ),
-                                  ClipOval(
-                                    child: SizedBox(
-                                      width:
-                                          280, // Slightly smaller to fit inside the border
-                                      height:
-                                          280, // Slightly smaller to fit inside the border
-                                      child: AnimatedBuilder(
-                                        animation: animationvm
-                                            .waveAnimationController!,
-                                        builder: (context, child) {
-                                          return CustomPaint(
-                                            painter: WavePainter(
+                                    ClipOval(
+                                      child: SizedBox(
+                                        width: 280,
+                                        height: 280,
+                                        child: AnimatedBuilder(
+                                          animation: animationvm
+                                              .waveAnimationController!,
+                                          builder: (context, child) {
+                                            return CustomPaint(
+                                              painter: WavePainter(
                                                 animationvm
                                                     .waveAnimationController!
                                                     .value,
-                                                watervm.getFillRatio()),
-                                          );
-                                        },
+                                                watervm.getFillRatio(),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      '${watervm.water.mlSaved}/${watervm.water.maxMl}ml',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
+                                    Center(
+                                      child: Text(
+                                        '${watervm.water.mlSaved}/${watervm.water.maxMl}ml',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed',
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'You saved',
-                              style: TextStyle(
-                                fontSize: 35,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed',
+                              const SizedBox(height: 2),
+                              const Text(
+                                'You saved',
+                                style: TextStyle(
+                                  fontSize: 35,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 40),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (animationvm.gifBytes2 != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 40),
-                                      child: Column(
-                                        children: [
-                                          Image.memory(
-                                            animationvm.gifBytes!,
-                                            width: 80, // Set desired width
-                                            height: 80, // Set desired height
-                                          ),
-                                          const Text(
-                                            "Bottles",
-                                            style: TextStyle(
-                                              fontSize: 35,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed',
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 40),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (animationvm.gifBytes2 != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 40),
+                                        child: Column(
+                                          children: [
+                                            Image.memory(
+                                              animationvm.gifBytes!,
+                                              width: 80,
+                                              height: 80,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  else
-                                    const CircularProgressIndicator(),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 40, right: 20),
-                                    child: Text(
-                                      '${watervm.water.savedCount}',
-                                      style: const TextStyle(
-                                        fontSize: 96,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
+                                            const Text(
+                                              "Bottles",
+                                              style: TextStyle(
+                                                fontSize: 35,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'RobotoCondensed',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    else
+                                      const CircularProgressIndicator(),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 40, right: 20),
+                                      child: Text(
+                                        '${watervm.water.savedCount}',
+                                        style: const TextStyle(
+                                          fontSize: 96,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed',
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  if (animationvm.gifBytes != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 40),
-                                      child: Column(
-                                        children: [
-                                          Image.memory(
-                                            animationvm.gifBytes2!,
-                                            width: 80, // Set desired width
-                                            height: 80, // Set desired height
-                                          ),
-                                          const Text(
-                                            "Lives",
-                                            style: TextStyle(
-                                              fontSize: 35,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed',
+                                    if (animationvm.gifBytes != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 40),
+                                        child: Column(
+                                          children: [
+                                            Image.memory(
+                                              animationvm.gifBytes2!,
+                                              width: 80,
+                                              height: 80,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  else
-                                    const CircularProgressIndicator(),
-                                ],
+                                            const Text(
+                                              "Lives",
+                                              style: TextStyle(
+                                                fontSize: 35,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'RobotoCondensed',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    else
+                                      const CircularProgressIndicator(),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        )),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),

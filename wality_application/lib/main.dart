@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:wality_application/wality_app/views/QR_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
+import 'package:wality_application/wality_app/views/nig.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views/change_info_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
@@ -44,7 +47,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: /*const LogoPage(),*/ const HomePage(),
+      home: /*const LogoPage(),*/const HomePage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -58,6 +61,8 @@ class MyApp extends StatelessWidget {
         '/summarygraphpage': (context) => const SummaryGraphPage(),
         '/rewardpage': (context) => const RewardPage(),
         '/rankingpage': (context) => const RankingPage(),
+        '/testpage': (context) => const testpage(),
+        '/qrscanner': (context) => QrScannerPage(),
       },
     );
   }

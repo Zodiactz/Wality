@@ -69,6 +69,12 @@ void openWaterCheckingPage(BuildContext context) async {
   }
 }
 
+openTestPage(BuildContext context) async {
+  await Navigator.pushNamed(context, '/qrscanner');
+  Navigator.pushNamed(context, '/testpage');
+}
+
+
 void openChangeInfoPage(BuildContext context) async {
   Navigator.pushNamed(context, '/changeinfopage');
 }

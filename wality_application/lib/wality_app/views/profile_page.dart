@@ -168,25 +168,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    // Add your onPressed logic here
-                                  },
+                                  onPressed: () {},
                                   child: const Padding(
                                     padding: EdgeInsets.only(bottom: 4),
                                     child: Row(
-                                      mainAxisSize: MainAxisSize
-                                          .min, // To adjust to content size
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          Icons
-                                              .edit, // Use the desired icon here
-                                          size:
-                                              16, // Adjust icon size as needed
+                                          Icons.edit,
+                                          size: 16,
                                           color: Colors.white,
                                         ),
-                                         SizedBox(
-                                            width:
-                                                4),
+                                        SizedBox(width: 4),
                                         Text(
                                           'edit',
                                           style: TextStyle(
@@ -195,7 +188,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                             fontFamily: 'RobotoCondensed',
                                           ),
                                         ),
-                                      
                                       ],
                                     ),
                                   ),

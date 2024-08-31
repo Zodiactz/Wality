@@ -55,7 +55,7 @@ dependencies:
   get: ^4.6.6
   fl_chart: ^0.68.0
   realm: ^3.4.1
-  
+  popover: ^0.3.0+1
 
   
 
