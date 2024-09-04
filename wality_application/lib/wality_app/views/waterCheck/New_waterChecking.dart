@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:typed_data';
 
 class NewWaterChecking extends StatefulWidget {
   @override
@@ -13,14 +11,14 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
   int mlSaved = 0;
   int maxMl = 550;
   int savedCount = 0;
-  int fillCount = 0; // Counter for the number of fills
-  bool _isFillingStopped = false; // Flag to stop filling
+  int fillCount = 0;
+  bool _isFillingStopped = false;
+  int incrementAmount = 1; // Default increment amount for water level
+  int totalAmountToFill = 600; // Set the desired total amount of water here
+  int remainingAmount = 0; // To track the remaining water to fill across cycles
   late AnimationController _waveAnimationController;
-
-
   late AnimationController _fillLevelController;
   late Animation<double> _fillLevelAnimation;
-
   late AnimationController _splashController;
   late Animation<double> _splashAnimation;
 
@@ -54,23 +52,29 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
           ..addStatusListener((status) {
             if (status == AnimationStatus.completed) {
               setState(() {
+                if (mlSaved == maxMl) {
+                  savedCount += 1; // Increment savedCount only if mlSaved is maxMl
+                }
+
                 mlSaved = 0; // Reset mlSaved to zero after splash
                 _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0)
                     .animate(_fillLevelController);
                 fillCount++; // Increment the fill count
 
-                if (fillCount >= 2) {
-                  // Show popup after two fills
-                  _isFillingStopped = true; // Stop filling
-                  _showCongratulationsPopup();
+                // Continue filling if there is remaining water
+                if (remainingAmount > 0) {
+                  totalAmountToFill = remainingAmount;
+                  remainingAmount = 0;
+                  _isFillingStopped = false; // Allow filling to continue
+                  startWaterFilling();
                 }
               });
-              _splashController
-                  .reset(); // Reset splash controller for the next cycle
+              _splashController.reset();
             }
           });
 
-    _incrementWaterLevel(1); // Start filling the water level incrementally
+    // Start the filling process with the specified amount
+    startWaterFilling();
   }
 
   @override
@@ -81,20 +85,33 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
     super.dispose();
   }
 
-  void _incrementWaterLevel(int increment) {
+  // Method to start filling water based on the specified total amount
+  void startWaterFilling() {
+    // If there is more water to fill than the max capacity for one cycle
+    if (totalAmountToFill > maxMl) {
+      remainingAmount = totalAmountToFill - maxMl;
+      totalAmountToFill = maxMl;
+    }
+
+    setWaterIncrement(incrementAmount);
+  }
+
+  // Method to increment the water level
+  void setWaterIncrement(int increment) {
     if (_isFillingStopped) return; // Stop filling if the process is stopped
 
     setState(() {
       mlSaved += increment;
-      if (mlSaved > maxMl) {
-        // If water exceeds maxMl, trigger splash animation
+      if (mlSaved >= totalAmountToFill) {
+        // If water reaches or exceeds totalAmountToFill, trigger splash animation
+        mlSaved = totalAmountToFill; // Ensure mlSaved does not exceed totalAmountToFill
+
         if (!_splashController.isAnimating) {
           _splashController.forward();
-          setState(() {
-            savedCount += 1; // Increment the saved count
-          });
         }
-        mlSaved -= maxMl; // Reset mlSaved after splash
+
+        // Stop filling for this cycle
+        _isFillingStopped = true;
       }
 
       _fillLevelAnimation = Tween<double>(
@@ -105,60 +122,12 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
       _fillLevelController.forward(from: 0);
     });
 
-    // Call increment again with a delay to simulate continuous filling
-    Future.delayed(Duration(milliseconds: 50), () {
-      _incrementWaterLevel(
-          increment); // Recursively call to increment water level
-    });
-  }
-
-  void _showCongratulationsPopup() {
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Prevent dismissing the dialog by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            'Congratulations!',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'You have reduced one plastic bottle\nand helped a turtle.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.of(context).pushReplacementNamed(
-                      '/homepage'); // Navigate to Homepage
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    // Continue filling until we reach the totalAmountToFill
+    if (!_isFillingStopped) {
+      Future.delayed(Duration(milliseconds: 50), () {
+        setWaterIncrement(increment); // Recursively call to increment water level
+      });
+    }
   }
 
   @override
@@ -321,7 +290,9 @@ class WavePainter extends CustomPainter {
         i,
         size.height -
             waveHeight -
-            sin((i / size.width * 2 * pi) + (animationValue * 2 * pi) + pi) *
+            sin((i / size.width * 2 * pi) +
+                    (animationValue * 2 * pi) +
+                    pi / 2) *
                 10,
       );
     }
@@ -354,18 +325,13 @@ class OutsideSplashPainter extends CustomPainter {
 
     // Draw splash arcs
     for (int i = 0; i < 12; i++) {
-      // Increased from 8 to 12 for more splash lines
-      double angle = (pi / 6) * i; // Evenly spaced around the circle
+      double angle = (pi / 6) * i;
       double startX = size.width / 2 + cos(angle) * maxRadius;
       double startY = size.height / 2 + sin(angle) * maxRadius;
       double endX = size.width / 2 +
-          cos(angle) *
-              (maxRadius +
-                  60 * progress); // Increased length for a bigger splash
+          cos(angle) * (maxRadius + 60 * progress);
       double endY = size.height / 2 +
-          sin(angle) *
-              (maxRadius +
-                  60 * progress); // Increased length for a bigger splash
+          sin(angle) * (maxRadius + 60 * progress);
 
       paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.6);
       paint.strokeCap = StrokeCap.round;
@@ -374,23 +340,21 @@ class OutsideSplashPainter extends CustomPainter {
         Offset(startX, startY),
         Offset(endX, endY),
         paint
-          ..strokeWidth = 8 *
-              (1.0 - progress), // Increased line thickness for more visibility
+          ..strokeWidth = 8 * (1.0 - progress),
       );
     }
 
     // Draw water droplets
     for (int i = 0; i < 30; i++) {
-      // Increased number of droplets
       final randomAngle = Random().nextDouble() * 2 * pi;
-      final randomRadius = radius +
-          Random().nextDouble() * 80 * progress; // Increased range for droplets
+      final randomRadius =
+          radius + Random().nextDouble() * 80 * progress;
       final x = (size.width / 2) + randomRadius * cos(randomAngle);
       final y = (size.height / 2) + randomRadius * sin(randomAngle);
 
       paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.5);
       canvas.drawCircle(
-          Offset(x, y), 8 * (1 - progress), paint); // Increased droplet size
+          Offset(x, y), 8 * (1 - progress), paint);
     }
   }
 
