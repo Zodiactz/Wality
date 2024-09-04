@@ -13,9 +13,10 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
   int savedCount = 0;
   int fillCount = 0;
   bool _isFillingStopped = false;
-  int incrementAmount = 1; // Default increment amount for water level
-  int totalAmountToFill = 600; // Set the desired total amount of water here
-  int remainingAmount = 0; // To track the remaining water to fill across cycles
+  int incrementAmount = 1;
+  int totalAmountToFill = 1100;
+  int remainingAmount = 0;
+  int totalWaterFilled = 0; // Track total water filled
   late AnimationController _waveAnimationController;
   late AnimationController _fillLevelController;
   late Animation<double> _fillLevelAnimation;
@@ -40,7 +41,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
         .animate(_fillLevelController);
 
     _splashController = AnimationController(
-      duration: Duration(milliseconds: 1500), // Duration for splash effect
+      duration: Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -53,27 +54,29 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             if (status == AnimationStatus.completed) {
               setState(() {
                 if (mlSaved == maxMl) {
-                  savedCount += 1; // Increment savedCount only if mlSaved is maxMl
+                  savedCount += 1;
                 }
 
-                mlSaved = 0; // Reset mlSaved to zero after splash
+                totalWaterFilled += mlSaved; // Update the total water filled
+                mlSaved = 0;
                 _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0)
                     .animate(_fillLevelController);
-                fillCount++; // Increment the fill count
+                fillCount++;
 
-                // Continue filling if there is remaining water
                 if (remainingAmount > 0) {
                   totalAmountToFill = remainingAmount;
                   remainingAmount = 0;
-                  _isFillingStopped = false; // Allow filling to continue
+                  _isFillingStopped = false;
                   startWaterFilling();
+                } else {
+                  // Show the popup after filling is complete
+                  showWaterFilledPopup(context);
                 }
               });
               _splashController.reset();
             }
           });
 
-    // Start the filling process with the specified amount
     startWaterFilling();
   }
 
@@ -85,9 +88,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
     super.dispose();
   }
 
-  // Method to start filling water based on the specified total amount
   void startWaterFilling() {
-    // If there is more water to fill than the max capacity for one cycle
     if (totalAmountToFill > maxMl) {
       remainingAmount = totalAmountToFill - maxMl;
       totalAmountToFill = maxMl;
@@ -96,21 +97,18 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
     setWaterIncrement(incrementAmount);
   }
 
-  // Method to increment the water level
   void setWaterIncrement(int increment) {
-    if (_isFillingStopped) return; // Stop filling if the process is stopped
+    if (_isFillingStopped) return;
 
     setState(() {
       mlSaved += increment;
       if (mlSaved >= totalAmountToFill) {
-        // If water reaches or exceeds totalAmountToFill, trigger splash animation
-        mlSaved = totalAmountToFill; // Ensure mlSaved does not exceed totalAmountToFill
+        mlSaved = totalAmountToFill;
 
         if (!_splashController.isAnimating) {
           _splashController.forward();
         }
 
-        // Stop filling for this cycle
         _isFillingStopped = true;
       }
 
@@ -122,12 +120,73 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
       _fillLevelController.forward(from: 0);
     });
 
-    // Continue filling until we reach the totalAmountToFill
     if (!_isFillingStopped) {
       Future.delayed(Duration(milliseconds: 50), () {
-        setWaterIncrement(increment); // Recursively call to increment water level
+        setWaterIncrement(increment);
       });
     }
+  }
+
+  void showWaterFilledPopup(BuildContext context) {
+    String formattedWaterAmount = '';
+    if (totalWaterFilled >= 1000) {
+      int liters = totalWaterFilled ~/ 1000;
+      int remainingMl = totalWaterFilled % 1000;
+      formattedWaterAmount =
+          '$liters L${remainingMl > 0 ? ' and $remainingMl ml' : ''}';
+    } else {
+      formattedWaterAmount = '$totalWaterFilled ml';
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF003545), // Match popup color with background
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Congratulations!',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            "You have filled $formattedWaterAmount & saved $savedCount plastic bottle${savedCount > 1 ? 's' : ''} and helped a turtle.",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 26, 121, 150), // Matching button color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushReplacementNamed('/homepage');
+                },
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -174,8 +233,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                                   ),
                                 ],
                                 border: Border.all(
-                                  color:
-                                      const Color.fromARGB(255, 255, 255, 255),
+                                  color: Colors.white,
                                   width: 10,
                                 ),
                               ),
@@ -203,8 +261,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                                   return CustomPaint(
                                     painter: OutsideSplashPainter(
                                         _splashAnimation.value),
-                                    size: Size(400,
-                                        400), // Increased size for a larger splash effect
+                                    size: Size(400, 400),
                                   );
                                 },
                               ),
@@ -239,8 +296,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                         ),
                         Image.asset(
                           'assets/images/turtle1.png',
-                          width: 150, // Adjust width as needed
-                          height: 150, // Adjust height as needed
+                          width: 150,
+                          height: 150,
                         ),
                       ],
                     ),
