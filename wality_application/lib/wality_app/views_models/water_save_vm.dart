@@ -1,11 +1,23 @@
 import 'dart:math';
 import 'package:wality_application/wality_app/models/water.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:realm/realm.dart';
+
+final App app = App(AppConfiguration('wality-1-djgtexn'));
+final userid = app.currentUser?.id;
 
 class WaterSaveViewModel extends ChangeNotifier {
+  
   final Water _water = Water(mlSaved: 0,savedCount: 0, maxMl: 550);
 
+
   Water get water => _water;
+
+   WaterSaveViewModel() {
+    _fetchInitialData();
+  }
 
   void addWater(int ml) {
     _water.mlSaved += ml;
@@ -37,6 +49,27 @@ class WaterSaveViewModel extends ChangeNotifier {
 
   double getFillRatio() {
     return min(water.mlSaved / water.maxMl, 1.0);
+  }
+
+  Future<void> _fetchInitialData() async {
+    final userId = userid;
+    try {
+      final response = await http.get(Uri.parse('http://localhost:8080/userId/$userId'));
+      
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        setMlSaved(data['currentMl'] ?? 0);
+        setSavedCount(data['botLiv'] ?? 0);
+      } else {
+        throw Exception('Failed to fetch initial data');
+      }
+    } catch (e) {
+      print('Error fetching initial data: $e');
+    }
+  }
+    Future<void> refreshData() async {
+    await _fetchInitialData();
+    notifyListeners(); // Notify listeners to refresh the UI
   }
 }
 

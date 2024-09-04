@@ -26,13 +26,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _refreshData();
     // Initialize the Future to fetch the username when the widget is created
     usernameFuture = fetchUsername(userId!);
   }
 
+  Future<void> _refreshData() async {
+    final waterSaveVM = Provider.of<WaterSaveViewModel>(context, listen: false);
+    await waterSaveVM.refreshData(); // Fetch updated data
+    setState(() {}); // Rebuild the widget to reflect new data
+  }
+
   Future<String?> fetchUsername(String userId) async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/userId/$userId'),
+      Uri.parse('http://localhost:8080/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -134,7 +141,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 8, top: 4),
+                                padding:
+                                    const EdgeInsets.only(bottom: 8, top: 4),
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
@@ -145,7 +153,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.3),
+                                            color:
+                                                Colors.black.withOpacity(0.3),
                                             blurRadius: 10,
                                             offset: const Offset(5, 5),
                                           ),
@@ -207,7 +216,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   children: [
                                     if (animationvm.gifBytes2 != null)
                                       Padding(
-                                        padding: const EdgeInsets.only(right: 40),
+                                        padding:
+                                            const EdgeInsets.only(right: 40),
                                         child: Column(
                                           children: [
                                             Image.memory(
@@ -244,7 +254,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ),
                                     if (animationvm.gifBytes != null)
                                       Padding(
-                                        padding: const EdgeInsets.only(left: 40),
+                                        padding:
+                                            const EdgeInsets.only(left: 40),
                                         child: Column(
                                           children: [
                                             Image.memory(

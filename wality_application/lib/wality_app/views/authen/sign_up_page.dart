@@ -96,7 +96,7 @@ class _authenPageState extends State<SignUpPage> {
 
             final response = await http.post(
               Uri.parse(
-                  'http://10.0.2.2:8080/create'), // Replace with your backend URL
+                  'http://localhost:8080/create'), // Replace with your backend URL
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
               },

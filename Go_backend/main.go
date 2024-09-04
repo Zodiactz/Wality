@@ -44,9 +44,11 @@ func main() {
     app.Get("/waterId/:waterId", getWaterById)
     app.Put("/update/:name", updatePerson)
     app.Delete("/delete/:name", deletePerson)
+    app.Post("/updateUserWater/:user_id", updateUserWater)
+    app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
 
     // Start the server
-    log.Fatal(app.Listen(":3000"))
+    log.Fatal(app.Listen(":8080"))
 }
 
 // Create a new person
@@ -140,3 +142,87 @@ func getWaterById(c *fiber.Ctx) error {
     }
     return c.Status(http.StatusOK).JSON(result)
 }
+
+func updateUserWater(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the update payload
+    var updatePayload struct {
+        CurrentMl int `json:"currentMl"`
+        BotLiv    int `json:"botLiv"`
+        TotalMl   int `json:"totalMl"`  // Add TotalMl to the struct
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Debug: Log the user_id and updatePayload
+    fmt.Printf("Updating user with ID: %s\n", user_id)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$set": bson.M{
+            "currentMl": updatePayload.CurrentMl,
+            "botLiv":    updatePayload.BotLiv,
+            "totalMl":   updatePayload.TotalMl,  // Include TotalMl in the update
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User updated successfully!"})
+}
+
+func updateWaterStatus(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("QRwaterquantity")
+    waterId := c.Params("waterId")
+
+    // Define a struct for the update payload
+    var updatePayload struct {       
+        Status string `json:"status"`
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    fmt.Printf("Updating water with ID: %s\n", waterId)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"waterId": waterId}
+    update := bson.M{
+        "$set": bson.M{
+            "status": updatePayload.Status, // Match the struct field name
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "Water not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Water updated successfully!"})
+}
+
