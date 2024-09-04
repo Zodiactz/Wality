@@ -41,11 +41,12 @@ func main() {
     app.Post("/create", createPerson)
     app.Get("/users/:username", getPerson)
     app.Get("/userId/:user_id", getUserById)
+    app.Get("/waterId/:waterId", getWaterById)
     app.Put("/update/:name", updatePerson)
     app.Delete("/delete/:name", deletePerson)
 
     // Start the server
-    log.Fatal(app.Listen(":8080"))
+    log.Fatal(app.Listen(":3000"))
 }
 
 // Create a new person
@@ -126,4 +127,16 @@ func deletePerson(c *fiber.Ctx) error {
     }
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Person deleted successfully!"})
+}
+
+func getWaterById(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("QRwaterquantity")
+    waterId := c.Params("waterId")
+
+    var result bson.M
+    err := collection.FindOne(context.Background(), bson.M{"waterId": waterId}).Decode(&result)
+    if err != nil {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "qrWater not found!"})
+    }
+    return c.Status(http.StatusOK).JSON(result)
 }
