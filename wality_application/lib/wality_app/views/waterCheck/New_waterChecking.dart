@@ -14,7 +14,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
   int fillCount = 0;
   bool _isFillingStopped = false;
   int incrementAmount = 1;
-  int totalAmountToFill = 1100;
+  int totalAmountToFill = 550;
+  int initialTotalAmountToFill = 0; // New variable to store the original input amount
   int remainingAmount = 0;
   int totalWaterFilled = 0; // Track total water filled
   late AnimationController _waveAnimationController;
@@ -77,6 +78,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             }
           });
 
+    initialTotalAmountToFill = totalAmountToFill; // Store the initial input amount
     startWaterFilling();
   }
 
@@ -121,7 +123,9 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
     });
 
     if (!_isFillingStopped) {
-      Future.delayed(Duration(milliseconds: 50), () {
+      // Check if the original input amount is greater than or equal to 1650
+      int delayDuration = initialTotalAmountToFill >= 1650 ? 20 : 50; // Set speed based on the original input
+      Future.delayed(Duration(milliseconds: delayDuration), () {
         setWaterIncrement(increment);
       });
     }
