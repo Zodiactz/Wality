@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 class NewWaterChecking extends StatefulWidget {
+  final int? sentCurrentWater;
+  final int? sentCurrentBottle;
+  final int? sentWaterAmount;
+
+  NewWaterChecking({
+    this.sentCurrentWater,
+    this.sentCurrentBottle,
+    this.sentWaterAmount,
+  });
+
   @override
   _NewWaterCheckingState createState() => _NewWaterCheckingState();
 }
@@ -14,8 +24,9 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
   int fillCount = 0;
   bool _isFillingStopped = false;
   int incrementAmount = 1;
-  int totalAmountToFill = 550;
-  int initialTotalAmountToFill = 0; // New variable to store the original input amount
+  int totalAmountToFill = 0;
+  int initialTotalAmountToFill =
+      0; // New variable to store the original input amount
   int remainingAmount = 0;
   int totalWaterFilled = 0; // Track total water filled
   late AnimationController _waveAnimationController;
@@ -27,6 +38,9 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
   @override
   void initState() {
     super.initState();
+    mlSaved = widget.sentCurrentWater ?? 0;
+    savedCount = widget.sentCurrentBottle ?? 0;
+    totalAmountToFill = widget.sentWaterAmount ?? 0;
 
     _waveAnimationController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -78,7 +92,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             }
           });
 
-    initialTotalAmountToFill = totalAmountToFill; // Store the initial input amount
+    initialTotalAmountToFill =
+        totalAmountToFill; // Store the initial input amount
     startWaterFilling();
   }
 
@@ -124,7 +139,9 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
 
     if (!_isFillingStopped) {
       // Check if the original input amount is greater than or equal to 1650
-      int delayDuration = initialTotalAmountToFill >= 1650 ? 20 : 50; // Set speed based on the original input
+      int delayDuration = initialTotalAmountToFill >= 1650
+          ? 20
+          : 50; // Set speed based on the original input
       Future.delayed(Duration(milliseconds: delayDuration), () {
         setWaterIncrement(increment);
       });
@@ -146,7 +163,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF003545), // Match popup color with background
+          backgroundColor:
+              Color(0xFF003545), // Match popup color with background
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -171,7 +189,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 26, 121, 150), // Matching button color
+                  backgroundColor: Color.fromARGB(
+                      255, 26, 121, 150), // Matching button color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -389,10 +408,8 @@ class OutsideSplashPainter extends CustomPainter {
       double angle = (pi / 6) * i;
       double startX = size.width / 2 + cos(angle) * maxRadius;
       double startY = size.height / 2 + sin(angle) * maxRadius;
-      double endX = size.width / 2 +
-          cos(angle) * (maxRadius + 60 * progress);
-      double endY = size.height / 2 +
-          sin(angle) * (maxRadius + 60 * progress);
+      double endX = size.width / 2 + cos(angle) * (maxRadius + 60 * progress);
+      double endY = size.height / 2 + sin(angle) * (maxRadius + 60 * progress);
 
       paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.6);
       paint.strokeCap = StrokeCap.round;
@@ -400,22 +417,19 @@ class OutsideSplashPainter extends CustomPainter {
       canvas.drawLine(
         Offset(startX, startY),
         Offset(endX, endY),
-        paint
-          ..strokeWidth = 8 * (1.0 - progress),
+        paint..strokeWidth = 8 * (1.0 - progress),
       );
     }
 
     // Draw water droplets
     for (int i = 0; i < 30; i++) {
       final randomAngle = Random().nextDouble() * 2 * pi;
-      final randomRadius =
-          radius + Random().nextDouble() * 80 * progress;
+      final randomRadius = radius + Random().nextDouble() * 80 * progress;
       final x = (size.width / 2) + randomRadius * cos(randomAngle);
       final y = (size.height / 2) + randomRadius * sin(randomAngle);
 
       paint.color = Colors.blueAccent.withOpacity((1.0 - progress) * 0.5);
-      canvas.drawCircle(
-          Offset(x, y), 8 * (1 - progress), paint);
+      canvas.drawCircle(Offset(x, y), 8 * (1 - progress), paint);
     }
   }
 

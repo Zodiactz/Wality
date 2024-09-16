@@ -56,6 +56,7 @@ dependencies:
   fl_chart: ^0.68.0
   realm: ^3.4.1
   popover: ^0.3.0+1
+  cached_network_image: ^3.4.1
 
   
 

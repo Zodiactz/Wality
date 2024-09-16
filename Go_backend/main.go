@@ -2,10 +2,18 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"net/url"
+	"os"
+	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,6 +22,9 @@ import (
 
 // Define a MongoDB client variable
 var client *mongo.Client
+
+// Define Firebase storage bucket variable
+var bucket *storage.BucketHandle
 
 func main() {
     // MongoDB connection URI
@@ -34,6 +45,12 @@ func main() {
     }
     fmt.Println("Connected to MongoDB!")
 
+    	// Initialize Firebase Storage (assumes you have a service account JSON file)
+	err = initializeFirebase()
+	if err != nil {
+		log.Fatalf("Failed to initialize Firebase: %v", err)
+	}
+
     // Create a new Fiber app
     app := fiber.New()
 
@@ -46,9 +63,97 @@ func main() {
     app.Delete("/delete/:name", deletePerson)
     app.Post("/updateUserWater/:user_id", updateUserWater)
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
+    app.Get("/getImage", getImageFromDynamicLink)
+
+    // New route for image upload
+	app.Post("/uploadImage", uploadImage)
 
     // Start the server
     log.Fatal(app.Listen(":8080"))
+}
+// Initialize Firebase storage
+func initializeFirebase() error {
+	// Set environment variable for Firebase credentials (or use your method)
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "key/walityfirebase-firebase-adminsdk-f5qqz-5c4256b53e.json")
+
+	// Create a new Firebase storage client
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create Firebase storage client: %v", err)
+	}
+
+	// Get a reference to your storage bucket
+	bucket = client.Bucket("walityfirebase.appspot.com")
+	if bucket == nil {
+		return fmt.Errorf("failed to access Firebase storage bucket")
+	}
+	return nil
+}
+
+// Upload an image to Firebase storage
+func uploadImage(c *fiber.Ctx) error {
+	// Get the uploaded file from the form data
+	fileHeader, err := c.FormFile("image")
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Failed to get image"})
+	}
+
+	// Open the uploaded file
+	file, err := fileHeader.Open()
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open image file"})
+	}
+	defer file.Close()
+
+	// Upload the file to Firebase Storage
+	uploadedURL, err := uploadToFirebaseStorage(fileHeader.Filename, file)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload image"})
+	}
+
+	// Return the URL of the uploaded image
+	return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Image uploaded successfully", "imageURL": uploadedURL})
+}
+
+// Function to upload image to Firebase Storage
+func uploadToFirebaseStorage(fileName string, file multipart.File) (string, error) {
+	ctx := context.Background()
+
+	// Generate a unique identifier (could be timestamp, UUID, or random string)
+	uniqueID := generateRandomString(8)
+	uniqueFileName := fmt.Sprintf("%s-%s", uniqueID, fileName)
+
+	// Create an object in the bucket with the unique filename
+	object := bucket.Object(uniqueFileName)
+	writer := object.NewWriter(ctx)
+	writer.ContentType = "image/jpeg" // Set appropriate content type for your image
+
+	// Write file data to Firebase Storage
+	if _, err := io.Copy(writer, file); err != nil {
+		writer.Close()
+		return "", fmt.Errorf("failed to write file to Firebase Storage: %v", err)
+	}
+
+	// Close the writer
+	if err := writer.Close(); err != nil {
+		return "", fmt.Errorf("failed to close writer: %v", err)
+	}
+
+	// Get the public URL of the uploaded image
+	imageURL := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", "walityfirebase.appspot.com", url.QueryEscape(uniqueFileName))
+
+	return imageURL, nil
+}
+
+// Helper function to generate a random string of the given length
+func generateRandomString(n int) string {
+	bytes := make([]byte, n)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return fmt.Sprintf("%d", time.Now().UnixNano()) // fallback to timestamp
+	}
+	return hex.EncodeToString(bytes)
 }
 
 // Create a new person
@@ -85,7 +190,7 @@ func getUserById(c *fiber.Ctx) error {
     var result bson.M
     err := collection.FindOne(context.Background(), bson.M{"user_id": user_id}).Decode(&result)
     if err != nil {
-        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "userName not found!"})
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "user not found!"})
     }
     return c.Status(http.StatusOK).JSON(result)
 }
@@ -225,4 +330,46 @@ func updateWaterStatus(c *fiber.Ctx) error {
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Water updated successfully!"})
 }
+
+func getImageFromDynamicLink(c *fiber.Ctx) error {
+    // Extract the URL query parameter
+    rawUrl := c.Query("url")
+
+    // Log the raw URL for debugging purposes
+    fmt.Println("Raw URL:", rawUrl)
+
+    // Check if the URL is already encoded
+    encodedUrl := url.QueryEscape(rawUrl)
+    
+    // Log the encoded URL for debugging purposes
+    fmt.Println("Encoded URL:", encodedUrl)
+
+    // Try fetching the image using the encoded URL
+    resp, err := http.Get(rawUrl)  // Use the raw URL first, if that fails try encoded
+    if err != nil {
+        fmt.Println("Error fetching image:", err)
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch image from the URL"})
+    }
+    defer resp.Body.Close()
+
+    // Check if the image was retrieved successfully
+    if resp.StatusCode != http.StatusOK {
+        fmt.Println("Failed to fetch image, status code:", resp.Status)
+        return c.Status(resp.StatusCode).JSON(fiber.Map{"error": "Failed to fetch image, status code: " + resp.Status})
+    }
+
+    // Read the image data
+    imageData, err := io.ReadAll(resp.Body)
+    if err != nil {
+        fmt.Println("Error reading image data:", err)
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read image data"})
+    }
+
+    // Send the image back to the client
+    c.Response().Header.Set(fiber.HeaderContentType, resp.Header.Get("Content-Type")) // Preserve the content type
+    return c.Status(http.StatusOK).Send(imageData)
+}
+
+
+
 

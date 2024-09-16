@@ -35,7 +35,7 @@ class PopOver extends StatelessWidget {
           onTap: () {
             Future.delayed(
               const Duration(),
-              () => openTestPage(
+              () => openQRcodePage(
                   context), // Replace with camera function
             );
           },

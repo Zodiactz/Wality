@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 
 class SettingPage extends StatelessWidget {
-  const SettingPage({super.key});
+  SettingPage({super.key});
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
+
+  void logoutFromApp(context) async {
+    await app.currentUser?.logOut();
+    LogOutToOutsite(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +92,11 @@ class SettingPage extends StatelessWidget {
                           context,
                           icon: Icons.logout,
                           title: 'Log out',
-                          onTap: () => LogOutToOutsite(context),
+                          onTap: () => logoutFromApp(context),
                         ),
                         const SizedBox(
                           height: 12,
                         ),
-                      
                       ],
                     ),
                   ),

@@ -8,7 +8,6 @@ import 'package:wality_application/wality_app/views/authen/forget_password_page.
 import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
-import 'package:wality_application/wality_app/views/nig.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views/change_info_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
@@ -60,11 +59,10 @@ class MyApp extends StatelessWidget {
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
         '/changeinfopage': (context) => const ChangeInfoPage(),
-        '/settingpage': (context) => const SettingPage(),
+        '/settingpage': (context) => SettingPage(),
         '/summarygraphpage': (context) => const SummaryGraphPage(),
         '/rewardpage': (context) => const RewardPage(),
         '/rankingpage': (context) => const RankingPage(),
-        '/testpage': (context) => const testpage(),
         '/qrscanner': (context) => QrScannerPage(),
       },
     );

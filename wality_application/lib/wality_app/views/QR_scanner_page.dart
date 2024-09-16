@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/views/waterCheck/New_waterChecking.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -22,6 +23,9 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<int?>? currentWater;
   Future<int?>? currentBottle;
   Future<int?>? totalWater;
+  Future<int?>? sentCurrentWater;
+  Future<int?>? sentCurrentBottle;
+  Future<int?>? sentTotalWater;
   String? waterid;
 
   // Define the method to update user water data
@@ -130,6 +134,22 @@ class _QrScannerPageState extends State<QrScannerPage> {
     }
   }
 
+  void _showDialogWithAutoDismiss(String title, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            // No action buttons to ensure the dialog cannot be dismissed
+          ],
+        );
+      },
+    );
+  }
+
   void _showDialog(String title, String message) {
     showDialog(
       context: context,
@@ -152,6 +172,38 @@ class _QrScannerPageState extends State<QrScannerPage> {
     );
   }
 
+  void _showDialogContinue(String title, String message, int sentCurrentWaterGo,
+      int sentCurrentBottleGo, int sentWaterAmountGo) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Resume scanning after dialog is dismissed
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewWaterChecking(
+                      sentCurrentWater: sentCurrentWaterGo,
+                      sentCurrentBottle: sentCurrentBottleGo,
+                      sentWaterAmount: sentWaterAmountGo,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -159,6 +211,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
     currentWater = fetchWaterAmount(userId!);
     currentBottle = fetchBottleAmount(userId!);
     totalWater = fetchTotalWater(userId!);
+    sentCurrentWater = fetchWaterAmount(userId!);
+    sentCurrentBottle = fetchBottleAmount(userId!);
   }
 
   @override
@@ -202,36 +256,52 @@ class _QrScannerPageState extends State<QrScannerPage> {
       controller.pauseCamera();
 
       // Show dialog indicating scanning
-      _showDialog('Scanning', 'Please wait while we process the QR code...');
+      _showDialogWithAutoDismiss(
+          'Scanning', 'Please wait while we process the QR code...');
 
-      // Fetch the water ID
-      final waterAmount = await fetchWaterId(scanData.code ?? '');
-      if (waterAmount != null) {
-        // Fetch and update user water data
-        var currentMl = (await currentWater ?? 0) + waterAmount;
-        var botLiv = (await currentBottle ?? 0);
-        final totalMl = (await totalWater ?? 0);
+      // Ensure the dialog is shown before proceeding
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Introduce a delay of 2 seconds
+        await Future.delayed(Duration(seconds: 2));
 
-        // Adjust the values if necessary
-        if (currentMl >= 550) {
-          botLiv += currentMl ~/ 550;
-          currentMl = currentMl % 550;
-        }
+        // Close the dialog after the delay
+        Navigator.of(context).pop();
 
-        final updateSuccess = await updateUserWater(
-            userId!, currentMl, botLiv, totalMl + waterAmount);
-        if (updateSuccess) {
-          _showDialog('Success', 'Your water has been updated!');
-          updateWaterStatus(scanData.code ?? '', "active");
-          openHomePage(context);
+        // Proceed with the rest of the logic
+        final waterAmount = await fetchWaterId(scanData.code ?? '');
+        if (waterAmount != null) {
+          // Fetch and update user water data
+          var currentMl = (await currentWater ?? 0) + waterAmount;
+          var botLiv = (await currentBottle ?? 0);
+          final totalMl = (await totalWater ?? 0) + waterAmount;
+
+          // Adjust the values if necessary
+          if (currentMl >= 550) {
+            botLiv += currentMl ~/ 550;
+            currentMl = currentMl % 550;
+          }
+
+          if (await updateUserWater(userId!, currentMl, botLiv, totalMl)) {
+            updateWaterStatus(scanData.code ?? '', "active");
+            // Pass values to the animation page
+            // Await the Future values before navigating
+            final sentCurrentWaterGo = await sentCurrentWater;
+            final sentCurrentBottleGo = await sentCurrentBottle;
+            _showDialogContinue(
+                'Success',
+                'Your water has been updated! Please wait for a few seconds',
+                sentCurrentWaterGo!,
+                sentCurrentBottleGo!,
+                waterAmount);
+          } else {
+            _showDialog(
+                'Error', 'Failed to update your water. Please try again.');
+          }
         } else {
-          _showDialog(
-              'Error', 'Failed to update your water. Please try again.');
+          _showDialog('Unavailable',
+              'This QR code is unavailable. Please try another.');
         }
-      } else {
-        _showDialog(
-            'Unavailable', 'This QR code is unavailable. Please try another.');
-      }
+      });
     });
   }
 

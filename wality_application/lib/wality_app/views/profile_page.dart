@@ -22,17 +22,22 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Future<String?> usernameFuture = Future.value(null);
+  Future<String?> userImage = Future.value(null);
+  Future<String?> uidFuture = Future.value(null);
+  String imgURL = "";
 
   @override
   void initState() {
     super.initState();
     usernameFuture =
         fetchUsername(userId!); // Assuming userId is not null here.
+    fetchUserImage(userId!);
+    uidFuture = fetchUserUID(userId!);
   }
 
   Future<String?> fetchUsername(String userId) async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/userId/$userId'),
+      Uri.parse('http://localhost:8080/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -41,6 +46,63 @@ class _ProfilePageState extends State<ProfilePage> {
     } else {
       print('Failed to fetch username');
       return null;
+    }
+  }
+
+  Future<String?> fetchUserUID(String userId) async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['uid'];
+    } else {
+      print('Failed to fetch uid');
+      return null;
+    }
+  }
+
+  Future<void> fetchUserImage(String userId) async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final String? profileImgLink = data['profileImg_link'];
+
+      if (profileImgLink != "") {
+        setState(() {
+          imgURL = profileImgLink!; // Directly use the profileImg_link
+        });
+      }
+    } else {
+      print('Failed to fetch profileImg_link');
+    }
+  }
+
+  // Function to get the image from your backend
+  Future<void> fetchImage(String passedImageUrl) async {
+    // Construct the API URL with the encoded parameter
+    final uri = Uri.parse(
+        'http://localhost:8080/getImage?url=${Uri.encodeComponent(passedImageUrl)}');
+
+    try {
+      // Make GET request to your backend
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        // Assuming the backend sends the image in the response body
+        final jsonResponse = json.decode(response.body);
+        setState(() {
+          imgURL = jsonResponse['profileImg_link']; // Extract image URL
+        });
+      } else {
+        print('Failed to load image');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -91,12 +153,19 @@ class _ProfilePageState extends State<ProfilePage> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 32, top: 60),
                             child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/cat.jpg',
-                                width: 96,
-                                height: 96,
-                                fit: BoxFit.cover,
-                              ),
+                              child: imgURL.isNotEmpty
+                                  ? Image.network(
+                                      imgURL,
+                                      width: 96,
+                                      height: 96,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/cat.jpg',
+                                      width: 96,
+                                      height: 96,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           const SizedBox(width: 28),
@@ -152,12 +221,52 @@ class _ProfilePageState extends State<ProfilePage> {
                                     }
                                   },
                                 ),
-                                const Text(
-                                  "UID: 999",
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
+                                FutureBuilder<String?>(
+                                  future: uidFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        flutter_async.ConnectionState.waiting) {
+                                      return const Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Text(
+                                        'Error',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasData) {
+                                      return Text(
+                                        'uid: ${snapshot.data}',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else {
+                                      return const Text(
+                                        'uid not found',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(

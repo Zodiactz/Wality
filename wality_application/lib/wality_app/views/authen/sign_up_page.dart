@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
@@ -58,6 +60,14 @@ class _authenPageState extends State<SignUpPage> {
       }
     }
 
+    String generateUid(int length) {
+      const chars =
+          'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      final random = Random();
+      return List.generate(
+          length, (index) => chars[random.nextInt(chars.length)]).join();
+    }
+
     void signUp(AuthenticationViewModel authenvm) async {
       if (_formKey.currentState != null && _formKey.currentState!.validate()) {
         bool isValidForSignUp = await authenvm.validateAllSignUp(
@@ -86,13 +96,13 @@ class _authenPageState extends State<SignUpPage> {
 
             final newUser = Users(
                 userId: user.id,
+                uid: generateUid(6),
                 userName: usernameController.text.trim(),
                 email: emailController.text.trim(),
                 currentMl: 0,
                 totalMl: 0,
                 botLiv: 0,
-                profileImg_link: "",
-                faceImg_link: "");
+                profileImg_link: "");
 
             final response = await http.post(
               Uri.parse(
