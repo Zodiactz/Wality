@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
-import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 
 class ChangeInfoPage extends StatelessWidget {

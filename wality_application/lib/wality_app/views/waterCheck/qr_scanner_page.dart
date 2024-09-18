@@ -5,13 +5,16 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views/waterCheck/New_waterChecking.dart';
+import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
 
 class QrScannerPage extends StatefulWidget {
+  const QrScannerPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _QrScannerPageState();
 }
@@ -31,7 +34,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
   // Define the method to update user water data
   Future<bool> updateUserWater(
       String userId, int currentMl, int botLiv, int totalMl) async {
-    final uri = Uri.parse('http://localhost:8080/updateUserWater/$userId');
+    final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currentMl': currentMl,
@@ -54,7 +57,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
   }
 
   Future<bool> updateWaterStatus(String waterId, String status) async {
-    final uri = Uri.parse('http://localhost:8080/updateWaterStatus/$waterId');
+    final uri = Uri.parse('$baseUrl/updateWaterStatus/$waterId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'status': status,
@@ -80,7 +83,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   Future<int?> fetchWaterId(String waterId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/waterId/$waterId'),
+      Uri.parse('$baseUrl/waterId/$waterId'),
     );
 
     if (response.statusCode == 200) {
@@ -94,7 +97,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   Future<int?> fetchWaterAmount(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -108,7 +111,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   Future<int?> fetchBottleAmount(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -122,7 +125,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   Future<int?> fetchTotalWater(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -142,7 +145,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
         return AlertDialog(
           title: Text(title),
           content: Text(message),
-          actions: <Widget>[
+          actions: const <Widget>[
             // No action buttons to ensure the dialog cannot be dismissed
           ],
         );
@@ -159,7 +162,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
                 // Resume scanning after dialog is dismissed
@@ -182,14 +185,14 @@ class _QrScannerPageState extends State<QrScannerPage> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
                 // Resume scanning after dialog is dismissed
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NewWaterChecking(
+                    builder: (context) => WaterChecking(
                       sentCurrentWater: sentCurrentWaterGo,
                       sentCurrentBottle: sentCurrentBottleGo,
                       sentWaterAmount: sentWaterAmountGo,
@@ -262,7 +265,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       // Ensure the dialog is shown before proceeding
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         // Introduce a delay of 2 seconds
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 2));
 
         // Close the dialog after the delay
         Navigator.of(context).pop();

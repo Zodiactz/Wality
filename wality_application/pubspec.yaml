@@ -57,6 +57,7 @@ dependencies:
   realm: ^3.4.1
   popover: ^0.3.0+1
   cached_network_image: ^3.4.1
+  awesome_snackbar_content: ^0.1.4
 
   
 

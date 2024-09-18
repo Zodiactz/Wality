@@ -19,7 +19,7 @@ class PopOver extends StatelessWidget {
           child: Container(
             height: 50,
             color: Colors.blue[500],
-            child: Center(
+            child: const Center(
               child: Text(
                 'water checking',
                 style: TextStyle(
@@ -42,7 +42,7 @@ class PopOver extends StatelessWidget {
           child: Container(
             height: 50,
             color: Colors.blue[300],
-            child: Center(
+            child: const Center(
               child: Text(
                 'QR code scanner',
                 style: TextStyle(

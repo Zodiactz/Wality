@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class NewWaterChecking extends StatefulWidget {
+class WaterChecking extends StatefulWidget {
   final int? sentCurrentWater;
   final int? sentCurrentBottle;
   final int? sentWaterAmount;
 
-  NewWaterChecking({
+  const WaterChecking({super.key, 
     this.sentCurrentWater,
     this.sentCurrentBottle,
     this.sentWaterAmount,
   });
 
   @override
-  _NewWaterCheckingState createState() => _NewWaterCheckingState();
+  _WaterCheckingState createState() => _WaterCheckingState();
 }
 
-class _NewWaterCheckingState extends State<NewWaterChecking>
+class _WaterCheckingState extends State<WaterChecking>
     with TickerProviderStateMixin {
   int mlSaved = 0;
   int maxMl = 550;
@@ -48,7 +48,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
     )..repeat(reverse: true);
 
     _fillLevelController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -56,7 +56,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
         .animate(_fillLevelController);
 
     _splashController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -164,11 +164,11 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor:
-              Color(0xFF003545), // Match popup color with background
+              const Color(0xFF003545), // Match popup color with background
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Text(
+          title: const Text(
             'Congratulations!',
             style: TextStyle(
               color: Colors.white,
@@ -179,7 +179,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
           ),
           content: Text(
             "You have filled $formattedWaterAmount & saved $savedCount plastic bottle${savedCount > 1 ? 's' : ''} and helped a turtle.",
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
             ),
@@ -189,7 +189,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(
+                  backgroundColor: const Color.fromARGB(
                       255, 26, 121, 150), // Matching button color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -198,7 +198,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                 onPressed: () {
                   Navigator.of(context).pushReplacementNamed('/homepage');
                 },
-                child: Text(
+                child: const Text(
                   'OK',
                   style: TextStyle(
                     color: Colors.white,
@@ -220,7 +220,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
         children: [
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF003545), Color(0xFF0083AB)],
                   stops: [0.0, 0.67],
@@ -234,7 +234,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Expanded(
                   child: Center(
                     child: Column(
@@ -252,7 +252,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.3),
                                     blurRadius: 10,
-                                    offset: Offset(5, 5),
+                                    offset: const Offset(5, 5),
                                   ),
                                 ],
                                 border: Border.all(
@@ -262,7 +262,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                               ),
                             ),
                             ClipOval(
-                              child: Container(
+                              child: SizedBox(
                                 width: 280,
                                 height: 280,
                                 child: AnimatedBuilder(
@@ -284,14 +284,14 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                                   return CustomPaint(
                                     painter: OutsideSplashPainter(
                                         _splashAnimation.value),
-                                    size: Size(400, 400),
+                                    size: const Size(400, 400),
                                   );
                                 },
                               ),
                             Center(
                               child: Text(
                                 '$mlSaved/$maxMl ml',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 24,
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -300,8 +300,8 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                             ),
                           ],
                         ),
-                        SizedBox(height: 20),
-                        Text(
+                        const SizedBox(height: 20),
+                        const Text(
                           'You saved',
                           style: TextStyle(
                             fontSize: 24,
@@ -311,7 +311,7 @@ class _NewWaterCheckingState extends State<NewWaterChecking>
                         ),
                         Text(
                           '$savedCount',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 48,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -345,7 +345,7 @@ class WavePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     double waveHeight = size.height * fillRatio;
     Paint paint = Paint()
-      ..color = Color(0xFF4FC3F7).withOpacity(0.6)
+      ..color = const Color(0xFF4FC3F7).withOpacity(0.6)
       ..style = PaintingStyle.fill;
 
     Path path = Path();
@@ -363,7 +363,7 @@ class WavePainter extends CustomPainter {
 
     canvas.drawPath(path, paint);
 
-    paint.color = Color(0xFF0288D1).withOpacity(0.6);
+    paint.color = const Color(0xFF0288D1).withOpacity(0.6);
     path = Path();
     for (double i = 0; i <= size.width; i++) {
       path.lineTo(

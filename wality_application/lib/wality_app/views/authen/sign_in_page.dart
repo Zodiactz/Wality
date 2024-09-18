@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:realm/realm.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -26,20 +28,37 @@ class _SignInPageState extends State<SignInPage> {
     String? emailError;
     String? passwordError;
 
+
     void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllSignIn(emailController.text, passwordController.text);
 
       if (authenvm.allError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.allError!)),
+        showAwesomeSnackBar(
+          context,
+          "Error",
+          authenvm.allError!,
+          ContentType.failure,
         );
       } else if (authenvm.emailError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.emailError!)),
+        showAwesomeSnackBar(
+          context,
+          "Email Error",
+          authenvm.emailError!,
+          ContentType.failure,
         );
       } else if (authenvm.passwordError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.passwordError!)),
+        showAwesomeSnackBar(
+          context,
+          "Password Error",
+          "Please enter your password",
+          ContentType.failure,
+        );
+      } else{
+        showAwesomeSnackBar(
+          context,
+          "Sign-in Failed",
+          "Invalid email or password. Please try again.",
+          ContentType.failure,
         );
       }
     }
@@ -52,9 +71,7 @@ class _SignInPageState extends State<SignInPage> {
         await app.logIn(emailPwCredentials);
         openHomePage(context);
       } on Exception catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-in failed: $e')),
-        );
+        showErrorSnackBar(context.read<AuthenticationViewModel>());
       }
     }
 

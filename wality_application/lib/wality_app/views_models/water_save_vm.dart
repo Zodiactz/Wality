@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userid = app.currentUser?.id;
@@ -54,7 +55,7 @@ class WaterSaveViewModel extends ChangeNotifier {
   Future<void> _fetchInitialData() async {
     final userId = userid;
     try {
-      final response = await http.get(Uri.parse('http://localhost:8080/userId/$userId'));
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
       
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);

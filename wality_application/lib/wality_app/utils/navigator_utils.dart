@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
-import 'package:wality_application/wality_app/views/water_checking_page.dart';
+import 'package:wality_application/wality_app/views/waterCheck/ntu_checking_page.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 
 void openChoosewayPageFromLogoPage(BuildContext context) async {

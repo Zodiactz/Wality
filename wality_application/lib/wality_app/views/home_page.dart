@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/views/nav_bar/floating_action_button.dart';
-import 'package:wality_application/wality_app/views/nav_bar/custom_bottom_navbar.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
+import 'package:wality_application/wality_app/repo/water_service.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:realm/realm.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 
 class HomePage extends StatefulWidget {
@@ -17,38 +17,18 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-final App app = App(AppConfiguration('wality-1-djgtexn'));
-final userId = app.currentUser?.id;
-
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<String?>? usernameFuture;
+  final UserService _userService = UserService();
+  final WaterService _waterService = WaterService();
+  final RealmService _realmService = RealmService();
 
   @override
   void initState() {
     super.initState();
-    _refreshData();
-    // Initialize the Future to fetch the username when the widget is created
-    usernameFuture = fetchUsername(userId!);
-  }
-
-  Future<void> _refreshData() async {
-    final waterSaveVM = Provider.of<WaterSaveViewModel>(context, listen: false);
-    await waterSaveVM.refreshData(); // Fetch updated data
-    setState(() {}); // Rebuild the widget to reflect new data
-  }
-
-  Future<String?> fetchUsername(String userId) async {
-    final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['username'];
-    } else {
-      print('Failed to fetch username');
-      return null;
-    }
+    _waterService.refreshWaterDataWithState(context, () => setState(() {}));
+    final userId = _realmService.getCurrentUserId();
+    usernameFuture = _userService.fetchUsername(userId!);
   }
 
   @override
@@ -87,6 +67,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       const SizedBox(height: 8),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
+                        // FutureBuilder widget to display the username
                         child: FutureBuilder<String?>(
                           future: usernameFuture,
                           builder: (context, snapshot) {
@@ -146,6 +127,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
+                                    // ClipOval is used to clip the CustomPaint widget to a circle
                                     Container(
                                       width: 300,
                                       height: 300,
@@ -200,6 +182,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 2),
+                              // Text widget to display the amount of water saved
                               const Text(
                                 'You saved',
                                 style: TextStyle(
@@ -220,11 +203,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             const EdgeInsets.only(right: 40),
                                         child: Column(
                                           children: [
+                                            // Image widget to display the gif
                                             Image.memory(
                                               animationvm.gifBytes!,
                                               width: 80,
                                               height: 80,
                                             ),
+                                            // Text widget to display the amount of bottles saved
                                             const Text(
                                               "Bottles",
                                               style: TextStyle(
@@ -258,11 +243,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             const EdgeInsets.only(left: 40),
                                         child: Column(
                                           children: [
+                                            // Image widget to display the gif
                                             Image.memory(
                                               animationvm.gifBytes2!,
                                               width: 80,
                                               height: 80,
                                             ),
+                                            // Text widget to display the amount of lives saved
                                             const Text(
                                               "Lives",
                                               style: TextStyle(
@@ -289,6 +276,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
+            //Navbar
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
             floatingActionButton: const Padding(

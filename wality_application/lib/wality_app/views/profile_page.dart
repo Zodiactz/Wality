@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views/nav_bar/custom_bottom_navbar.dart';
-import 'package:wality_application/wality_app/views/nav_bar/floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:http/http.dart' as http;
@@ -37,7 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<String?> fetchUsername(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -51,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<String?> fetchUserUID(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -65,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> fetchUserImage(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/userId/$userId'),
+      Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -86,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> fetchImage(String passedImageUrl) async {
     // Construct the API URL with the encoded parameter
     final uri = Uri.parse(
-        'http://localhost:8080/getImage?url=${Uri.encodeComponent(passedImageUrl)}');
+        '$baseUrl/getImage?url=${Uri.encodeComponent(passedImageUrl)}');
 
     try {
       // Make GET request to your backend

@@ -1,11 +1,13 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:realm/realm.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -42,20 +44,46 @@ class _authenPageState extends State<SignUpPage> {
           passwordController.text, passwordController2.text);
 
       if (authenvm.allError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.allError!)),
+        showAwesomeSnackBar(
+          context,
+          "Error",
+          authenvm.allError!,
+          ContentType.failure,
         );
       } else if (authenvm.usernameError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.usernameError!)),
+        showAwesomeSnackBar(
+          context,
+          "Username Error",
+          authenvm.emailError!,
+          ContentType.failure,
         );
       } else if (authenvm.emailError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.emailError!)),
+        showAwesomeSnackBar(
+          context,
+          "Email Error",
+          authenvm.emailError!,
+          ContentType.failure,
         );
       } else if (authenvm.passwordError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.passwordError!)),
+        showAwesomeSnackBar(
+          context,
+          "Password Error",
+          authenvm.passwordError!,
+          ContentType.failure,
+        );
+      } else if (authenvm.confirmEmailError != null) {
+        showAwesomeSnackBar(
+          context,
+          "Password Error",
+          authenvm.confirmEmailError!,
+          ContentType.failure,
+        );
+      } else {
+        showAwesomeSnackBar(
+          context,
+          "Sign-up Failed",
+          "Invalid email or password. Please try again.",
+          ContentType.failure,
         );
       }
     }
@@ -105,8 +133,7 @@ class _authenPageState extends State<SignUpPage> {
                 profileImg_link: "");
 
             final response = await http.post(
-              Uri.parse(
-                  'http://localhost:8080/create'), // Replace with your backend URL
+              Uri.parse('$baseUrl/create'), // Replace with your backend URL
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
               },
@@ -137,7 +164,7 @@ class _authenPageState extends State<SignUpPage> {
       } else {
         // Validation failed, show error messages
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill in all fields correctly')),
+          const SnackBar(content: Text('Please fill in all fields correctly')),
         );
       }
     }
@@ -239,7 +266,7 @@ class _authenPageState extends State<SignUpPage> {
                               errorMessage: usernameError,
                               onfieldSubmitted: (value) {
                                 FocusScope.of(context)
-                                    .requestFocus(usernameFocusNode);
+                                    .requestFocus(emailFocusNode);
                               },
                             ),
                           ),
@@ -278,6 +305,10 @@ class _authenPageState extends State<SignUpPage> {
                                 },
                               ),
                               errorMessage: passwordError,
+                              onfieldSubmitted: (value) {
+                                FocusScope.of(context)
+                                    .requestFocus(confirmPassFocusNote);
+                              },
                             ),
                           ),
                           const SizedBox(height: 20),

@@ -12,7 +12,7 @@ class CustomFloatingActionButton extends StatelessWidget {
         // Show the popup menu
         showPopover(
             context: context,
-            bodyBuilder: (context) => PopOver(),
+            bodyBuilder: (context) => const PopOver(),
             width: 250,
             height: 100,
             backgroundColor: Colors.blue);

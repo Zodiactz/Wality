@@ -63,7 +63,7 @@ class AuthenticationViewModel extends ChangeNotifier {
     if (value2 == null || value2.isEmpty) {
       return 'Confirm passoword is required';
     } else if (value2 != value) {
-      return 'passwords does not match';
+      return 'Passwords does not match';
     }
     return null;
   }
@@ -76,9 +76,9 @@ class AuthenticationViewModel extends ChangeNotifier {
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
     if (usernameVal.isEmpty || emailVal.isEmpty || passwordVal.isEmpty) {
-      allError = 'Username, Email, Password, and Confirm Password are required';
+      allError = 'Please enter all fields';
     } else if (passwordVal != confirmPassEr) {
-      allError = "passwords arn't match";
+      allError = "Passwords aren't match";
     } else {
       allError = null;
     }
@@ -99,7 +99,7 @@ class AuthenticationViewModel extends ChangeNotifier {
     passwordError = validatePassword(passwordVal);
 
     if (emailVal.isEmpty && passwordVal.isEmpty) {
-      allError = 'Email and Password are required';
+      allError = 'Please enter all fields';
     } else {
       allError = null;
     }
