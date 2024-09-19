@@ -27,6 +27,8 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  
+
   String? validateUsername(String? value) {
     return (value == null || value.isEmpty) ? 'Username is required' : null;
   }
@@ -130,5 +132,5 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
 
     return !_showValidationMessage;
-  }
+      }
 }

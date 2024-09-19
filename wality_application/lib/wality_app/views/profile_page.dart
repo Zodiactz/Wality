@@ -1,18 +1,14 @@
+// profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/utils/constant.dart';
-import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:realm/realm.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
-
-final App app = App(AppConfiguration('wality-1-djgtexn'));
-final userId = app.currentUser?.id;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -27,83 +23,27 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String?> uidFuture = Future.value(null);
   String imgURL = "";
 
+  final UserService _userService = UserService();
+  final RealmService _realmService = RealmService();
+
   @override
   void initState() {
     super.initState();
-    usernameFuture =
-        fetchUsername(userId!); // Assuming userId is not null here.
-    fetchUserImage(userId!);
-    uidFuture = fetchUserUID(userId!);
-  }
-
-  Future<String?> fetchUsername(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['username'];
-    } else {
-      print('Failed to fetch username');
-      return null;
+    final userId = _realmService.getCurrentUserId();
+    if (userId != null) {
+      usernameFuture = _userService.fetchUsername(userId!); // Fetch username
+      _fetchUserImage(userId!);
+      uidFuture = _userService.fetchUserUID(userId!);
     }
   }
 
-  Future<String?> fetchUserUID(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['uid'];
-    } else {
-      print('Failed to fetch uid');
-      return null;
-    }
-  }
-
-  Future<void> fetchUserImage(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final String? profileImgLink = data['profileImg_link'];
-
-      if (profileImgLink != "") {
-        setState(() {
-          imgURL = profileImgLink!; // Directly use the profileImg_link
-        });
-      }
-    } else {
-      print('Failed to fetch profileImg_link');
-    }
-  }
-
-  // Function to get the image from your backend
-  Future<void> fetchImage(String passedImageUrl) async {
-    // Construct the API URL with the encoded parameter
-    final uri = Uri.parse(
-        '$baseUrl/getImage?url=${Uri.encodeComponent(passedImageUrl)}');
-
-    try {
-      // Make GET request to your backend
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        // Assuming the backend sends the image in the response body
-        final jsonResponse = json.decode(response.body);
-        setState(() {
-          imgURL = jsonResponse['profileImg_link']; // Extract image URL
-        });
-      } else {
-        print('Failed to load image');
-      }
-    } catch (e) {
-      print('Error: $e');
+  // Wrap the call to UserService in a separate function to set state for the image URL
+  Future<void> _fetchUserImage(String userId) async {
+    final profileImgLink = await _userService.fetchUserImage(userId);
+    if (profileImgLink != null && profileImgLink.isNotEmpty) {
+      setState(() {
+        imgURL = profileImgLink;
+      });
     }
   }
 
@@ -333,19 +273,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(
                             height: 12,
                           ),
-                          /*profilevm.buildProfileOption(
-                            context,
-                            icon: Icons.bar_chart,
-                            title: 'Summary Graph',
-                            onTap: () => openSummaryGraphPage(context),
-                          ),
-                          const SizedBox(
-                            height: 12,
-                          ),
-                          profilevm.buildDivider(),
-                          const SizedBox(
-                            height: 12,
-                          ),*/
                           profilevm.buildProfileOption(
                             context,
                             icon: Icons.workspace_premium_sharp,

@@ -28,7 +28,7 @@ class _SignInPageState extends State<SignInPage> {
     String? emailError;
     String? passwordError;
 
-
+    // Show error snackbar
     void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllSignIn(emailController.text, passwordController.text);
 
@@ -62,7 +62,7 @@ class _SignInPageState extends State<SignInPage> {
         );
       }
     }
-
+    //Sign in function
     void signIn() async {
       final email = emailController.text.trim();
       final pass = passwordController.text.trim();
@@ -115,7 +115,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -128,12 +128,14 @@ class _SignInPageState extends State<SignInPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const SizedBox(height: 32),
+                                  // Logo
                                   Image.asset(
                                     'assets/images/Logo.png',
                                     width: 220,
                                     height: 220,
                                   ),
                                   const SizedBox(height: 8),
+                                  // Title
                                   const Text(
                                     'Wality',
                                     style: TextStyle(
@@ -148,8 +150,9 @@ class _SignInPageState extends State<SignInPage> {
                               ),
                             ),
                           ),
+                          // Back button
                           Padding(
-                            padding: const EdgeInsets.only(top: 88, left: 8),
+                            padding: const EdgeInsets.only(top: 116, left: 8),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -177,6 +180,7 @@ class _SignInPageState extends State<SignInPage> {
                               SizedBox(
                                 height: 50.0,
                                 width: 300.0,
+                                // Email text field
                                 child: TextFormFieldAuthen(
                                   controller: emailController,
                                   hintText: "Email",
@@ -193,6 +197,7 @@ class _SignInPageState extends State<SignInPage> {
                               SizedBox(
                                 height: 50.0,
                                 width: 300.0,
+                                // Password text field
                                 child: TextFormFieldAuthen(
                                   controller: passwordController,
                                   hintText: "Password",
@@ -211,6 +216,7 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                               ),
                               const SizedBox(height: 28),
+                              // Sign in button
                               ElevatedButton(
                                 onPressed: () {
                                   signIn();
@@ -233,6 +239,7 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                               ),
                               const SizedBox(height: 28),
+                              //go to sign up page
                               GestureDetector(
                                 onTap: () {
                                   openSignUpPage(context);
@@ -247,6 +254,7 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                               ),
                               const SizedBox(height: 28),
+                              //go to forgot password page
                               GestureDetector(
                                 onTap: () {
                                   openForgotPassword(context);

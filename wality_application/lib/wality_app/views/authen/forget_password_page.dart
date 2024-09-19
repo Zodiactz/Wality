@@ -89,7 +89,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                     Stack(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(top: 80),
+                          padding: const EdgeInsets.only(top: 60),
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -118,7 +118,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20, left: 8),
+                          padding: const EdgeInsets.only(top: 28, left: 8),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -129,7 +129,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                 ),
                                 color: Colors.black,
                                 onPressed: () {
-                                  openChoosewayPage(context);
+                                  GoBack(context);
                                 },
                               ),
                             ],

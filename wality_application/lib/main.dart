@@ -5,15 +5,14 @@ import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.d
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
-import 'package:wality_application/wality_app/views/home_page.dart';
+  import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
-import 'package:wality_application/wality_app/views/change_info_page.dart';
+import 'package:wality_application/wality_app/views/change_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
 import 'package:wality_application/wality_app/views/ranking_page.dart';
 import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
-import 'package:wality_application/wality_app/views/summary_graph.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
@@ -46,7 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: const LogoPage(),
+      home: const LogoPage()/*const HomePage()*/,
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -57,9 +56,7 @@ class MyApp extends StatelessWidget {
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
         '/changeinfopage': (context) => const ChangeInfoPage(),
-        '/settingpage': (context) => SettingPage(),
-        '/summarygraphpage': (context) => const SummaryGraphPage(),
-        '/rewardpage': (context) => const RewardPage(),
+        '/settingpage': (context) => SettingPage(),        '/rewardpage': (context) => const RewardPage(),
         '/rankingpage': (context) => const RankingPage(),
         '/qrscanner': (context) => QrScannerPage(),
       },

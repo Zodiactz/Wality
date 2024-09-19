@@ -24,12 +24,14 @@ class LogoPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Logo
               Image.asset(
                 'assets/images/Logo.png',
                 width: 250,
                 height: 250,
               ),
               const SizedBox(height: 1),
+              // Title
               const Text(
                 'Wality',
                 style: TextStyle(

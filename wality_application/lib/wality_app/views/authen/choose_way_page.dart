@@ -25,11 +25,13 @@ class ChooseWayPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Logo
                 Image.asset(
                   'assets/images/Logo.png',
                   width: 250,
                   height: 250,
                 ),
+                // Title
                 const Text(
                   'Wality',
                   style: TextStyle(
@@ -40,6 +42,7 @@ class ChooseWayPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // Sign in button
                 ElevatedButton(
                   onPressed: () {
                     openSignInPage(context);
@@ -62,6 +65,7 @@ class ChooseWayPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // Sign up button
                 ElevatedButton(
                   onPressed: () {
                     openSignUpPage(context);

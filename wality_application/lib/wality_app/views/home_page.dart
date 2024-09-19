@@ -33,6 +33,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions using MediaQuery for responsiveness
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return ChangeNotifierProvider(
       create: (context) => AnimationViewModel(this),
       child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
@@ -43,7 +47,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               children: [
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 60),
+                    padding: EdgeInsets.only(bottom: screenHeight * 0.07), // Responsive padding
                     child: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -64,9 +68,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
+                      SizedBox(height: screenHeight * 0.01),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
+                        padding: EdgeInsets.only(left: screenWidth * 0.05),
                         // FutureBuilder widget to display the username
                         child: FutureBuilder<String?>(
                           future: usernameFuture,
@@ -122,15 +126,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: 8, top: 4),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: screenHeight * 0.01),
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                    // ClipOval is used to clip the CustomPaint widget to a circle
+                                    //circle
                                     Container(
-                                      width: 300,
-                                      height: 300,
+                                      width: screenWidth * 0.7, 
+                                      height: screenWidth * 0.7, 
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         boxShadow: [
@@ -143,14 +147,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ],
                                         border: Border.all(
                                           color: Colors.white,
-                                          width: 10,
+                                          width: screenWidth * 0.03, 
                                         ),
                                       ),
                                     ),
                                     ClipOval(
                                       child: SizedBox(
-                                        width: 280,
-                                        height: 280,
+                                        width: screenWidth * 0.65, 
+                                        height: screenWidth * 0.65, 
                                         child: AnimatedBuilder(
                                           animation: animationvm
                                               .waveAnimationController!,
@@ -170,8 +174,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     Center(
                                       child: Text(
                                         '${watervm.water.mlSaved}/${watervm.water.maxMl}ml',
-                                        style: const TextStyle(
-                                          fontSize: 24,
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.06, // Responsive font size
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'RobotoCondensed',
@@ -181,8 +185,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              // Text widget to display the amount of water saved
+                              SizedBox(height: screenHeight * 0.01),
+                              //you save text
                               const Text(
                                 'You saved',
                                 style: TextStyle(
@@ -193,23 +197,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 40),
+                                padding:
+                                    EdgeInsets.only(bottom: screenHeight * 0.08),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    //bottle
                                     if (animationvm.gifBytes2 != null)
                                       Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 40),
+                                        padding: EdgeInsets.only(
+                                            right: screenWidth * 0.1),
                                         child: Column(
                                           children: [
-                                            // Image widget to display the gif
                                             Image.memory(
                                               animationvm.gifBytes!,
-                                              width: 80,
-                                              height: 80,
+                                              width: screenWidth * 0.2,
+                                              height: screenWidth * 0.2,
                                             ),
-                                            // Text widget to display the amount of bottles saved
                                             const Text(
                                               "Bottles",
                                               style: TextStyle(
@@ -225,31 +229,31 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     else
                                       const CircularProgressIndicator(),
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 40, right: 20),
+                                      padding: EdgeInsets.only(
+                                          bottom: screenHeight * 0.05,
+                                          right: screenWidth * 0.05),
                                       child: Text(
                                         '${watervm.water.savedCount}',
-                                        style: const TextStyle(
-                                          fontSize: 96,
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.2,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'RobotoCondensed',
                                         ),
                                       ),
                                     ),
+                                    //turtle
                                     if (animationvm.gifBytes != null)
                                       Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 40),
+                                        padding: EdgeInsets.only(
+                                            left: screenWidth * 0.1),
                                         child: Column(
                                           children: [
-                                            // Image widget to display the gif
                                             Image.memory(
                                               animationvm.gifBytes2!,
-                                              width: 80,
-                                              height: 80,
+                                              width: screenWidth * 0.2,
+                                              height: screenWidth * 0.2,
                                             ),
-                                            // Text widget to display the amount of lives saved
                                             const Text(
                                               "Lives",
                                               style: TextStyle(
@@ -276,7 +280,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            //Navbar
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
             floatingActionButton: const Padding(
