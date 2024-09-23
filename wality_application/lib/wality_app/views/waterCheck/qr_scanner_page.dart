@@ -26,20 +26,23 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<int?>? currentWater;
   Future<int?>? currentBottle;
   Future<int?>? totalWater;
+  Future<int?>? fillingLimit;
   Future<int?>? sentCurrentWater;
   Future<int?>? sentCurrentBottle;
   Future<int?>? sentTotalWater;
   String? waterid;
+  Future<DateTime?>? startHour;
 
   // Define the method to update user water data
   Future<bool> updateUserWater(
-      String userId, int currentMl, int botLiv, int totalMl) async {
+      String userId, int currentMl, int botLiv, int totalMl, int limit) async {
     final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currentMl': currentMl,
       'botLiv': botLiv,
       'totalMl': totalMl,
+      'fillingLimit': limit,
     });
 
     try {
@@ -53,6 +56,24 @@ class _QrScannerPageState extends State<QrScannerPage> {
     } catch (e) {
       print('Error: $e');
       return false;
+    }
+  }
+
+  Future<void> updateUserFillingTime() async {
+    final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'startFillingTime': DateTime.now(),
+    });
+
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+      if (response.statusCode == 200) {
+      } else {
+        print('Failed to update user: ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -91,6 +112,34 @@ class _QrScannerPageState extends State<QrScannerPage> {
       return data['quantity'];
     } else {
       print('Failed to fetch waterId');
+      return null;
+    }
+  }
+
+  Future<DateTime?> fetchUserStartTime(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['startFillingTime'];
+    } else {
+      print('Failed to fetch startFillingTime');
+      return null;
+    }
+  }
+
+  Future<int?> fetchUserFillingLimit(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['fillingLimit'];
+    } else {
+      print('Failed to fetch fillingLimit');
       return null;
     }
   }
@@ -216,6 +265,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
     totalWater = fetchTotalWater(userId!);
     sentCurrentWater = fetchWaterAmount(userId!);
     sentCurrentBottle = fetchBottleAmount(userId!);
+    fillingLimit = fetchUserFillingLimit(userId!);
+    startHour = fetchUserStartTime(userId!);
   }
 
   @override
@@ -272,33 +323,50 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
         // Proceed with the rest of the logic
         final waterAmount = await fetchWaterId(scanData.code ?? '');
+
         if (waterAmount != null) {
-          // Fetch and update user water data
-          var currentMl = (await currentWater ?? 0) + waterAmount;
-          var botLiv = (await currentBottle ?? 0);
-          final totalMl = (await totalWater ?? 0) + waterAmount;
+          final startTime = (await startHour);
+          final limitTest = (await fillingLimit);
+          DateTime now = DateTime.now();
+          Duration difference = now.difference(startTime!);
+          if ((limitTest! + waterAmount <= 2000 && difference.inHours < 1) ||
+              (difference.inHours >= 1)) {
+            // Fetch and update user water data
+            var currentMl = (await currentWater ?? 0) + waterAmount;
+            var botLiv = (await currentBottle ?? 0);
+            final totalMl = (await totalWater ?? 0) + waterAmount;
+            final limit = (await fillingLimit ?? 0) + waterAmount;
 
-          // Adjust the values if necessary
-          if (currentMl >= 550) {
-            botLiv += currentMl ~/ 550;
-            currentMl = currentMl % 550;
-          }
+            // Adjust the values if necessary
+            if (currentMl >= 550) {
+              botLiv += currentMl ~/ 550;
+              currentMl = currentMl % 550;
+            }
 
-          if (await updateUserWater(userId!, currentMl, botLiv, totalMl)) {
-            updateWaterStatus(scanData.code ?? '', "active");
-            // Pass values to the animation page
-            // Await the Future values before navigating
-            final sentCurrentWaterGo = await sentCurrentWater;
-            final sentCurrentBottleGo = await sentCurrentBottle;
-            _showDialogContinue(
-                'Success',
-                'Your water has been updated! Please wait for a few seconds',
-                sentCurrentWaterGo!,
-                sentCurrentBottleGo!,
-                waterAmount);
+            if (difference.inHours > 1) {
+              await updateUserFillingTime();
+            }
+
+            if (await updateUserWater(
+                userId!, currentMl, botLiv, totalMl, limit)) {
+              updateWaterStatus(scanData.code ?? '', "active");
+              // Pass values to the animation page
+              // Await the Future values before navigating
+              final sentCurrentWaterGo = await sentCurrentWater;
+              final sentCurrentBottleGo = await sentCurrentBottle;
+              _showDialogContinue(
+                  'Success',
+                  'Your water has been updated! Please wait for a few seconds',
+                  sentCurrentWaterGo!,
+                  sentCurrentBottleGo!,
+                  waterAmount);
+            } else {
+              _showDialog(
+                  'Error', 'Failed to update your water. Please try again.');
+            }
           } else {
-            _showDialog(
-                'Error', 'Failed to update your water. Please try again.');
+            _showDialog('Exceeded limit',
+                'Your water filling has exceeded the limit. Please wait');
           }
         } else {
           _showDialog('Unavailable',

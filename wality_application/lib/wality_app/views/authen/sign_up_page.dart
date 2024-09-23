@@ -130,7 +130,8 @@ class _authenPageState extends State<SignUpPage> {
               currentMl: 0,
               totalMl: 0,
               botLiv: 0,
-              profileImg_link: "");
+              profileImg_link: "",
+              fillingLimit: 0);
 
           // Call the service to create the user and handle the response
           final result = await _authService.createUser(newUser);
@@ -202,8 +203,7 @@ class _authenPageState extends State<SignUpPage> {
                           padding: const EdgeInsets.only(top: 100),
                           child: Center(
                             child: Stack(
-                              alignment: Alignment
-                                  .center,
+                              alignment: Alignment.center,
                               children: [
                                 // image
                                 Padding(
@@ -217,8 +217,8 @@ class _authenPageState extends State<SignUpPage> {
 
                                 // text
                                 Padding(
-                                  padding: const EdgeInsets.only(top:200),
-                                  child:  Text(
+                                  padding: const EdgeInsets.only(top: 200),
+                                  child: Text(
                                     'Wality',
                                     style: TextStyle(
                                       fontSize: 96,
