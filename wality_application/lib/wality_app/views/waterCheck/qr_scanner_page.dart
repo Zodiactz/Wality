@@ -328,9 +328,16 @@ class _QrScannerPageState extends State<QrScannerPage> {
           final startTime = (await startHour);
           final limitTest = (await fillingLimit);
           DateTime now = DateTime.now();
-          Duration difference = now.difference(startTime!);
-          if ((limitTest! + waterAmount <= 2000 && difference.inHours < 1) ||
-              (difference.inHours >= 1)) {
+
+          Duration? difference;
+          if (startTime != null) {
+            difference = now.difference(startTime);
+          }
+
+          if ((limitTest! + waterAmount <= 2000 &&
+                  (difference != null && difference.inHours < 1)) ||
+              (difference != null && difference.inHours >= 1) ||
+              (startHour == null)) {
             // Fetch and update user water data
             var currentMl = (await currentWater ?? 0) + waterAmount;
             var botLiv = (await currentBottle ?? 0);
@@ -343,7 +350,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
               currentMl = currentMl % 550;
             }
 
-            if (difference.inHours > 1) {
+            if ((difference != null && difference.inHours > 1) ||
+                (difference == null)) {
               await updateUserFillingTime();
             }
 
