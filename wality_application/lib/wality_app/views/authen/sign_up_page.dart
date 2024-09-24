@@ -136,13 +136,13 @@ class _authenPageState extends State<SignUpPage> {
           // Call the service to create the user and handle the response
           final result = await _authService.createUser(newUser);
 
-          if (result == null) {
+          if (result != null) {
             // Success: Navigate to homepage
             openHomePage(context);
           } else {
             // Show error message from result
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(result)),
+              SnackBar(content: Text(result!)),
             );
           }
         } catch (e) {

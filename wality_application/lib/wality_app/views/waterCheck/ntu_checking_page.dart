@@ -47,7 +47,7 @@ class WaterCheckingPage extends StatelessWidget {
                   padding: EdgeInsets.only(right: 50),
                   child: Center(
                     child: Text(
-                      'WaterChecking',
+                      'WaterQulityCheck',
                       style: TextStyle(
                         fontSize: 24,
                         fontFamily: 'RobotoCondensed',
