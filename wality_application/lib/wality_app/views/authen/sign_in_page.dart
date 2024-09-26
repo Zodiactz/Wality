@@ -70,7 +70,7 @@ class _SignInPageState extends State<SignInPage> {
         final emailPwCredentials = Credentials.emailPassword(email, pass);
         await app.logIn(emailPwCredentials);
         openHomePage(context);
-      } on Exception catch (e) {
+      } on Exception {
         showErrorSnackBar(context.read<AuthenticationViewModel>());
       }
     }

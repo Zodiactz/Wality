@@ -63,4 +63,25 @@ class UserService {
       return null;
     }
   }
+
+  Future<String?> updateImage(String passedImageUrl, String imagePath) async {
+    final uri = Uri.parse(
+      '$baseUrl/getImage?url=${Uri.encodeComponent(passedImageUrl)}',
+    );
+
+    try {
+      final response = await http.post(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        return jsonResponse['profileImg_link'];
+      } else {
+        print('Failed to update image');
+        return null;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
 }

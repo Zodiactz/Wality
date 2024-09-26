@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/utils/pop_over.dart';
+import 'package:wality_application/wality_app/utils/pop_over_water.dart';
 
 class CustomFloatingActionButton extends StatelessWidget {
   const CustomFloatingActionButton({super.key});
@@ -12,7 +12,7 @@ class CustomFloatingActionButton extends StatelessWidget {
         // Show the popup menu
         showPopover(
             context: context,
-            bodyBuilder: (context) => const PopOver(),
+            bodyBuilder: (context) => const PopOverForWater(),
             width: 250,
             height: 100,
             backgroundColor: Colors.blue);

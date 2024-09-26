@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 
-class PopOver extends StatelessWidget {
-  const PopOver({super.key});
+class PopOverForWater extends StatelessWidget {
+  const PopOverForWater({super.key});
 
   @override
   Widget build(BuildContext context) {
