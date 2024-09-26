@@ -5,7 +5,7 @@ import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.d
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
-  import 'package:wality_application/wality_app/views/home_page.dart';
+import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views/change_password_page.dart';
@@ -45,20 +45,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: const LogoPage()/*const HomePage()*/,
+      home: /*const LogoPage()*/const HomePage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
         '/signinpage': (context) => const SignInPage(),
         '/signuppage': (context) => const SignUpPage(),
         '/forgetpasswordpage': (context) => const ForgetpasswordPage(),
-        '/waterChecking': (context) => WaterChecking(),
+        '/waterChecking': (context) => const WaterChecking(),
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
         '/changeinfopage': (context) => const ChangeInfoPage(),
-        '/settingpage': (context) => SettingPage(),        '/rewardpage': (context) => const RewardPage(),
+        '/settingpage': (context) => SettingPage(),        
+        '/rewardpage': (context) => const RewardPage(),
         '/rankingpage': (context) => const RankingPage(),
-        '/qrscanner': (context) => QrScannerPage(),
+        '/qrscanner': (context) => const QrScannerPage(),
       },
     );
   }

@@ -6,6 +6,7 @@ import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/utils/pop_up_change_info.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
@@ -218,7 +219,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                   popupChangeInfo(context); 
+                                  },
                                   child: const Padding(
                                     padding: EdgeInsets.only(bottom: 4),
                                     child: Row(
