@@ -1,100 +1,168 @@
 import 'package:flutter/material.dart';
 
 class RankingPage extends StatefulWidget {
-  const RankingPage({super.key});
-
   @override
-  State<RankingPage> createState() => _RewardPageState();
+  _RankingPageState createState() => _RankingPageState();
 }
 
-class _RewardPageState extends State<RankingPage> {
+class _RankingPageState extends State<RankingPage> {
+  String _selectedFilter = 'Recently';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            child: Container(
-              width: double.maxFinite,
-              height: 180,
-              decoration: const BoxDecoration(
-                color: Color(0xFF0083AB),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.chevron_left,
-                        size: 32,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Ranking',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'RobotoCondensed',
-                      ),
-                    ),
-                  ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0083AB), Color(0xFF003545)],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildAppBar(context),
+              _buildFilterDropdown(),
+              _buildUserRank(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 13,
+                  itemBuilder: (context, index) => _buildRankItem(index + 1),
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          Expanded(
+            child: Text(
+              'Ranking',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+              textAlign: TextAlign.center,
             ),
           ),
-          Positioned(
-              top: 150,
-              child: Container(
-                padding: const EdgeInsets.only(left: 15, top: 20),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 150,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                /*child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 8),
-                  child: Column(
-                    children: [
-                      profilevm.buildProfileOption(
-                        context,
-                        icon: Icons.person,
-                        title: 'Change Information',
-                        onTap: () => openChoosechangePage(context),
-                      ),
-                      const SizedBox(
-                        height: 12,
-                      ),
-                      profilevm.buildDivider(),
-                      const SizedBox(
-                        height: 12,
-                      ),
-                      profilevm.buildProfileOption(
-                        context,
-                        icon: Icons.logout,
-                        title: 'Log out',
-                        onTap: () => LogOutToOutsite(context),
-                      ),
-                      const SizedBox(
-                        height: 12,
-                      ),
-                    ],
-                  ),
-                ),*/
-              )),
+          SizedBox(width: 40), // To balance the back button
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterDropdown() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _selectedFilter,
+            isExpanded: true,
+            dropdownColor: Color(0xFF0083AB),
+            style: TextStyle(color: Colors.white, fontSize: 16),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedFilter = newValue!;
+              });
+            },
+            items: <String>['Recently', 'All Time']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildUserRank() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundImage: AssetImage('assets/user_avatar.png'),
+            radius: 30,
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Username', style: TextStyle(color: Colors.white, fontSize: 18)),
+                Text(_selectedFilter == 'Recently' ? '8876 Bottles' : '156280 Bottles', 
+                     style: TextStyle(color: Colors.white70, fontSize: 16)),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(_selectedFilter == 'Recently' ? 'No.6' : 'No.3', 
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRankItem(int rank) {
+    // Simulating different data for Today and All Time
+    final todaySteps = 15628 - (rank - 1) * 1000;
+    final allTimeSteps = todaySteps * 30; // Just for demonstration
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Text(
+            '$rank',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 16),
+          CircleAvatar(
+            backgroundImage: AssetImage('assets/avatar_$rank.png'),
+            radius: 20,
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              'User Name $rank',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+          Text(
+            '${_selectedFilter == 'Recently' ? todaySteps : allTimeSteps} Bottles',
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
         ],
       ),
     );
