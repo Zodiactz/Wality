@@ -6,7 +6,7 @@ class RankingPage extends StatefulWidget {
 }
 
 class _RankingPageState extends State<RankingPage> {
-  String _selectedFilter = 'Recently';
+  String _selectedFilter = 'All Time';
 
   @override
   Widget build(BuildContext context) {
@@ -61,40 +61,21 @@ class _RankingPageState extends State<RankingPage> {
   }
 
   Widget _buildFilterDropdown() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _selectedFilter,
-            isExpanded: true,
-            dropdownColor: Color(0xFF0083AB),
-            style: TextStyle(color: Colors.white, fontSize: 16),
-            icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedFilter = newValue!;
-              });
-            },
-            items: <String>['Recently', 'All Time']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
-
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: CustomDropdown(
+      value: _selectedFilter,
+      items: ['All Time', 'Recently'],
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedFilter = newValue;
+          });
+        }
+      },
+    ),
+  );
+}
   Widget _buildUserRank() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -130,7 +111,6 @@ class _RankingPageState extends State<RankingPage> {
   }
 
   Widget _buildRankItem(int rank) {
-    // Simulating different data for Today and All Time
     final todaySteps = 15628 - (rank - 1) * 1000;
     final allTimeSteps = todaySteps * 30; // Just for demonstration
 
@@ -166,5 +146,133 @@ class _RankingPageState extends State<RankingPage> {
         ],
       ),
     );
+  }
+}
+
+class CustomDropdown extends StatefulWidget {
+  final String value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+
+  CustomDropdown({
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  _CustomDropdownState createState() => _CustomDropdownState();
+}
+
+class _CustomDropdownState extends State<CustomDropdown> {
+  bool _isOpen = false;
+  late OverlayEntry _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _toggleDropdown,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.white, width: 2),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0083AB), Color(0xFF006080)],
+            ),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.value,
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Icon(
+                _isOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                color: Colors.white,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        width: size.width,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: Offset(0.0, size.height + 5.0),
+          child: Material(
+            elevation: 4.0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFF0083AB),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: widget.items.map((item) => _buildDropdownItem(item)).toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownItem(String item) {
+    return InkWell(
+      onTap: () {
+        widget.onChanged(item);
+        _toggleDropdown();
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              item,
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            if (widget.value == item)
+              Icon(Icons.check, color: Colors.white, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _toggleDropdown() {
+    setState(() {
+      _isOpen = !_isOpen;
+    });
+
+    if (_isOpen) {
+      _overlayEntry = _createOverlayEntry();
+      Overlay.of(context).insert(_overlayEntry);
+    } else {
+      _overlayEntry.remove();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_isOpen) {
+      _overlayEntry.remove();
+    }
+    super.dispose();
   }
 }
