@@ -64,6 +64,7 @@ func main() {
     app.Post("/updateUserWater/:user_id", updateUserWater)
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
     app.Get("/getImage", getImageFromDynamicLink)
+    app.Post("/createCoupon", createCoupon)
 
     // New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -368,6 +369,20 @@ func getImageFromDynamicLink(c *fiber.Ctx) error {
     // Send the image back to the client
     c.Response().Header.Set(fiber.HeaderContentType, resp.Header.Get("Content-Type")) // Preserve the content type
     return c.Status(http.StatusOK).Send(imageData)
+}
+
+//// Create coupon
+func createCoupon(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Reward")
+    var person bson.M
+    if err := c.BodyParser(&person); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+    _, err := collection.InsertOne(context.Background(), person)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon created successfully!"})
 }
 
 

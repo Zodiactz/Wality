@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/views/reward/ntu_checking_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
@@ -11,7 +12,6 @@ import 'package:wality_application/wality_app/views/profile_page.dart';
 import 'package:wality_application/wality_app/views/change_password_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
 import 'package:wality_application/wality_app/views/ranking_page.dart';
-import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';

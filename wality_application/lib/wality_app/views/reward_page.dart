@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class RewardPage extends StatefulWidget {
-  const RewardPage({super.key});
+class RewardPage_test extends StatefulWidget {
+  const RewardPage_test({super.key});
 
   @override
-  State<RewardPage> createState() => _RewardPageState();
+  State<RewardPage_test> createState() => _RewardPageState();
 }
 
-class _RewardPageState extends State<RewardPage> {
+class _RewardPageState extends State<RewardPage_test> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
