@@ -10,7 +10,6 @@ class Users {
   final DateTime? startFillingTime;
   final int fillingLimit;
   final List<String> couponCheck;
-  final int eventBot;
 
   Users({
     required this.userId,
@@ -24,7 +23,6 @@ class Users {
     this.startFillingTime,
     required this.fillingLimit,
     this.couponCheck = const [],
-    required this.eventBot
   });
 
   // Convert a User instance to a map
@@ -41,7 +39,6 @@ class Users {
       'startFillingTime': startFillingTime?.toIso8601String(),
       'fillingLimit': fillingLimit,
       'couponCheck': couponCheck,
-      'eventBot': eventBot,
     };
   }
 
@@ -61,8 +58,7 @@ class Users {
           : null, // Handle null value
       fillingLimit: json['fillingLimit'],
       couponCheck:
-          json['couponCheck'] != null ? List<String>.from(json['couponCheck']) : [],// Default to empty list if null);
-      eventBot: json['eventBot']
-    ); 
+          json['couponCheck'] != null ? List<String>.from(json['couponCheck']) : [],
+    ); // Default to empty list if null);
   }
 }

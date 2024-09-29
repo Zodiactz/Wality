@@ -65,10 +65,6 @@ func main() {
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
     app.Get("/getImage", getImageFromDynamicLink)
     app.Post("/createCoupon", createCoupon)
-    app.Get("/getAllCoupons", getAllCoupons)
-    app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
-    app.Get("/getCoupons/:user_id", getCouponsFromUser)
-
 
     // New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -388,83 +384,6 @@ func createCoupon(c *fiber.Ctx) error {
     }
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon created successfully!"})
 }
-
-func getAllCoupons(c *fiber.Ctx) error {
-    collection := client.Database("Wality_DB").Collection("Reward")
-
-    // Use Find() to get all records
-    cursor, err := collection.Find(context.Background(), bson.M{})
-    if err != nil {
-        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Could not fetch rewards"})
-    }
-
-    var rewards []bson.M
-    if err := cursor.All(context.Background(), &rewards); err != nil {
-        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Error while decoding rewards"})
-    }
-
-    return c.Status(http.StatusOK).JSON(rewards)
-}
-
-func addCouponCheck(c *fiber.Ctx) error {
-    collection := client.Database("Wality_DB").Collection("Users")
-    user_id := c.Params("user_id")
-
-    // Define a struct for the request body
-    var requestBody struct {
-        Coupon string `json:"couponCheck"` // Field to hold the coupon value
-    }
-
-    // Parse the request body into the struct
-    if err := c.BodyParser(&requestBody); err != nil {
-        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-    }
-
-    // Define the filter and update
-    filter := bson.M{"user_id": user_id}
-    update := bson.M{
-        "$addToSet": bson.M{
-            "couponCheck": requestBody.Coupon, // Add coupon to the array
-        },
-    }
-
-    // Perform the update operation
-    result, err := collection.UpdateOne(context.Background(), filter, update)
-    if err != nil {
-        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-    }
-
-    // Check if a document was matched and updated
-    if result.MatchedCount == 0 {
-        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
-    }
-
-    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon added to user successfully!"})
-}
-
-func getCouponsFromUser(c *fiber.Ctx) error {
-    collection := client.Database("Wality_DB").Collection("Users")
-    user_id := c.Params("user_id")
-
-    // Define a struct to hold the user document
-    var user struct {
-        CouponCheck []string `bson:"couponCheck" json:"couponCheck"`
-    }
-
-    // Find the user by user_id
-    err := collection.FindOne(context.Background(), bson.M{"user_id": user_id}).Decode(&user)
-    if err != nil {
-        if err == mongo.ErrNoDocuments {
-            return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
-        }
-        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-    }
-
-    // Return the couponCheck array
-    return c.Status(http.StatusOK).JSON(fiber.Map{"couponCheck": user.CouponCheck})
-}
-
-
 
 
 
