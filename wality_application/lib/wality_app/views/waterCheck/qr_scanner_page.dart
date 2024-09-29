@@ -8,6 +8,7 @@ import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
+import 'package:intl/intl.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -32,10 +33,11 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<int?>? sentTotalWater;
   String? waterid;
   Future<DateTime?>? startHour;
+  Future<int?>? eBot;
 
   // Define the method to update user water data
-  Future<bool> updateUserWater(
-      String userId, int currentMl, int botLiv, int totalMl, int limit) async {
+  Future<bool> updateUserWater(String userId, int currentMl, int botLiv,
+      int totalMl, int limit, int eBot) async {
     final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
@@ -43,6 +45,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       'botLiv': botLiv,
       'totalMl': totalMl,
       'fillingLimit': limit,
+      'eventBot': eBot,
     });
 
     try {
@@ -59,21 +62,25 @@ class _QrScannerPageState extends State<QrScannerPage> {
     }
   }
 
+// Inside your function
   Future<void> updateUserFillingTime() async {
-    final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
+    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
-      'startFillingTime': DateTime.now(),
+      'startFillingTime': formatDateToECMA(DateTime.now()),
     });
 
     try {
       final response = await http.post(uri, headers: headers, body: body);
       if (response.statusCode == 200) {
+        print('Successfully updated: ${response.body}');
+        // Additional logic if needed
       } else {
-        print('Failed to update user: ${response.body}');
+        print(
+            'Failed to update time: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('Error during HTTP request: $e');
     }
   }
 
@@ -116,6 +123,20 @@ class _QrScannerPageState extends State<QrScannerPage> {
     }
   }
 
+  Future<int?> fetchUserEventBot(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['eventBot'];
+    } else {
+      print('Failed to fetch eventBot');
+      return null;
+    }
+  }
+
   Future<DateTime?> fetchUserStartTime(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),
@@ -123,11 +144,39 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['startFillingTime'];
+
+      // Check if 'startFillingTime' is present and not null
+      if (data['startFillingTime'] != null) {
+        return DateTime.parse(
+            data['startFillingTime']); // Parse the string to DateTime
+      }
+
+      return null; // Return null if 'startFillingTime' is not found
     } else {
       print('Failed to fetch startFillingTime');
       return null;
     }
+  }
+
+  String formatDateToECMA(DateTime date) {
+    // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
+    return DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(date) + 'Z';
+  }
+
+  DateTime? removeZFromDateTime(DateTime? dateTime) {
+    // If the input DateTime is null, return null
+    if (dateTime == null) {
+      return null;
+    }
+
+    // Convert DateTime to string and remove 'Z'
+    String dateTimeString = dateTime.toIso8601String();
+    if (dateTimeString.endsWith('Z')) {
+      dateTimeString = dateTimeString.substring(0, dateTimeString.length - 1);
+    }
+
+    // Parse the string back to DateTime and return
+    return DateTime.parse(dateTimeString);
   }
 
   Future<int?> fetchUserFillingLimit(String userId) async {
@@ -267,6 +316,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
     sentCurrentBottle = fetchBottleAmount(userId!);
     fillingLimit = fetchUserFillingLimit(userId!);
     startHour = fetchUserStartTime(userId!);
+    eBot = fetchUserEventBot(userId!);
   }
 
   @override
@@ -325,7 +375,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
         final waterAmount = await fetchWaterId(scanData.code ?? '');
 
         if (waterAmount != null) {
-          final startTime = (await startHour);
+          final startTime = removeZFromDateTime((await startHour));
           final limitTest = (await fillingLimit);
           DateTime now = DateTime.now();
 
@@ -337,27 +387,31 @@ class _QrScannerPageState extends State<QrScannerPage> {
           if ((limitTest! + waterAmount <= 2000 &&
                   (difference != null && difference.inHours < 1)) ||
               (difference != null && difference.inHours >= 1) ||
-              (startHour == null)) {
+              (difference == null)) {
+              if(difference!.inHours >= 1){
+                fillingLimit = Future.value(0);
+              }
             // Fetch and update user water data
             var currentMl = (await currentWater ?? 0) + waterAmount;
             var botLiv = (await currentBottle ?? 0);
             final totalMl = (await totalWater ?? 0) + waterAmount;
             final limit = (await fillingLimit ?? 0) + waterAmount;
+            var eventBot = (await eBot ?? 0);
 
             // Adjust the values if necessary
             if (currentMl >= 550) {
+              eventBot += currentMl ~/ 550;
               botLiv += currentMl ~/ 550;
               currentMl = currentMl % 550;
             }
 
-            if ((difference != null && difference.inHours > 1) ||
-                (difference == null)) {
-              await updateUserFillingTime();
-            }
-
             if (await updateUserWater(
-                userId!, currentMl, botLiv, totalMl, limit)) {
+                userId!, currentMl, botLiv,totalMl, limit, eventBot)) {
               updateWaterStatus(scanData.code ?? '', "active");
+              if ((difference != null && difference.inHours >= 1) ||
+                  (difference == null)) {
+                await updateUserFillingTime();
+              }
               // Pass values to the animation page
               // Await the Future values before navigating
               final sentCurrentWaterGo = await sentCurrentWater;
