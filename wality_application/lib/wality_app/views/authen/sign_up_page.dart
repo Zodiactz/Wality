@@ -131,7 +131,8 @@ class _authenPageState extends State<SignUpPage> {
               totalMl: 0,
               botLiv: 0,
               profileImg_link: "",
-              fillingLimit: 0);
+              fillingLimit: 0,
+              eventBot: 0);
 
           // Call the service to create the user and handle the response
           final result = await _authService.createUser(newUser);
