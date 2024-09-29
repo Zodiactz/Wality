@@ -27,4 +27,5 @@ class AuthService {
     }
   }
 
+  // Add more methods for login, user update, etc. as needed
 }

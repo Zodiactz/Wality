@@ -84,7 +84,6 @@ class UserService {
       return null;
     }
   }
-
   Future<String?> updateUsername(String userId, String username) async {
   final uri = Uri.parse('$baseUrl/updateUsername/$userId'); // Ensure this matches your backend endpoint
 
@@ -112,6 +111,5 @@ class UserService {
     return 'Error updating username: $e';
   }
 }
-
 
 }

@@ -94,6 +94,6 @@ void ConfirmAtWaterChecking(BuildContext context) async {
       (Route<dynamic> route) => false);
 }
 
-void openChangePicAndUsernamePage(BuildContext context) async {
-  Navigator.pushNamed(context, '/changepicandname');
+void OpenChangePictureAndUsernamePage(BuildContext context) async {
+  Navigator.pushNamed(context, '/changePicAndUsernamePage');
 }

@@ -502,3 +502,8 @@ func updateUsername(c *fiber.Ctx) error {
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "username updated successfully!"})
 }
+
+
+
+
+

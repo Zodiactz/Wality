@@ -83,21 +83,21 @@ class _RewardPageState extends State<RewardPage> {
   }
 
   void useCoupon(String couponId, String userId) async {
-  final response = await http.post(
-    Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({"couponCheck": couponId}),
-  );
+    final response = await http.post(
+      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"couponCheck": couponId}),
+    );
 
-  if (response.statusCode == 200) {
-    // Close the pop-up
-    await fetchUserCoupons(); // Fetch updated coupons
-    Navigator.pop(context); // Close the pop-up
-  } else {
-    // Handle the error
-    print('Failed to use coupon');
+    if (response.statusCode == 200) {
+      // Close the pop-up
+      await fetchUserCoupons(); // Fetch updated coupons
+      Navigator.pop(context); // Close the pop-up
+    } else {
+      // Handle the error
+      print('Failed to use coupon');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -221,13 +221,13 @@ class _RewardPageState extends State<RewardPage> {
           ),
           // White floating bar at the bottom
           Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
+              alignment: Alignment.bottomCenter,
+              child: Container(
                 width: MediaQuery.of(context)
                     .size
                     .width, // Full width of the screen
                 height: MediaQuery.of(context).size.height *
-                    0.15, // 8% of screen height for the floating bar
+                    0.17, // 8% of screen height for the floating bar
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.only(
@@ -243,20 +243,21 @@ class _RewardPageState extends State<RewardPage> {
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'You saved bottles of this event', // Add any text or action buttons
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: 'RobotoCondensed',
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+
+                child: Column(
+                  children: [
+                    const Text(
+                      'You saved bottles of this event', // Add any text or action buttons
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'RobotoCondensed',
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
                       ),
-                      FutureBuilder<int?>(
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0.1),
+                      child: FutureBuilder<int?>(
                         future: botAmount,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
@@ -303,19 +304,19 @@ class _RewardPageState extends State<RewardPage> {
                           }
                         },
                       ),
-                      const Text(
-                        'This event will be end at 1/1/2025', // Add any text or action buttons
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'RobotoCondensed',
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
-                        ),
+                    ),
+                    const Text(
+                      'This event will be end at 1/1/2025', // Add any text or action buttons
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'RobotoCondensed',
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
                       ),
-                    ],
-                  ),
-                )),
-          ),
+                    ),
+                  ],
+                ),
+              )),
         ],
       ),
     );
@@ -324,13 +325,12 @@ class _RewardPageState extends State<RewardPage> {
   Widget buildCouponWidget(BuildContext context, String cId, String couponName,
       String bD, int bReq, String imgCoupon, String fD, String impD) {
     bool isUsed = couponCheck.contains(cId);
-    
-
 
     return GestureDetector(
-      onTap: () =>
-          isUsed ? null : _showCouponPopup(context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
-          
+      onTap: () => isUsed
+          ? null
+          : _showCouponPopup(
+              context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
       child: Container(
         padding: const EdgeInsets.only(top: 10),
         width: 375,
@@ -480,9 +480,16 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
-Future<void>  _showCouponPopup(BuildContext context, String couponName, String bD,
-      int bReq, String imgCoupon, String fD, String impD,String cId) async {
-         bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
+  Future<void> _showCouponPopup(
+      BuildContext context,
+      String couponName,
+      String bD,
+      int bReq,
+      String imgCoupon,
+      String fD,
+      String impD,
+      String cId) async {
+    bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -577,9 +584,10 @@ Future<void>  _showCouponPopup(BuildContext context, String couponName, String b
                           ElevatedButton(
                             onPressed: () {
                               if (hasEnoughBottles) {
-                               useCoupon(cId, userId!);
-                               print("///////////cid=$cId//////$hasEnoughBottles");
-                              }else{
+                                useCoupon(cId, userId!);
+                                print(
+                                    "///////////cid=$cId//////$hasEnoughBottles");
+                              } else {
                                 null;
                               }
                               // Use coupon action
