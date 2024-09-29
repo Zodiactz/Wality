@@ -93,3 +93,7 @@ void ConfirmAtWaterChecking(BuildContext context) async {
       MaterialPageRoute(builder: (context) => const HomePage()),
       (Route<dynamic> route) => false);
 }
+
+void openChangePicAndUsernamePage(BuildContext context) async {
+  Navigator.pushNamed(context, '/changepicandname');
+}

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/views/reward/ntu_checking_page.dart';
+import 'package:wality_application/wality_app/views/reward/reward_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
@@ -19,8 +19,10 @@ import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
+import 'package:flutter/rendering.dart';
 
 void main() {
+
   runApp(
     MultiProvider(
       providers: [
@@ -57,7 +59,7 @@ class MyApp extends StatelessWidget {
         '/profilepage': (context) => const ProfilePage(),
         '/changeinfopage': (context) => const ChangeInfoPage(),
         '/settingpage': (context) => SettingPage(),        
-        '/rewardpage': (context) => const RewardPage(),
+        '/rewardpage': (context) => RewardPage(),
         '/rankingpage': (context) => const RankingPage(),
         '/qrscanner': (context) => const QrScannerPage(),
       },
