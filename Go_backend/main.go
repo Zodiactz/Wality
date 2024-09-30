@@ -73,6 +73,7 @@ func main() {
     app.Post("/updateEmail/:user_id", updateUserEmail)
     app.Post("/reset-password", resetPassword)
     app.Post("/reset-password/:token", resetPasswordWithToken)
+    app.Get("/getAllUsers", getAllUsers)
 
 
     // New route for image upload
@@ -687,6 +688,23 @@ func hashPassword(password string) string {
     // you should use a proper hashing method like bcrypt.
     return password
 }
+func getAllUsers(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+
+    // Use Find() to get all records
+    cursor, err := collection.Find(context.Background(), bson.M{})
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Could not fetch users"})
+    }
+
+    var rewards []bson.M
+    if err := cursor.All(context.Background(), &rewards); err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Error while decoding users"})
+    }
+
+    return c.Status(http.StatusOK).JSON(rewards)
+}
+
 
 
 
