@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/repo/auth_service.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
-import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
+import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 
-class ChangeInfoPage extends StatelessWidget {
-  const ChangeInfoPage({super.key});
+class ChangeEmailAndPasswordPage extends StatelessWidget {
+  ChangeEmailAndPasswordPage({super.key});
+  final RealmService _realmService = RealmService();
+  final AuthService _authService = AuthService();
+  final TextEditingController emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Consumer<ChangeInfoViewModel>(builder: (context, changevm, child) {
+      body:
+          Consumer<AuthenticationViewModel>(builder: (context, authvm, child) {
         return Stack(
           children: [
             Positioned(
@@ -33,12 +40,12 @@ class ChangeInfoPage extends StatelessWidget {
                           color: Colors.black,
                         ),
                         onPressed: () {
-                          Navigator.pop(context);
+                          GoBack(context);
                         },
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Change Password',
+                        'Change email and password',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -70,16 +77,7 @@ class ChangeInfoPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'New password',
+                          'New email',
                           style: TextStyle(
                             fontSize: 20,
                             fontFamily: 'RobotoCondensed',
@@ -90,55 +88,36 @@ class ChangeInfoPage extends StatelessWidget {
                           width: 360,
                           height: 50,
                           child: TextFormFieldAuthen(
-                            controller: changevm.passwordController,
+                            controller: emailController,
                             hintText: "",
-                            obscureText: !changevm.passwordVisible,
-                            focusNode: changevm.passwordFocusNode,
-                            suffixIcon: IconButton(
-                              icon: Icon(changevm.passwordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                changevm.togglePasswordVisibility();
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Confirm new password:',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: changevm.confirmPasswordController,
-                            hintText: "",
-                            obscureText: !changevm.confirmPasswordVisible,
-                            focusNode: changevm.confirmPasswordFocusNode,
-                            suffixIcon: IconButton(
-                              icon: Icon(changevm.confirmPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                changevm.toggleConfirmPasswordVisibility();
-                              },
-                            ),
+                            obscureText: false,
+                            focusNode: FocusNode(),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.only(left: 30),
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/profilepage');
+                            onPressed: () async {
+                              final userId = _realmService.getCurrentUserId();
+                    // Collect the text from the TextFormField
+                    final newUserEmail = emailController.text;
+
+                    // Make sure the username isn't empty and the user is logged in
+                    if (userId != null && newUserEmail.isNotEmpty) {
+                      // Pass the new username to the update function
+                      final result = await _authService.updateUserEmail(
+                          userId, newUserEmail);
+
+                      // Provide feedback to the user based on the result
+                      if (result == null || result.contains('successfully')) {
+                        openProfilePage(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result)),
+                        );
+                      }
+                    }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF342056),
@@ -158,6 +137,7 @@ class ChangeInfoPage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 8),
                       ],
                     ),
                   ),

@@ -70,6 +70,9 @@ func main() {
     app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
     app.Get("/getCoupons/:user_id", getCouponsFromUser)
     app.Post("/updateUsername/:user_id", updateUsername)
+    app.Post("/updateEmail/:user_id", updateUserEmail)
+    app.Post("/reset-password", resetPassword)
+    app.Post("/reset-password/:token", resetPasswordWithToken)
 
 
     // New route for image upload
@@ -556,7 +559,134 @@ func updateUsername(c *fiber.Ctx) error {
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "username updated successfully!"})
 }
 
+// Update a user's email
+func updateUserEmail(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
 
+    // Define a struct for the update payload
+    var updatePayload struct {       
+        Email string `json:"email"`
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    fmt.Printf("Updating user with ID: %s\n", user_id)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$set": bson.M{
+            "email": updatePayload.Email, // Update the email field
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User email updated successfully!"})
+}
+
+
+func resetPassword(c *fiber.Ctx) error {
+    // Get the user's email from the request body
+    var requestBody struct {
+        Email string `json:"email"`
+    }
+    if err := c.BodyParser(&requestBody); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+    }
+
+    // Find the user in the database by email
+    collection := client.Database("Wality_DB").Collection("Users")
+    var user bson.M
+    err := collection.FindOne(context.Background(), bson.M{"email": requestBody.Email}).Decode(&user)
+    if err != nil {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+    }
+
+    // Generate a reset token
+    resetToken := generateRandomString(32)
+    tokenExpiration := time.Now().Add(1 * time.Hour) // Token expires in 1 hour
+
+    // Update the user with the reset token and expiration
+    update := bson.M{
+        "$set": bson.M{
+            "resetToken":     resetToken,
+            "tokenExpiresAt": tokenExpiration,
+        },
+    }
+    _, err = collection.UpdateOne(context.Background(), bson.M{"email": requestBody.Email}, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate reset token"})
+    }
+
+    // Send the reset email (this is just a placeholder, you'd need to integrate with an email service)
+    resetLink := fmt.Sprintf("https://yourapp.com/reset-password?token=%s", resetToken)
+    fmt.Printf("Password reset link for user: %s\n", resetLink)
+
+    // Respond to the client
+    return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Password reset link sent to your email"})
+}
+
+func resetPasswordWithToken(c *fiber.Ctx) error {
+    // Get the reset token and new password from the request
+    var requestBody struct {
+        Token       string `json:"token"`
+        NewPassword string `json:"newPassword"`
+    }
+    if err := c.BodyParser(&requestBody); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+    }
+
+    // Find the user by reset token
+    collection := client.Database("Wality_DB").Collection("Users")
+    var user bson.M
+    err := collection.FindOne(context.Background(), bson.M{"resetToken": requestBody.Token}).Decode(&user)
+    if err != nil {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Invalid or expired token"})
+    }
+
+    // Check if the token has expired
+    tokenExpiresAt := user["tokenExpiresAt"].(time.Time)
+    if time.Now().After(tokenExpiresAt) {
+        return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "Reset token has expired"})
+    }
+
+    // Hash the new password (for security)
+    hashedPassword := hashPassword(requestBody.NewPassword)
+
+    // Update the user's password and clear the reset token
+    update := bson.M{
+        "$set": bson.M{"password": hashedPassword},
+        "$unset": bson.M{"resetToken": "", "tokenExpiresAt": ""},
+    }
+    _, err = collection.UpdateOne(context.Background(), bson.M{"resetToken": requestBody.Token}, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to reset password"})
+    }
+
+    // Respond to the client
+    return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Password has been reset successfully"})
+}
+
+func hashPassword(password string) string {
+    // For simplicity, this function just returns the plain password. In production,
+    // you should use a proper hashing method like bcrypt.
+    return password
+}
 
 
 

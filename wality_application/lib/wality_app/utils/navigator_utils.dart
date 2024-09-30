@@ -74,8 +74,8 @@ openQRcodePage(BuildContext context) async {
 }
 
 
-void openChangeInfoPage(BuildContext context) async {
-  Navigator.pushNamed(context, '/changeinfopage');
+void openChangeMailandPassPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/changeMailandPass');
 }
 
 void LogOutToOutsite(BuildContext context) async {

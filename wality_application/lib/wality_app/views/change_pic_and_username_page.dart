@@ -2,10 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:popover/popover.dart';
-import 'package:wality_application/wality_app/utils/pop_over_change_picture.dart';
+import 'package:wality_application/wality_app/utils/change_pic/pop_over_change_picture.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 
 class ChangePicAndUsernamePage extends StatefulWidget {
@@ -90,39 +91,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    showPopover(
-                      context: context,
-                      bodyBuilder: (context) => PopOverChangePicture(
-                        onImageSelected: (selectedImagePath) {
-                          setState(() {
-                            imgURL = selectedImagePath;
-                          });
-                        },
-                      ),
-                      width: 250,
-                      height: 100,
-                      backgroundColor: Colors.blue,
-                      direction: PopoverDirection.top,
-                    );
-                  },
-                  child: ClipOval(
-                    child: imgURL.isNotEmpty
-                        ? Image.network(
-                            imgURL,
-                            width: 96,
-                            height: 96,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/images/cat.jpg',
-                            width: 96,
-                            height: 96,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                ),
+                Picturecircle(),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _usernameController,

@@ -79,7 +79,7 @@ class SettingPage extends StatelessWidget {
                           context,
                           icon: Icons.key_sharp,
                           title: 'Change password',
-                          onTap: () => openChangeInfoPage(context),
+                          onTap: () => openChangeMailandPassPage(context),
                         ),
                         const SizedBox(
                           height: 12,
