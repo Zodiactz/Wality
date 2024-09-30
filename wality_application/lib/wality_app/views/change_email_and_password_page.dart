@@ -5,12 +5,94 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
+import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/models/user.dart';
+import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
+
 
 class ChangeEmailAndPasswordPage extends StatelessWidget {
   ChangeEmailAndPasswordPage({super.key});
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordController2 = TextEditingController();
+  final FocusNode usernameFocusNode = FocusNode();
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmPassFocusNote = FocusNode();
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
+
+
+    void signUp(AuthenticationViewModel authenvm) async {
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      bool isValidForSignUp = await authenvm.validateAllSignUp(
+          usernameController.text,
+          emailController.text,
+          passwordController.text,
+          passwordController2.text);
+
+      if (isValidForSignUp) {
+        try {
+          final credentials = Credentials.emailPassword(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
+          EmailPasswordAuthProvider authProvider =
+              EmailPasswordAuthProvider(app);
+
+          // Register a new user
+          await authProvider.registerUser(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
+
+          // Log the user in after registration
+          final user = await app.logIn(credentials);
+
+          // Create a User instance
+          final newUser = Users(
+              userId: user.id,
+              uid: "123456",
+              userName: usernameController.text.trim(),
+              email: emailController.text.trim(),
+              currentMl: 0,
+              totalMl: 0,
+              botLiv: 0,
+              profileImg_link: "",
+              fillingLimit: 0,
+              eventBot: 0);
+
+          // Call the service to create the user and handle the response
+          final result = await _authService.createUser(newUser);
+
+          if (result != null) {
+            // Success: Navigate to homepage
+            // openHomePage(context);
+          } else {
+            // Show error message from result
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text(result!)),
+            // );
+          }
+        } catch (e) {
+          print('Failed to sign up: $e');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text('Sign-up failed: $e')),
+          // );
+        }
+      } else {
+        // showErrorSnackBar(authenvm);
+      }
+    } else {
+      // Validation failed, show error messages
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Please fill in all fields correctly')),
+      // );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
