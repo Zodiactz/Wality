@@ -104,7 +104,7 @@ class _RewardPageState extends State<RewardPage> {
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 65),
+        preferredSize: const Size.fromHeight(kToolbarHeight + 55),
         child: Container(
           decoration: const BoxDecoration(
             color: Color(0xFF0083AB),
@@ -551,7 +551,7 @@ class _RewardPageState extends State<RewardPage> {
                         ],
                       ),
                       Divider(thickness: 1, color: Colors.grey),
-                      SizedBox(height: 20),
+                      SizedBox(height: 5),
 
                       // Coupon description
                       Text(
