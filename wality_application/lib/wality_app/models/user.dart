@@ -7,6 +7,10 @@ class Users {
   final int totalMl;
   final int botLiv;
   final String profileImg_link;
+  final DateTime? startFillingTime;
+  final int fillingLimit;
+  final List<String> couponCheck;
+  final int eventBot;
 
   Users({
     required this.userId,
@@ -17,6 +21,10 @@ class Users {
     required this.totalMl,
     required this.botLiv,
     required this.profileImg_link,
+    this.startFillingTime,
+    required this.fillingLimit,
+    this.couponCheck = const [],
+    required this.eventBot
   });
 
   // Convert a User instance to a map
@@ -29,7 +37,11 @@ class Users {
       'currentMl': currentMl,
       'totalMl': totalMl,
       'botLiv': botLiv,
-      'profileImg_link': profileImg_link
+      'profileImg_link': profileImg_link,
+      'startFillingTime': startFillingTime?.toIso8601String(),
+      'fillingLimit': fillingLimit,
+      'couponCheck': couponCheck,
+      'eventBot': eventBot,
     };
   }
 
@@ -44,6 +56,13 @@ class Users {
       totalMl: json['totalMl'],
       botLiv: json['botLiv'],
       profileImg_link: json['profileImg_link'],
-    );
+      startFillingTime: json['startFillingTime'] != null
+          ? DateTime.parse(json['startFillingTime'])
+          : null, // Handle null value
+      fillingLimit: json['fillingLimit'],
+      couponCheck:
+          json['couponCheck'] != null ? List<String>.from(json['couponCheck']) : [],// Default to empty list if null);
+      eventBot: json['eventBot']
+    ); 
   }
 }

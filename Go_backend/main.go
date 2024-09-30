@@ -62,8 +62,15 @@ func main() {
     app.Put("/update/:name", updatePerson)
     app.Delete("/delete/:name", deletePerson)
     app.Post("/updateUserWater/:user_id", updateUserWater)
+    app.Post("/updateUserFillingTime/:user_id", updateUserFillingTime)
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
     app.Get("/getImage", getImageFromDynamicLink)
+    app.Post("/createCoupon", createCoupon)
+    app.Get("/getAllCoupons", getAllCoupons)
+    app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
+    app.Get("/getCoupons/:user_id", getCouponsFromUser)
+    app.Post("/updateUsername/:user_id", updateUsername)
+
 
     // New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -252,11 +259,13 @@ func updateUserWater(c *fiber.Ctx) error {
     collection := client.Database("Wality_DB").Collection("Users")
     user_id := c.Params("user_id")
 
-    // Define a struct for the update payload
+    // Define a struct for the update payload without filling time
     var updatePayload struct {
-        CurrentMl int `json:"currentMl"`
-        BotLiv    int `json:"botLiv"`
-        TotalMl   int `json:"totalMl"`  // Add TotalMl to the struct
+        CurrentMl    int `json:"currentMl"`
+        BotLiv       int `json:"botLiv"`
+        TotalMl      int `json:"totalMl"`
+        FillingLimit int `json:"fillingLimit"`
+        EventBot     int `json:"eventBot"`
     }
 
     // Parse the request body into the struct
@@ -272,9 +281,11 @@ func updateUserWater(c *fiber.Ctx) error {
     filter := bson.M{"user_id": user_id}
     update := bson.M{
         "$set": bson.M{
-            "currentMl": updatePayload.CurrentMl,
-            "botLiv":    updatePayload.BotLiv,
-            "totalMl":   updatePayload.TotalMl,  // Include TotalMl in the update
+            "currentMl":    updatePayload.CurrentMl,
+            "botLiv":       updatePayload.BotLiv,
+            "totalMl":      updatePayload.TotalMl,
+            "fillingLimit": updatePayload.FillingLimit,
+            "eventBot":     updatePayload.EventBot,
         },
     }
 
@@ -291,6 +302,54 @@ func updateUserWater(c *fiber.Ctx) error {
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User updated successfully!"})
 }
+
+func updateUserFillingTime(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the filling time update
+    var updatePayload struct {
+        StartFillingTime string `json:"startFillingTime"` // Keep this as string for input
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Convert StartFillingTime from string to time.Time
+    startFillingTime, err := time.Parse(time.RFC3339, updatePayload.StartFillingTime) // Convert to time.Time
+    if err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid date format"})
+    }
+
+    // Debug: Log the user_id and updatePayload
+    fmt.Printf("Updating filling time for user with ID: %s\n", user_id)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$set": bson.M{
+            "startFillingTime": startFillingTime, // Store as time.Time
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Filling time updated successfully!"})
+}
+
+
 
 func updateWaterStatus(c *fiber.Ctx) error {
     collection := client.Database("Wality_DB").Collection("QRwaterquantity")
@@ -369,6 +428,134 @@ func getImageFromDynamicLink(c *fiber.Ctx) error {
     c.Response().Header.Set(fiber.HeaderContentType, resp.Header.Get("Content-Type")) // Preserve the content type
     return c.Status(http.StatusOK).Send(imageData)
 }
+
+//// Create coupon
+func createCoupon(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Reward")
+    var person bson.M
+    if err := c.BodyParser(&person); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+    _, err := collection.InsertOne(context.Background(), person)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon created successfully!"})
+}
+
+func getAllCoupons(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Reward")
+
+    // Use Find() to get all records
+    cursor, err := collection.Find(context.Background(), bson.M{})
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Could not fetch rewards"})
+    }
+
+    var rewards []bson.M
+    if err := cursor.All(context.Background(), &rewards); err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Error while decoding rewards"})
+    }
+
+    return c.Status(http.StatusOK).JSON(rewards)
+}
+
+func addCouponCheck(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the request body
+    var requestBody struct {
+        Coupon string `json:"couponCheck"` // Field to hold the coupon value
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&requestBody); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$addToSet": bson.M{
+            "couponCheck": requestBody.Coupon, // Add coupon to the array
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon added to user successfully!"})
+}
+
+func getCouponsFromUser(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct to hold the user document
+    var user struct {
+        CouponCheck []string `bson:"couponCheck" json:"couponCheck"`
+    }
+
+    // Find the user by user_id
+    err := collection.FindOne(context.Background(), bson.M{"user_id": user_id}).Decode(&user)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+        }
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Return the couponCheck array
+    return c.Status(http.StatusOK).JSON(fiber.Map{"couponCheck": user.CouponCheck})
+}
+func updateUsername(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the update payload
+    var updatePayload struct {       
+        Username string `json:"username"`
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    fmt.Printf("Updating user with ID: %s\n", user_id)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$set": bson.M{
+            "username": updatePayload.Username, // Match the struct field name
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "username not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "username updated successfully!"})
+}
+
 
 
 

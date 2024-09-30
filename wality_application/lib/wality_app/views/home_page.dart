@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';

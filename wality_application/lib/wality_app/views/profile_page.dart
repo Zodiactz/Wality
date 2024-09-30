@@ -1,11 +1,13 @@
 // profile_page.dart
 import 'package:flutter/material.dart';
+import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/utils/pop_over_change_picture.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
@@ -218,7 +220,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    OpenChangePictureAndUsernamePage(context);
+                                  },
                                   child: const Padding(
                                     padding: EdgeInsets.only(bottom: 4),
                                     child: Row(
@@ -330,4 +334,129 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     });
   }
+
+  Future popupChangeInfo(BuildContext context) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        titlePadding: const EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.center, // Ensure alignment is centered
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    size: 32,
+                  ),
+                  onPressed: () {
+                    GoBack(context);
+                  },
+                ),
+              ),
+            ),
+            const Text(
+              'Change Information',
+              style: TextStyle(
+                fontSize: 30,
+                fontFamily: 'RobotoCondensed',
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center, // Ensures the title is centered
+            ),
+          ],
+        ),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Center the content
+              children: <Widget>[
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      showPopover(
+                        context: context,
+                        bodyBuilder: (context) => PopOverChangePicture(
+                          onImageSelected: (selectedImagePath) {
+                            setState(() {
+                              imgURL = selectedImagePath;  // Update the image path here
+                            });
+                          },
+                        ),
+                        width: 250,
+                        height: 100,
+                        backgroundColor: Colors.blue,
+                        direction: PopoverDirection.top,
+                      );
+                    },
+                    child: ClipOval(
+                      child: imgURL.isNotEmpty
+                          ? Image.network(
+                              imgURL,
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              imgURL,
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        actions: <Widget>[
+          Center(
+            // Center the button as well
+            child: ElevatedButton(
+              onPressed: () {
+                // Add your change action logic here
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF342056),
+                fixedSize: const Size(300, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Change',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'RobotoCondensed',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }

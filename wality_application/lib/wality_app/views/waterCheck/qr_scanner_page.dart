@@ -8,6 +8,7 @@ import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
+import 'package:intl/intl.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -26,20 +27,25 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<int?>? currentWater;
   Future<int?>? currentBottle;
   Future<int?>? totalWater;
+  Future<int?>? fillingLimit;
   Future<int?>? sentCurrentWater;
   Future<int?>? sentCurrentBottle;
   Future<int?>? sentTotalWater;
   String? waterid;
+  Future<DateTime?>? startHour;
+  Future<int?>? eBot;
 
   // Define the method to update user water data
-  Future<bool> updateUserWater(
-      String userId, int currentMl, int botLiv, int totalMl) async {
+  Future<bool> updateUserWater(String userId, int currentMl, int botLiv,
+      int totalMl, int limit, int eBot) async {
     final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currentMl': currentMl,
       'botLiv': botLiv,
       'totalMl': totalMl,
+      'fillingLimit': limit,
+      'eventBot': eBot,
     });
 
     try {
@@ -53,6 +59,28 @@ class _QrScannerPageState extends State<QrScannerPage> {
     } catch (e) {
       print('Error: $e');
       return false;
+    }
+  }
+
+// Inside your function
+  Future<void> updateUserFillingTime() async {
+    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'startFillingTime': formatDateToECMA(DateTime.now()),
+    });
+
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print('Successfully updated: ${response.body}');
+        // Additional logic if needed
+      } else {
+        print(
+            'Failed to update time: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
     }
   }
 
@@ -91,6 +119,76 @@ class _QrScannerPageState extends State<QrScannerPage> {
       return data['quantity'];
     } else {
       print('Failed to fetch waterId');
+      return null;
+    }
+  }
+
+  Future<int?> fetchUserEventBot(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['eventBot'];
+    } else {
+      print('Failed to fetch eventBot');
+      return null;
+    }
+  }
+
+  Future<DateTime?> fetchUserStartTime(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      // Check if 'startFillingTime' is present and not null
+      if (data['startFillingTime'] != null) {
+        return DateTime.parse(
+            data['startFillingTime']); // Parse the string to DateTime
+      }
+
+      return null; // Return null if 'startFillingTime' is not found
+    } else {
+      print('Failed to fetch startFillingTime');
+      return null;
+    }
+  }
+
+  String formatDateToECMA(DateTime date) {
+    // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
+    return DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(date) + 'Z';
+  }
+
+  DateTime? removeZFromDateTime(DateTime? dateTime) {
+    // If the input DateTime is null, return null
+    if (dateTime == null) {
+      return null;
+    }
+
+    // Convert DateTime to string and remove 'Z'
+    String dateTimeString = dateTime.toIso8601String();
+    if (dateTimeString.endsWith('Z')) {
+      dateTimeString = dateTimeString.substring(0, dateTimeString.length - 1);
+    }
+
+    // Parse the string back to DateTime and return
+    return DateTime.parse(dateTimeString);
+  }
+
+  Future<int?> fetchUserFillingLimit(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['fillingLimit'];
+    } else {
+      print('Failed to fetch fillingLimit');
       return null;
     }
   }
@@ -216,6 +314,9 @@ class _QrScannerPageState extends State<QrScannerPage> {
     totalWater = fetchTotalWater(userId!);
     sentCurrentWater = fetchWaterAmount(userId!);
     sentCurrentBottle = fetchBottleAmount(userId!);
+    fillingLimit = fetchUserFillingLimit(userId!);
+    startHour = fetchUserStartTime(userId!);
+    eBot = fetchUserEventBot(userId!);
   }
 
   @override
@@ -272,33 +373,62 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
         // Proceed with the rest of the logic
         final waterAmount = await fetchWaterId(scanData.code ?? '');
-        if (waterAmount != null) {
-          // Fetch and update user water data
-          var currentMl = (await currentWater ?? 0) + waterAmount;
-          var botLiv = (await currentBottle ?? 0);
-          final totalMl = (await totalWater ?? 0) + waterAmount;
 
-          // Adjust the values if necessary
-          if (currentMl >= 550) {
-            botLiv += currentMl ~/ 550;
-            currentMl = currentMl % 550;
+        if (waterAmount != null) {
+          final startTime = removeZFromDateTime((await startHour));
+          final limitTest = (await fillingLimit);
+          DateTime now = DateTime.now();
+
+          Duration? difference;
+          if (startTime != null) {
+            difference = now.difference(startTime);
           }
 
-          if (await updateUserWater(userId!, currentMl, botLiv, totalMl)) {
-            updateWaterStatus(scanData.code ?? '', "active");
-            // Pass values to the animation page
-            // Await the Future values before navigating
-            final sentCurrentWaterGo = await sentCurrentWater;
-            final sentCurrentBottleGo = await sentCurrentBottle;
-            _showDialogContinue(
-                'Success',
-                'Your water has been updated! Please wait for a few seconds',
-                sentCurrentWaterGo!,
-                sentCurrentBottleGo!,
-                waterAmount);
+          if ((limitTest! + waterAmount <= 2000 &&
+                  (difference != null && difference.inHours < 1)) ||
+              (difference != null && difference.inHours >= 1) ||
+              (difference == null)) {
+              if(difference!.inHours >= 1){
+                fillingLimit = Future.value(0);
+              }
+            // Fetch and update user water data
+            var currentMl = (await currentWater ?? 0) + waterAmount;
+            var botLiv = (await currentBottle ?? 0);
+            final totalMl = (await totalWater ?? 0) + waterAmount;
+            final limit = (await fillingLimit ?? 0) + waterAmount;
+            var eventBot = (await eBot ?? 0);
+
+            // Adjust the values if necessary
+            if (currentMl >= 550) {
+              eventBot += currentMl ~/ 550;
+              botLiv += currentMl ~/ 550;
+              currentMl = currentMl % 550;
+            }
+
+            if (await updateUserWater(
+                userId!, currentMl, botLiv,totalMl, limit, eventBot)) {
+              updateWaterStatus(scanData.code ?? '', "active");
+              if ((difference != null && difference.inHours >= 1) ||
+                  (difference == null)) {
+                await updateUserFillingTime();
+              }
+              // Pass values to the animation page
+              // Await the Future values before navigating
+              final sentCurrentWaterGo = await sentCurrentWater;
+              final sentCurrentBottleGo = await sentCurrentBottle;
+              _showDialogContinue(
+                  'Success',
+                  'Your water has been updated! Please wait for a few seconds',
+                  sentCurrentWaterGo!,
+                  sentCurrentBottleGo!,
+                  waterAmount);
+            } else {
+              _showDialog(
+                  'Error', 'Failed to update your water. Please try again.');
+            }
           } else {
-            _showDialog(
-                'Error', 'Failed to update your water. Please try again.');
+            _showDialog('Exceeded limit',
+                'Your water filling has exceeded the limit. Please wait');
           }
         } else {
           _showDialog('Unavailable',
