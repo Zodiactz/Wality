@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wality_application/wality_app/utils/custom_dropdown.dart'; // Import the new file
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:wality_application/wality_app/utils/custom_dropdown.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
+
 
 class RankingPage extends StatefulWidget {
   @override
@@ -8,6 +12,56 @@ class RankingPage extends StatefulWidget {
 
 class _RankingPageState extends State<RankingPage> {
   String _selectedFilter = 'All Time';
+  List<dynamic> _users = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final users = await fetchUsers();
+      setState(() {
+        _users = users
+            .where((user) => user['botLiv'] > 0)
+            .toList()
+          ..sort((a, b) => b['botLiv'].compareTo(a['botLiv']));
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading users: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      // You might want to show an error message to the user here
+    }
+  }
+
+  Future<List<dynamic>> fetchUsers() async {
+    
+    final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
+    
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
+  ImageProvider _getProfileImage(String? profileImgLink) {
+    if (profileImgLink != null && profileImgLink.isNotEmpty) {
+      return NetworkImage(profileImgLink);
+    } else {
+      return AssetImage('assets/default_avatar.png');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +79,17 @@ class _RankingPageState extends State<RankingPage> {
             children: [
               _buildAppBar(context),
               _buildFilterDropdown(),
-              _buildUserRank(),
+              if (!_isLoading && _users.isNotEmpty) _buildUserRank(),
               Expanded(
-                child: ListView.builder(
-                  itemCount: 13,
-                  itemBuilder: (context, index) => _buildRankItem(index + 1),
-                ),
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : _users.isEmpty
+                        ? Center(child: Text('No users found', style: TextStyle(color: Colors.white)))
+                        : ListView.builder(
+                            itemCount: _users.length,
+                            itemBuilder: (context, index) =>
+                                _buildRankItem(index + 1, _users[index]),
+                          ),
               ),
             ],
           ),
@@ -38,6 +97,7 @@ class _RankingPageState extends State<RankingPage> {
       ),
     );
   }
+
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -54,7 +114,7 @@ class _RankingPageState extends State<RankingPage> {
               textAlign: TextAlign.center,
             ),
           ),
-          SizedBox(width: 40), // To balance the back button
+          SizedBox(width: 40),
         ],
       ),
     );
@@ -71,18 +131,25 @@ class _RankingPageState extends State<RankingPage> {
             setState(() {
               _selectedFilter = newValue;
             });
+            // You might want to implement filtering logic here
           }
         },
       ),
     );
   }
+
   Widget _buildUserRank() {
+    // Assuming the first user in the list is the current user
+    // You might want to implement a more robust way to identify the current user
+    final currentUser = _users.first;
+    final userRank = _users.indexOf(currentUser) + 1;
+
     return Container(
       padding: EdgeInsets.all(16),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundImage: AssetImage('assets/user_avatar.png'),
+            backgroundImage: _getProfileImage(currentUser['profileImg_link']),
             radius: 30,
           ),
           SizedBox(width: 16),
@@ -90,9 +157,10 @@ class _RankingPageState extends State<RankingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Username', style: TextStyle(color: Colors.white, fontSize: 18)),
-                Text(_selectedFilter == 'Recently' ? '8876 Bottles' : '156280 Bottles', 
-                     style: TextStyle(color: Colors.white70, fontSize: 16)),
+                Text(currentUser['username'] ?? 'Username',
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
+                Text('${currentUser['botLiv']} Bottles',
+                    style: TextStyle(color: Colors.white70, fontSize: 16)),
               ],
             ),
           ),
@@ -102,18 +170,15 @@ class _RankingPageState extends State<RankingPage> {
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(_selectedFilter == 'Recently' ? 'No.6' : 'No.3', 
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
+            child: Text('No.$userRank',
+                style: TextStyle(color: Colors.white, fontSize: 18)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRankItem(int rank) {
-    final todaySteps = 15628 - (rank - 1) * 1000;
-    final allTimeSteps = todaySteps * 30; // Just for demonstration
-
+  Widget _buildRankItem(int rank, dynamic user) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: EdgeInsets.all(16),
@@ -129,18 +194,18 @@ class _RankingPageState extends State<RankingPage> {
           ),
           SizedBox(width: 16),
           CircleAvatar(
-            backgroundImage: AssetImage('assets/avatar_$rank.png'),
+            backgroundImage: NetworkImage(user['profileImg_link'] ?? 'assets/default_avatar.png'),
             radius: 20,
           ),
           SizedBox(width: 16),
           Expanded(
             child: Text(
-              'User Name $rank',
+              user['username'] ?? 'User Name',
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
           Text(
-            '${_selectedFilter == 'Recently' ? todaySteps : allTimeSteps} Bottles',
+            '${user['botLiv']} Bottles',
             style: TextStyle(color: Colors.white70, fontSize: 16),
           ),
         ],
@@ -148,4 +213,3 @@ class _RankingPageState extends State<RankingPage> {
     );
   }
 }
-

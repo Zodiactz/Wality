@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home:  RankingPage()/*const HomePage()*/,
+      home:  LogoPage()/*const HomePage()*/,
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
         '/changeinfopage': (context) => const ChangeInfoPage(),
         '/settingpage': (context) => SettingPage(),        
         '/rewardpage': (context) => RewardPage(),
-        '/rankingpage': (context) => const RankingPage(),
+        '/rankingpage': (context) => RankingPage(),
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) => const ChangePicAndUsernamePage(),
       },

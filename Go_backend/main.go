@@ -70,6 +70,7 @@ func main() {
     app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
     app.Get("/getCoupons/:user_id", getCouponsFromUser)
     app.Post("/updateUsername/:user_id", updateUsername)
+    app.Get("/getAllUsers", getAllUsers)
 
 
     // New route for image upload
@@ -555,7 +556,22 @@ func updateUsername(c *fiber.Ctx) error {
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "username updated successfully!"})
 }
+func getAllUsers(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
 
+    // Use Find() to get all records
+    cursor, err := collection.Find(context.Background(), bson.M{})
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Could not fetch users"})
+    }
+
+    var rewards []bson.M
+    if err := cursor.All(context.Background(), &rewards); err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Error while decoding users"})
+    }
+
+    return c.Status(http.StatusOK).JSON(rewards)
+}
 
 
 
