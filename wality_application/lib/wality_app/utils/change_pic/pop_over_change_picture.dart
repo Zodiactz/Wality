@@ -1,28 +1,55 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
 
 class PopOverChangePicture extends StatelessWidget {
-  final Function(String) onImageSelected;  // Callback for image selection
+  final Function(String) onImageUploaded;  // Callback for image upload URL
 
-  const PopOverChangePicture({super.key, required this.onImageSelected});
+  const PopOverChangePicture({super.key, required this.onImageUploaded});
 
+   // Function to upload the selected image
+  Future<void> _handleImageUpload(BuildContext context, XFile image) async {
+    final userService = UserService();  // Instance of your UserService
+    final File imageFile = File(image.path);
+
+    // Print message before upload starts
+    print('Uploading image: ${imageFile.path}');
+
+    String? uploadedImageUrl = await userService.uploadImage(imageFile);
+
+    // Print message after upload completes
+    if (uploadedImageUrl != null) {
+      print('Image uploaded successfully. URL: $uploadedImageUrl');
+      onImageUploaded(uploadedImageUrl);  // Return uploaded image URL to parent
+    } else {
+      print('Failed to upload image');
+      // Handle upload failure (optional)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to upload image')),
+      );
+    }
+
+    Navigator.of(context).pop();  // Close the popover after uploading
+  }
+
+  // Function to pick an image from the gallery and upload it
   Future<void> _pickImageFromGallery(BuildContext context) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image != null) {
-      // Notify the parent widget of the new image
-      onImageSelected(image.path);
-      Navigator.of(context).pop();  // Close the popover after selection
+      await _handleImageUpload(context, image);  // Upload image
     }
   }
 
+  // Function to pick an image from the camera and upload it
   Future<void> _pickImageFromCamera(BuildContext context) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
     if (image != null) {
-      // Notify the parent widget of the new image
-      onImageSelected(image.path);
-      Navigator.of(context).pop();  // Close the popover after selection
+      await _handleImageUpload(context, image);  // Upload image
     }
   }
 
@@ -39,9 +66,9 @@ class PopOverChangePicture extends StatelessWidget {
               child: Text(
                 'From Gallery',
                 style: TextStyle(
-                  color: Colors.white, // Text color
-                  fontSize: 16, // Font size
-                  fontWeight: FontWeight.bold, // Font weight
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -56,9 +83,9 @@ class PopOverChangePicture extends StatelessWidget {
               child: Text(
                 'From Camera',
                 style: TextStyle(
-                  color: Colors.white, // Text color
-                  fontSize: 16, // Font size
-                  fontWeight: FontWeight.bold, // Font weight
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

@@ -13,14 +13,13 @@ class ChangePicAndUsernamePage extends StatefulWidget {
   const ChangePicAndUsernamePage({super.key});
 
   @override
-  State<ChangePicAndUsernamePage> createState() =>
-      _ChangePicAndUsernamePageState();
+  State<ChangePicAndUsernamePage> createState() => _ChangePicAndUsernamePageState();
 }
 
 class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
   final TextEditingController _usernameController = TextEditingController();
   final UserService _userService = UserService();
-  String imgURL = "";
+  String imgURL = ""; // Track the uploaded image URL
   final RealmService _realmService = RealmService();
 
   @override
@@ -91,7 +90,13 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Picturecircle(),
+                Picturecircle(
+                  onImageUploaded: (url) {
+                    setState(() {
+                      imgURL = url;  // Capture the uploaded image URL
+                    });
+                  },
+                ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _usernameController,
@@ -103,14 +108,16 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                 ElevatedButton(
                   onPressed: () async {
                     final userId = _realmService.getCurrentUserId();
-                    // Collect the text from the TextFormField
                     final newUsername = _usernameController.text;
 
-                    // Make sure the username isn't empty and the user is logged in
-                    if (userId != null && newUsername.isNotEmpty) {
-                      // Pass the new username to the update function
-                      final result = await _userService.updateUsername(
-                          userId, newUsername);
+                    // Ensure both username and image URL are present and the user is logged in
+                    if (userId != null && (newUsername.isNotEmpty || imgURL.isNotEmpty)) {
+                      // Update both the username and the profile picture in the database
+                      final result = await _userService.updateUserProfile(
+                        userId,
+                        newUsername,
+                        imgURL,
+                      );
 
                       // Provide feedback to the user based on the result
                       if (result == null || result.contains('successfully')) {

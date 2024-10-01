@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:mime/mime.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart'; 
+import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:wality_application/wality_app/utils/constant.dart';
 
@@ -84,6 +88,44 @@ class UserService {
       return null;
     }
   }
+
+  Future<String?> uploadImage(File imageFile) async {
+    final uri = Uri.parse('$baseUrl/uploadImage');
+    
+    // Get the file name and its MIME type
+    final mimeType = lookupMimeType(imageFile.path) ?? 'application/octet-stream';
+    final fileName = basename(imageFile.path);
+    
+    try {
+      // Create a multipart request
+      final request = http.MultipartRequest('POST', uri)
+        ..files.add(await http.MultipartFile.fromPath(
+          'image', 
+          imageFile.path,
+          contentType: MediaType.parse(mimeType),
+        ));
+          print('Starting upload for: ${imageFile.path}');
+
+
+      // Send the request
+      final streamedResponse = await request.send();
+
+      // Parse the response
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        return jsonResponse['imageURL']; // Returns the URL of the uploaded image
+      } else {
+        print('Failed to upload image: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
 
   Future<String?> updateUsername(String userId, String username) async {
     final uri = Uri.parse(
@@ -227,4 +269,33 @@ class UserService {
       return null;
     }
   }
+
+  Future<String?> updateUserProfile(String userId, String username, String profileImageUrl) async {
+    try {
+      // Create the body with the new username and profile image link
+      Map<String, dynamic> body = {
+        'username': username,
+        'profileImg_link': profileImageUrl,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/userId/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        return 'Profile updated successfully';
+      } else {
+        print('Failed to update profile. Status code: ${response.statusCode}');
+        return 'Failed to update profile';
+      }
+    } catch (e) {
+      print('Error updating profile: $e');
+      return 'Error updating profile';
+    }
+  }
+
 }
