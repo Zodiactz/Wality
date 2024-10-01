@@ -207,4 +207,24 @@ class UserService {
     }
     return null;
   }
+
+  Future<Map<String, dynamic>?> fetchUserData(String userId) async {
+    final uri = Uri.parse('$baseUrl/userId/$userId');
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response into a Map
+        final Map<String, dynamic> userData = jsonDecode(response.body);
+        return userData;
+      } else {
+        print('Failed to fetch user data: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return null;
+    }
+  }
 }
