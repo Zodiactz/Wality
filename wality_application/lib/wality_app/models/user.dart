@@ -1,5 +1,5 @@
 class Users {
-  final String userId;
+  final String? userId;
   final String uid;
   final String userName;
   final String email;
@@ -13,7 +13,7 @@ class Users {
   final int eventBot;
 
   Users({
-    required this.userId,
+    this.userId,
     required this.uid,
     required this.userName,
     required this.email,

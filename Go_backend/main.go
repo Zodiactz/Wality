@@ -74,6 +74,8 @@ func main() {
     app.Post("/reset-password", resetPassword)
     app.Post("/reset-password/:token", resetPasswordWithToken)
     app.Get("/getAllUsers", getAllUsers)
+    app.Get("/update", getAllUsers)
+    app.Post("/updateUserId/:user_id", updateUserId)
 
 
 
@@ -749,6 +751,45 @@ func transferData(c *fiber.Ctx) error {
     }
 
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User updated successfully!"})
+}
+
+func updateUserId(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the update payload
+    var updatePayload struct {       
+        UserId string `json:"user_id"`
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&updatePayload); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    fmt.Printf("Updating water with ID: %s\n", user_id)
+    fmt.Printf("Update payload: %+v\n", updatePayload)
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$set": bson.M{
+            "user_id": updatePayload.UserId, // Match the struct field name
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "Water not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Water updated successfully!"})
 }
 
 type Users struct {

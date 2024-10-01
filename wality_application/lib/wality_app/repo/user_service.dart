@@ -227,4 +227,36 @@ class UserService {
       return null;
     }
   }
+
+  Future<String?> updateUserId(String userId, String user_id) async {
+    final uri = Uri.parse(
+        '$baseUrl/updateUserId/$userId'); // Ensure this matches your backend endpoint
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'user_id': user_id}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['status'] ??
+            'Username updated successfully'; // Adjusted to match 'status' field
+      } else if (response.statusCode == 404) {
+        return 'User not found!'; // Added handling for 404 case
+      } else {
+        print(
+            'Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
+        print('Response body: ${response.body}');
+        return jsonDecode(response.body)['error'] ??
+            'Unknown error occurred'; // Extract the error message if available
+      }
+    } catch (e) {
+      print('Error updating username: $e');
+      return 'Error updating username: $e';
+    }
+  }
 }
