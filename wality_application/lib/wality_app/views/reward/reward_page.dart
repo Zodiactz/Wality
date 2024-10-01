@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
+import 'package:wality_application/wality_app/repo/user_service.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -21,27 +22,16 @@ class _RewardPageState extends State<RewardPage> {
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
+  final UserService userService = UserService();
 
   @override
   void initState() {
     super.initState();
     fetchUserCoupons();
-    botAmount = fetchbotEvent(userId!);
+    botAmount = userService.fetchUserEventBot(userId!);
   }
 
-  Future<int?> fetchbotEvent(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['eventBot'];
-    } else {
-      print('Failed to fetch waterId');
-      return null;
-    }
-  }
 
   Future<bool> userBotMoreThanEventBot(int couponBot) async {
     int userBot = await botAmount ?? 0;
