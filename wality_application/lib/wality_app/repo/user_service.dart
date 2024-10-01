@@ -84,32 +84,127 @@ class UserService {
       return null;
     }
   }
+
   Future<String?> updateUsername(String userId, String username) async {
-  final uri = Uri.parse('$baseUrl/updateUsername/$userId'); // Ensure this matches your backend endpoint
+    final uri = Uri.parse(
+        '$baseUrl/updateUsername/$userId'); // Ensure this matches your backend endpoint
 
-  try {
-    final response = await http.post(
-      uri,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode({'username': username}),
-    );
+    try {
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'username': username}),
+      );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['status'] ?? 'Username updated successfully'; // Adjusted to match 'status' field
-    } else if (response.statusCode == 404) {
-      return 'User not found!'; // Added handling for 404 case
-    } else {
-      print('Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
-      print('Response body: ${response.body}');
-      return jsonDecode(response.body)['error'] ?? 'Unknown error occurred'; // Extract the error message if available
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['status'] ??
+            'Username updated successfully'; // Adjusted to match 'status' field
+      } else if (response.statusCode == 404) {
+        return 'User not found!'; // Added handling for 404 case
+      } else {
+        print(
+            'Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
+        print('Response body: ${response.body}');
+        return jsonDecode(response.body)['error'] ??
+            'Unknown error occurred'; // Extract the error message if available
+      }
+    } catch (e) {
+      print('Error updating username: $e');
+      return 'Error updating username: $e';
     }
-  } catch (e) {
-    print('Error updating username: $e');
-    return 'Error updating username: $e';
   }
-}
 
+  Future<void> updateUserFillingTime(String userId) async {
+    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
+    final headers = {'Content-Type': 'application/json'};
+    final body =
+        jsonEncode({'startFillingTime': DateTime.now().toIso8601String()});
+
+    try {
+      await http.post(uri, headers: headers, body: body);
+    } catch (e) {
+      print('Error during HTTP request: $e');
+    }
+  }
+
+  Future<int?> fetchUserEventBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['eventBot'];
+      }
+    } catch (e) {
+      print('Error fetching eventBot: $e');
+    }
+    return null;
+  }
+
+  Future<DateTime?> fetchUserStartTime(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return DateTime.parse(data['startFillingTime']);
+      }
+    } catch (e) {
+      print('Error fetching startFillingTime: $e');
+    }
+    return null;
+  }
+
+  Future<int?> fetchUserFillingLimit(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['fillingLimit'];
+      }
+    } catch (e) {
+      print('Error fetching fillingLimit: $e');
+    }
+    return null;
+  }
+
+  Future<int?> fetchWaterAmount(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['currentMl'];
+      }
+    } catch (e) {
+      print('Error fetching currentMl: $e');
+    }
+    return null;
+  }
+
+  Future<int?> fetchBottleAmount(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['botLiv'];
+      }
+    } catch (e) {
+      print('Error fetching botLiv: $e');
+    }
+    return null;
+  }
+
+  Future<int?> fetchTotalWater(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['totalMl'];
+      }
+    } catch (e) {
+      print('Error fetching totalMl: $e');
+    }
+    return null;
+  }
 }

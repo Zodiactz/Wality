@@ -1,10 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
+import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
@@ -12,6 +13,8 @@ import 'package:intl/intl.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
+final WaterService waterService = WaterService();
+final UserService userService = UserService();
 
 class QrScannerPage extends StatefulWidget {
   const QrScannerPage({super.key});
@@ -35,129 +38,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<DateTime?>? startHour;
   Future<int?>? eBot;
 
-  // Define the method to update user water data
-  Future<bool> updateUserWater(String userId, int currentMl, int botLiv,
-      int totalMl, int limit, int eBot) async {
-    final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'currentMl': currentMl,
-      'botLiv': botLiv,
-      'totalMl': totalMl,
-      'fillingLimit': limit,
-      'eventBot': eBot,
-    });
-
-    try {
-      final response = await http.post(uri, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        return true; // Successfully updated
-      } else {
-        print('Failed to update user: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Error: $e');
-      return false;
-    }
-  }
-
-// Inside your function
-  Future<void> updateUserFillingTime() async {
-    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'startFillingTime': formatDateToECMA(DateTime.now()),
-    });
-
-    try {
-      final response = await http.post(uri, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        print('Successfully updated: ${response.body}');
-        // Additional logic if needed
-      } else {
-        print(
-            'Failed to update time: ${response.statusCode} - ${response.body}');
-      }
-    } catch (e) {
-      print('Error during HTTP request: $e');
-    }
-  }
-
-  Future<bool> updateWaterStatus(String waterId, String status) async {
-    final uri = Uri.parse('$baseUrl/updateWaterStatus/$waterId');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'status': status,
-    });
-
-    try {
-      final response = await http.post(uri, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        // Successfully updated
-        return true;
-      } else {
-        // Log response body for debugging
-        print('Failed to update water status. Response: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      // Handle request error
-      print('Error updating water status: $e');
-      return false;
-    }
-  }
-
-  Future<int?> fetchWaterId(String waterId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/waterId/$waterId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['quantity'];
-    } else {
-      print('Failed to fetch waterId');
-      return null;
-    }
-  }
-
-  Future<int?> fetchUserEventBot(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['eventBot'];
-    } else {
-      print('Failed to fetch eventBot');
-      return null;
-    }
-  }
-
-  Future<DateTime?> fetchUserStartTime(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-
-      // Check if 'startFillingTime' is present and not null
-      if (data['startFillingTime'] != null) {
-        return DateTime.parse(
-            data['startFillingTime']); // Parse the string to DateTime
-      }
-
-      return null; // Return null if 'startFillingTime' is not found
-    } else {
-      print('Failed to fetch startFillingTime');
-      return null;
-    }
-  }
-
   String formatDateToECMA(DateTime date) {
     // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
     return DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(date) + 'Z';
@@ -177,62 +57,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
     // Parse the string back to DateTime and return
     return DateTime.parse(dateTimeString);
-  }
-
-  Future<int?> fetchUserFillingLimit(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['fillingLimit'];
-    } else {
-      print('Failed to fetch fillingLimit');
-      return null;
-    }
-  }
-
-  Future<int?> fetchWaterAmount(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['currentMl'];
-    } else {
-      print('Failed to fetch currentMl');
-      return null;
-    }
-  }
-
-  Future<int?> fetchBottleAmount(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['botLiv'];
-    } else {
-      print('Failed to fetch botLiv');
-      return null;
-    }
-  }
-
-  Future<int?> fetchTotalWater(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['totalMl'];
-    } else {
-      print('Failed to fetch totalMl');
-      return null;
-    }
   }
 
   void _showDialogWithAutoDismiss(String title, String message) {
@@ -308,15 +132,18 @@ class _QrScannerPageState extends State<QrScannerPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize current water and bottle
-    currentWater = fetchWaterAmount(userId!);
-    currentBottle = fetchBottleAmount(userId!);
-    totalWater = fetchTotalWater(userId!);
-    sentCurrentWater = fetchWaterAmount(userId!);
-    sentCurrentBottle = fetchBottleAmount(userId!);
-    fillingLimit = fetchUserFillingLimit(userId!);
-    startHour = fetchUserStartTime(userId!);
-    eBot = fetchUserEventBot(userId!);
+
+    // Fetch user-related water data when the widget is initialized
+    if (userId != null) {
+      currentWater = userService.fetchWaterAmount(userId!);
+      currentBottle = userService.fetchBottleAmount(userId!);
+      totalWater = userService.fetchTotalWater(userId!);
+      fillingLimit = userService.fetchUserFillingLimit(userId!);
+      startHour = userService.fetchUserStartTime(userId!);
+      eBot = userService.fetchUserEventBot(userId!);
+    } else {
+      print('User ID is null, cannot fetch data.');
+    }
   }
 
   @override
@@ -372,7 +199,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
         Navigator.of(context).pop();
 
         // Proceed with the rest of the logic
-        final waterAmount = await fetchWaterId(scanData.code ?? '');
+        final waterAmount = await waterService.fetchWaterId(scanData.code ?? '');
 
         if (waterAmount != null) {
           final startTime = removeZFromDateTime((await startHour));
@@ -388,9 +215,9 @@ class _QrScannerPageState extends State<QrScannerPage> {
                   (difference != null && difference.inHours < 1)) ||
               (difference != null && difference.inHours >= 1) ||
               (difference == null)) {
-              if(difference!.inHours >= 1){
-                fillingLimit = Future.value(0);
-              }
+            if (difference!.inHours >= 1) {
+              fillingLimit = Future.value(0);
+            }
             // Fetch and update user water data
             var currentMl = (await currentWater ?? 0) + waterAmount;
             var botLiv = (await currentBottle ?? 0);
@@ -405,12 +232,12 @@ class _QrScannerPageState extends State<QrScannerPage> {
               currentMl = currentMl % 550;
             }
 
-            if (await updateUserWater(
-                userId!, currentMl, botLiv,totalMl, limit, eventBot)) {
-              updateWaterStatus(scanData.code ?? '', "active");
+            if (await waterService.updateUserWater(
+                userId!, currentMl, botLiv, totalMl, limit, eventBot)) {
+              waterService.updateWaterStatus(scanData.code ?? '', "active");
               if ((difference != null && difference.inHours >= 1) ||
                   (difference == null)) {
-                await updateUserFillingTime();
+                await userService.updateUserFillingTime(userId!);
               }
               // Pass values to the animation page
               // Await the Future values before navigating

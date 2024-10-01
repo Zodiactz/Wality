@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
-import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 
-
-class ChangeEmailAndPasswordPage extends StatelessWidget {
+class ChangeEmailAndPasswordPage extends StatefulWidget {
   ChangeEmailAndPasswordPage({super.key});
+
+  @override
+  _ChangeEmailAndPasswordPageState createState() => _ChangeEmailAndPasswordPageState();
+}
+
+class _ChangeEmailAndPasswordPageState extends State<ChangeEmailAndPasswordPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordController2 = TextEditingController();
@@ -24,9 +29,17 @@ class ChangeEmailAndPasswordPage extends StatelessWidget {
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNote = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
+  Future<String?>? usernameFuture;
+  final UserService _userService = UserService();
 
+  @override
+  void initState() {
+    super.initState();
+    final userId = _realmService.getCurrentUserId();
+    usernameFuture = _userService.fetchUsername(userId!);
+  }
 
-    void signUp(AuthenticationViewModel authenvm) async {
+  void signUp(AuthenticationViewModel authenvm) async {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
       bool isValidForSignUp = await authenvm.validateAllSignUp(
           usernameController.text,
@@ -56,7 +69,7 @@ class ChangeEmailAndPasswordPage extends StatelessWidget {
           final newUser = Users(
               userId: user.id,
               uid: "123456",
-              userName: usernameController.text.trim(),
+              userName: await usernameFuture ?? '',
               email: emailController.text.trim(),
               currentMl: 0,
               totalMl: 0,
@@ -182,24 +195,24 @@ class ChangeEmailAndPasswordPage extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: () async {
                               final userId = _realmService.getCurrentUserId();
-                    // Collect the text from the TextFormField
-                    final newUserEmail = emailController.text;
+                              // Collect the text from the TextFormField
+                              final newUserEmail = emailController.text;
 
-                    // Make sure the username isn't empty and the user is logged in
-                    if (userId != null && newUserEmail.isNotEmpty) {
-                      // Pass the new username to the update function
-                      final result = await _authService.updateUserEmail(
-                          userId, newUserEmail);
+                              // Make sure the username isn't empty and the user is logged in
+                              if (userId != null && newUserEmail.isNotEmpty) {
+                                // Pass the new username to the update function
+                                final result = await _authService.updateUserEmail(
+                                    userId, newUserEmail);
 
-                      // Provide feedback to the user based on the result
-                      if (result == null || result.contains('successfully')) {
-                        openProfilePage(context);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result)),
-                        );
-                      }
-                    }
+                                // Provide feedback to the user based on the result
+                                if (result == null || result.contains('successfully')) {
+                                  openProfilePage(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(result)),
+                                  );
+                                }
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF342056),

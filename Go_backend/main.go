@@ -76,6 +76,7 @@ func main() {
     app.Get("/getAllUsers", getAllUsers)
 
 
+
     // New route for image upload
 	app.Post("/uploadImage", uploadImage)
 
