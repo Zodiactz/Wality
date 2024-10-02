@@ -2,12 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
-import 'package:popover/popover.dart';
-import 'package:wality_application/wality_app/utils/change_pic/pop_over_change_picture.dart';
-import 'package:wality_application/wality_app/repo/user_service.dart';
 
 class ChangePicAndUsernamePage extends StatefulWidget {
   const ChangePicAndUsernamePage({super.key});
@@ -20,8 +17,33 @@ class ChangePicAndUsernamePage extends StatefulWidget {
 class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
   final TextEditingController _usernameController = TextEditingController();
   final UserService _userService = UserService();
-  String imgURL = "";
+  String imgURL = ""; // This will store the image path
   final RealmService _realmService = RealmService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentUsername();
+  }
+
+  Future<void> _fetchCurrentUsername() async {
+    final userId = _realmService.getCurrentUserId();
+    if (userId != null) {
+      // Fetch the current username from the user service
+      final currentUsername = await _userService.fetchUsername(userId);
+      setState(() {
+        _usernameController.text =
+            currentUsername ?? ''; // Set the current username as initial value
+      });
+    }
+  }
+
+  // Function to update the image URL when selected from Picturecircle
+  void _updateImageURL(String path) {
+    setState(() {
+      imgURL = path; // Update imgURL with the selected image path
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +113,8 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Picturecircle(),
+                // Pass the callback to Picturecircle to get the image path
+                Picturecircle(onImageUploaded: _updateImageURL), 
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _usernameController,
@@ -103,23 +126,53 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                 ElevatedButton(
                   onPressed: () async {
                     final userId = _realmService.getCurrentUserId();
-                    // Collect the text from the TextFormField
                     final newUsername = _usernameController.text;
 
-                    // Make sure the username isn't empty and the user is logged in
-                    if (userId != null && newUsername.isNotEmpty) {
-                      // Pass the new username to the update function
-                      final result = await _userService.updateUsername(
-                          userId, newUsername);
+                    // Ensure the user is logged in and there is either a new username or image URL
+                    if (userId != null &&
+                        (newUsername.isNotEmpty || imgURL.isNotEmpty)) {
+                      File? imageFile;
 
-                      // Provide feedback to the user based on the result
-                      if (result == null || result.contains('successfully')) {
-                        openProfilePage(context);
-                      } else {
+                      // Create a File object directly from the imgURL (the image path)
+                      if (imgURL.isNotEmpty) {
+                        try {
+                          imageFile = File(imgURL);
+                          if (!await imageFile.exists()) {
+                            throw Exception('Image file does not exist.');
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: ${e.toString()}')),
+                          );
+                          return;
+                        }
+                      }
+
+                      try {
+                        // Call the updateUserProfile function with userId, imageFile, and newUsername
+                        final result = await _userService.updateUserProfile(
+                            userId, imageFile, newUsername);
+
+                        // Provide feedback to the user based on the result
+                        if (result == null || result.contains('successfully')) {
+                          openProfilePage(
+                              context); // Navigate to the profile page upon success
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(result)),
+                          );
+                        }
+                      } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result)),
+                          SnackBar(content: Text('Error: ${e.toString()}')),
                         );
                       }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'Please provide a username or upload an image.')),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -138,7 +191,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                       color: Colors.white,
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
