@@ -330,9 +330,9 @@ class UserService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-         print("UserId update details ${response.body} from $userId to user_id");
+        print("UserId update details ${response.body} from $userId to user_id");
         return data['status'] ??
-            'UserId updated successfully'; // Adjusted to match 'status' field      
+            'UserId updated successfully'; // Adjusted to match 'status' field
       } else if (response.statusCode == 404) {
         return 'User not found!'; // Added handling for 404 case
       } else {
@@ -348,8 +348,8 @@ class UserService {
     }
   }
 
-
-   Future<String?> updateUserProfile(String userId, File? imageFile, String username) async {
+  Future<String?> updateUserProfile(
+      String userId, File? imageFile, String username) async {
     try {
       String? uploadedImageUrl;
       print("this is updateimage: $uploadedImageUrl");
@@ -396,11 +396,35 @@ class UserService {
         print('userID: $userId, error: ${usernameResponse.body}');
         return 'User not found when updating username!';
       } else {
-        return jsonDecode(usernameResponse.body)['error'] ?? 
+        return jsonDecode(usernameResponse.body)['error'] ??
             'Unknown error occurred when updating username';
       }
     } catch (e) {
       return 'Error updating user profile: $e';
+    }
+  }
+
+  Future<void> deleteUser(String userId) async {
+    final url = Uri.parse('$baseUrl/deleteUser/$userId');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Successfully deleted the user
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User deleted successfully!'
+      } else if (response.statusCode == 404) {
+        // User not found
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User not found!'
+      } else {
+        // Other error
+        final data = jsonDecode(response.body);
+        print('Error: ${data['error']}');
+      }
+    } catch (e) {
+      print('Failed to delete user: $e');
     }
   }
 }

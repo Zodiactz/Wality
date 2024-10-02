@@ -16,12 +16,10 @@ class ChangeEmailPage extends StatefulWidget {
   ChangeEmailPage({super.key});
 
   @override
-  _ChangeEmailPageState createState() =>
-      _ChangeEmailPageState();
+  _ChangeEmailPageState createState() => _ChangeEmailPageState();
 }
 
-class _ChangeEmailPageState
-    extends State<ChangeEmailPage> {
+class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
@@ -37,6 +35,7 @@ class _ChangeEmailPageState
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
   late var oldUserId = "";
+  late var oldEmail = "";
 
   @override
   void initState() {
@@ -105,6 +104,7 @@ class _ChangeEmailPageState
         // Step 3: Update user data in the backend (if necessary)
         try {
           final currentUserData = await _userService.fetchUserData(userId!);
+          oldEmail = currentUserData?['email'];
           if (currentUserData != null) {
             final updatedUser = Users(
               userId: userId,
@@ -138,6 +138,12 @@ class _ChangeEmailPageState
           final newUser = await app.logIn(newCredentials);
           print('Logged in with the new email successfully');
           await userService.updateUserId(oldUserId, newUser.id);
+          await userService.deleteUser(oldUserId);
+          final oldCredentials = Credentials.emailPassword(
+              oldEmail, passwordController.text.trim());
+          final oldUser = await app.logIn(oldCredentials);
+          await app.deleteUser(oldUser);
+          await app.logIn(newCredentials);
           openProfilePage(context); // Redirect to profile page
         } catch (e) {
           print('Failed to log in with new email: $e');
