@@ -60,7 +60,7 @@ func main() {
     app.Get("/userId/:user_id", getUserById)
     app.Get("/waterId/:waterId", getWaterById)
     app.Put("/update/:name", updatePerson)
-    app.Delete("/delete/:name", deletePerson)
+    app.Delete("/delete/:user_id", deleteUsers)
     app.Post("/updateUserWater/:user_id", updateUserWater)
     app.Post("/updateUserFillingTime/:user_id", updateUserFillingTime)
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
@@ -234,20 +234,20 @@ func updatePerson(c *fiber.Ctx) error {
 }
 
 // Delete a person by name
-func deletePerson(c *fiber.Ctx) error {
+func deleteUsers(c *fiber.Ctx) error {
     collection := client.Database("Wality_DB").Collection("Users")
-    name := c.Params("name")
+    user_id := c.Params("user_id")
 
-    result, err := collection.DeleteOne(context.Background(), bson.M{"name": name})
+    result, err := collection.DeleteOne(context.Background(), bson.M{"user_id": user_id})
     if err != nil {
         return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
     }
 
     if result.DeletedCount == 0 {
-        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "Person not found!"})
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
     }
 
-    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Person deleted successfully!"})
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User deleted successfully!"})
 }
 
 func getWaterById(c *fiber.Ctx) error {

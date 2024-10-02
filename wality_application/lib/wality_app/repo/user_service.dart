@@ -243,8 +243,9 @@ class UserService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
+         print("UserId update details ${response.body} from $userId to user_id");
         return data['status'] ??
-            'Username updated successfully'; // Adjusted to match 'status' field
+            'UserId updated successfully'; // Adjusted to match 'status' field      
       } else if (response.statusCode == 404) {
         return 'User not found!'; // Added handling for 404 case
       } else {

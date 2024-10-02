@@ -10,6 +10,8 @@ import 'package:wality_application/wality_app/views_models/authentication_vm.dar
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
 
+final App app = App(AppConfiguration('wality-1-djgtexn'));
+
 class ChangeEmailAndPasswordPage extends StatefulWidget {
   ChangeEmailAndPasswordPage({super.key});
 
@@ -31,130 +33,130 @@ class _ChangeEmailAndPasswordPageState
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNote = FocusNode();
-  final App app = App(AppConfiguration('wality-1-djgtexn'));
+  final userId = app.currentUser?.id;
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
-  final oldUserId = "";
-  final newUserId = "";
+  late var oldUserId = "";
 
   @override
   void initState() {
     super.initState();
     final userId = _realmService.getCurrentUserId();
     usernameFuture = _userService.fetchUsername(userId!);
+    oldUserId = userId;
   }
 
   void signUp() async {
-  if (emailController.text.trim().isNotEmpty &&
-      passwordController.text.trim().isNotEmpty) {
-    try {
-      final currentUser = app.currentUser;
-      if (currentUser == null) {
-        print('No user is currently logged in');
-        return;
-      }
-
-      // Step 1: Verify the current password
-      final credentials = Credentials.emailPassword(
-        currentUser.profile.email ?? '', // Get the current email
-        passwordController.text.trim(),  // Use the provided password
-      );
-
+    if (emailController.text.trim().isNotEmpty &&
+        passwordController.text.trim().isNotEmpty) {
       try {
-        await app.logIn(credentials);  // Attempt to log in with the current credentials
-        print('Password verification successful');
-      } catch (e) {
-        print('Password verification failed: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Incorrect password')),
-        );
-        return;
-      }
+        final currentUser = app.currentUser;
+        if (currentUser == null) {
+          print('No user is currently logged in');
+          return;
+        }
 
-      // Step 2: Proceed with changing the email
-      final newEmail = emailController.text.trim();
-
-      if (newEmail == currentUser.profile.email) {
-        print('New email is the same as the current email');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('New email is the same as the current email')),
+        // Step 1: Verify the current password
+        final credentials = Credentials.emailPassword(
+          currentUser.profile.email ?? '', // Get the current email
+          passwordController.text.trim(), // Use the provided password
         );
-        return;
-      }
 
-      EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
-      
-      try {
-        await authProvider.registerUser(
-          newEmail,
-          passwordController.text.trim(),
-        );
-        print('User email changed successfully');
-      } catch (e) {
-        print('Error changing email: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error changing email: $e')),
-        );
-        return;
-      }
-
-      // Step 3: Update user data in the backend (if necessary)
-      try {
-        final userId = _realmService.getCurrentUserId();
-        final oldUserId = userId;
-        final currentUserData = await _userService.fetchUserData(userId!);
-        if (currentUserData != null) {
-          final updatedUser = Users(
-            userId: userId,
-            uid: currentUserData['uid'] ?? '',
-            userName: currentUserData['username'] ?? 'Unknown',
-            email: newEmail, // Update with new email
-            currentMl: currentUserData['currentMl'] ?? 0,
-            totalMl: currentUserData['totalMl'] ?? 0,
-            botLiv: currentUserData['botLiv'] ?? 0,
-            profileImg_link: currentUserData['profileImg_link'] ?? '',
-            fillingLimit: currentUserData['fillingLimit'] ?? 0,
-            startFillingTime: currentUserData['startFillingTime'],
-            eventBot: currentUserData['eventBot'] ?? 0,
+        try {
+          await app.logIn(
+              credentials); // Attempt to log in with the current credentials
+          print('Password verification successful');
+        } catch (e) {
+          print('Password verification failed: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Incorrect password')),
           );
+          return;
+        }
 
-          final result = await _authService.createUser(updatedUser);
-          if (result != null) {
-            print('User data updated successfully');
-          } else {
-            print('Failed to update user data');
+        // Step 2: Proceed with changing the email
+        final newEmail = emailController.text.trim();
+
+        if (newEmail == currentUser.profile.email) {
+          print('New email is the same as the current email');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('New email is the same as the current email')),
+          );
+          return;
+        }
+
+        EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+
+        try {
+          await authProvider.registerUser(
+            newEmail,
+            passwordController.text.trim(),
+          );
+          print('User email changed successfully');
+        } catch (e) {
+          print('Error changing email: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error changing email: $e')),
+          );
+          return;
+        }
+
+        // Step 3: Update user data in the backend (if necessary)
+        try {
+          final currentUserData = await _userService.fetchUserData(userId!);
+          if (currentUserData != null) {
+            final updatedUser = Users(
+              userId: userId,
+              uid: currentUserData['uid'] ?? '',
+              userName: currentUserData['username'] ?? 'Unknown',
+              email: newEmail, // Update with new email
+              currentMl: currentUserData['currentMl'] ?? 0,
+              totalMl: currentUserData['totalMl'] ?? 0,
+              botLiv: currentUserData['botLiv'] ?? 0,
+              profileImg_link: currentUserData['profileImg_link'] ?? '',
+              fillingLimit: currentUserData['fillingLimit'] ?? 0,
+              startFillingTime: currentUserData['startFillingTime'],
+              eventBot: currentUserData['eventBot'] ?? 0,
+            );
+
+            final result = await _authService.createUser(updatedUser);
+            if (result != null) {
+              print('User data updated successfully');
+            } else {
+              print('Failed to update user data');
+            }
           }
+        } catch (e) {
+          print('Error updating user data: $e');
+        }
+
+        // Step 4: Log in with the new email
+        try {
+          final newCredentials = Credentials.emailPassword(
+              newEmail, passwordController.text.trim());
+          final newUser = await app.logIn(newCredentials);
+          print('Logged in with the new email successfully');
+          await userService.updateUserId(oldUserId, newUser.id);
+          openProfilePage(context); // Redirect to profile page
+        } catch (e) {
+          print('Failed to log in with new email: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: $e')),
+          );
         }
       } catch (e) {
-        print('Error updating user data: $e');
-      }
-
-      // Step 4: Log in with the new email
-      try {
-        final newCredentials = Credentials.emailPassword(newEmail, passwordController.text.trim());
-        final newUser = await app.logIn(newCredentials);
-        print('Logged in with the new email successfully');
-        await userService.updateUserId(oldUserId, newUser.id);
-        openProfilePage(context);  // Redirect to profile page
-      } catch (e) {
-        print('Failed to log in with new email: $e');
+        print('Sign-up process failed: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: $e')),
+          SnackBar(content: Text('Sign-up process failed: $e')),
         );
       }
-    } catch (e) {
-      print('Sign-up process failed: $e');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign-up process failed: $e')),
+        const SnackBar(content: Text('Email and password cannot be empty')),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Email and password cannot be empty')),
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
