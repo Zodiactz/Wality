@@ -12,16 +12,16 @@ import 'package:wality_application/wality_app/models/user.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 
-class ChangeEmailAndPasswordPage extends StatefulWidget {
-  ChangeEmailAndPasswordPage({super.key});
+class ChangeEmailPage extends StatefulWidget {
+  ChangeEmailPage({super.key});
 
   @override
-  _ChangeEmailAndPasswordPageState createState() =>
-      _ChangeEmailAndPasswordPageState();
+  _ChangeEmailPageState createState() =>
+      _ChangeEmailPageState();
 }
 
-class _ChangeEmailAndPasswordPageState
-    extends State<ChangeEmailAndPasswordPage> {
+class _ChangeEmailPageState
+    extends State<ChangeEmailPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
@@ -191,7 +191,7 @@ class _ChangeEmailAndPasswordPageState
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Change email and password',
+                        'Change Email',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,

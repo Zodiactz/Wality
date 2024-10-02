@@ -11,7 +11,7 @@ import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
-import 'package:wality_application/wality_app/views/change_email_and_password_page.dart';
+import 'package:wality_application/wality_app/views/change_email_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
 import 'package:wality_application/wality_app/views/ranking_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
         '/waterChecking': (context) => const WaterChecking(),
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
-        '/changeMailandPass': (context) => ChangeEmailAndPasswordPage(),
+        '/changeMail': (context) => ChangeEmailPage(),
         '/settingpage': (context) => SettingPage(),        
         '/rewardpage': (context) => RewardPage(),
         '/rankingpage': (context) => RankingPage(),

@@ -69,13 +69,13 @@ void openWaterCheckingPage(BuildContext context) async {
   }
 }
 
-openQRcodePage(BuildContext context) async {
+void openQRcodePage(BuildContext context) async {
   await Navigator.pushNamed(context, '/qrscanner');
 }
 
 
-void openChangeMailandPassPage(BuildContext context) async {
-  Navigator.pushNamed(context, '/changeMailandPass');
+void openChangeMail(BuildContext context) async {
+  Navigator.pushNamed(context, '/changeMail');
 }
 
 void LogOutToOutsite(BuildContext context) async {
