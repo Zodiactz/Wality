@@ -430,7 +430,7 @@ class UserService {
   }
 
     Future<void> deleteUserByEmail(String email) async {
-    final url = Uri.parse('$baseUrl/deleteUser/$email');
+    final url = Uri.parse('$baseUrl/deleteUserByEmail/$email');
 
     try {
       final response = await http.delete(url);
