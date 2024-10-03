@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -77,6 +78,7 @@ func main() {
     app.Get("/update", getAllUsers)
     app.Post("/updateUserId/:user_id", updateUserId)
 	app.Post("/updateImage/:user_id", updateImage)
+    app.Delete("/deleteOldImage", deleteImage)
 
 
 
@@ -160,6 +162,64 @@ func uploadToFirebaseStorage(fileName string, file multipart.File) (string, erro
 
 	return imageURL, nil
 }
+
+func extractImageNameFromURL(imageURL string) (string, error) {
+	// Parse the URL to ensure it's valid
+	parsedUrl, err := url.Parse(imageURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL: %v", err)
+	}
+
+	// Find the portion after "/o/" in the path
+	pathSegments := strings.Split(parsedUrl.Path, "/o/")
+	if len(pathSegments) < 2 {
+		return "", fmt.Errorf("invalid Firebase Storage URL format")
+	}
+
+	// Extract the image name (which may still be URL-encoded)
+	imageName := pathSegments[1]
+
+	// Optionally decode the URL-encoded image name
+	decodedImageName, err := url.QueryUnescape(imageName)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode image name: %v", err)
+	}
+
+	return decodedImageName, nil
+}
+
+
+// Function to delete image from Firebase Storage
+func deleteImage(c *fiber.Ctx) error {
+    // Get the raw image URL from the query parameter
+    imageURL := c.Query("imageURL")
+    if imageURL == "" {
+        // return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Image URL is required"})
+        return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Image replace successfully"})
+    }
+
+    // Extract the image name from the image URL
+    imageName, err := extractImageNameFromURL(imageURL)
+    if err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid image URL", "details": err.Error()})
+    }
+
+    // Create a context
+    ctx := context.Background()
+
+    // Get a reference to the file in Firebase Storage
+    object := bucket.Object(imageName)
+
+    // Delete the file from Firebase Storage
+    if err := object.Delete(ctx); err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete image", "details": err.Error()})
+    }
+
+    // Return success response
+    return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Image deleted successfully"})
+}
+
+
 
 // Helper function to generate a random string of the given length
 func generateRandomString(n int) string {
