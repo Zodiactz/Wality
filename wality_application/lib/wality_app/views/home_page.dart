@@ -193,8 +193,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    EdgeInsets.only(bottom: screenHeight * 0.08),
+                                padding: EdgeInsets.only(
+                                    bottom: screenHeight * 0.08),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

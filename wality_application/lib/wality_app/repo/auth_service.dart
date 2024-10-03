@@ -28,7 +28,8 @@ class AuthService {
   }
 
   Future<String?> updateUserEmail(String userId, String newEmail) async {
-    final String url = '$baseUrl/updateEmail/$userId'; // Replace with actual URL
+    final String url =
+        '$baseUrl/updateEmail/$userId'; // Replace with actual URL
 
     Map<String, String> requestBody = {
       'email': newEmail,
@@ -60,7 +61,8 @@ class AuthService {
   Future<String?> requestPasswordReset(String email) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/reset-password'), // Replace with your backend URL for password reset request
+        Uri.parse(
+            '$baseUrl/reset-password'), // Replace with your backend URL for password reset request
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -84,7 +86,8 @@ class AuthService {
   Future<String?> resetPassword(String token, String newPassword) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/reset-password/confirm'), // Replace with your backend URL for password reset confirmation
+        Uri.parse(
+            '$baseUrl/reset-password/confirm'), // Replace with your backend URL for password reset confirmation
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
