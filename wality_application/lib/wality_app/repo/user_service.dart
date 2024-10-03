@@ -365,10 +365,11 @@ class UserService {
       // After successful image upload (if provided), attempt to update the profile
       final imageUpdateUri = Uri.parse('$baseUrl/updateImage/$userId');
       final usernameUpdateUri = Uri.parse('$baseUrl/updateUsername/$userId');
+      final oldImage = await fetchUserImage(userId) ?? "";
 
       // Conditionally update the image URL if one was uploaded
       if (uploadedImageUrl != null) {
-        deleteImageFromFirebase(fetchUserImage(userId) as String);
+        deleteImageFromFirebase(oldImage);
         final imageResponse = await http.post(
           imageUpdateUri,
           headers: <String, String>{
