@@ -456,7 +456,7 @@ class UserService {
 
 Future<bool> deleteImageFromFirebase(String imageURL) async {
   // Construct the delete URL with the imageName as a query parameter
-  final url = Uri.parse('$baseUrl/deleteImage?imageURL=$imageURL');
+  final url = Uri.parse('$baseUrl/deleteOldImage?imageURL=$imageURL');
 
   // Make a DELETE request to the server
   final response = await http.delete(url);
