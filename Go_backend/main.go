@@ -76,7 +76,7 @@ func main() {
     app.Post("/reset-password/:token", resetPasswordWithToken)
     app.Get("/getAllUsers", getAllUsers)
     app.Get("/update", getAllUsers)
-    app.Post("/updateUserId/:user_id", updateUserIdByEmail)
+    app.Post("/updateUserId/:email", updateUserIdByEmail)
 	app.Post("/updateImage/:user_id", updateImage)
     app.Delete("/deleteOldImage", deleteImage)
     app.Delete("/deleteUserByEmail/:email", deleteUsersByEmail)
