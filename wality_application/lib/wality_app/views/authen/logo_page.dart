@@ -12,8 +12,8 @@ class LogoPage extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFD6F1F3),
               Color(0xFF0083AB),
+              Color.fromARGB(255, 33, 117, 143),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
