@@ -65,7 +65,7 @@ func main() {
     app.Post("/updateUserWater/:user_id", updateUserWater)
     app.Post("/updateUserFillingTime/:user_id", updateUserFillingTime)
     app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
-    app.Get("/getImage", getImageFromDynamicLink)
+    app.Get("/getImage", getImageFromDynamicLink)//use
     app.Post("/createCoupon", createCoupon)
     app.Get("/getAllCoupons", getAllCoupons)
     app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
