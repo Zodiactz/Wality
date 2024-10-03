@@ -315,9 +315,9 @@ class UserService {
     }
   }*/
 
-  Future<String?> updateUserId(String userId, String user_id) async {
+  Future<String?> updateUserIdByEmal(String email, String user_id) async {
     final uri = Uri.parse(
-        '$baseUrl/updateUserId/$userId'); // Ensure this matches your backend endpoint
+        '$baseUrl/updateUserId/$email'); // Ensure this matches your backend endpoint
 
     try {
       final response = await http.post(
@@ -330,7 +330,7 @@ class UserService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-        print("UserId update details ${response.body} from $userId to user_id");
+        print("UserId update details ${response.body} from $email to user_id");
         return data['status'] ??
             'UserId updated successfully'; // Adjusted to match 'status' field
       } else if (response.statusCode == 404) {
@@ -368,6 +368,7 @@ class UserService {
 
       // Conditionally update the image URL if one was uploaded
       if (uploadedImageUrl != null) {
+        deleteImageFromFirebase(uploadedImageUrl);
         final imageResponse = await http.post(
           imageUpdateUri,
           headers: <String, String>{
@@ -427,4 +428,71 @@ class UserService {
       print('Failed to delete user: $e');
     }
   }
+
+    Future<void> deleteUserByEmail(String email) async {
+    final url = Uri.parse('$baseUrl/deleteUser/$email');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Successfully deleted the user
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User deleted successfully!'
+      } else if (response.statusCode == 404) {
+        // User not found
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User not found!'
+      } else {
+        // Other error
+        final data = jsonDecode(response.body);
+        print('Error: ${data['error']}');
+      }
+    } catch (e) {
+      print('Failed to delete user: $e');
+    }
+  }
+
+
+Future<bool> deleteImageFromFirebase(String imageURL) async {
+  // Construct the delete URL with the imageName as a query parameter
+  final url = Uri.parse('$baseUrl/deleteImage?imageURL=$imageURL');
+
+  // Make a DELETE request to the server
+  final response = await http.delete(url);
+
+  // Check the status code to determine if the request was successful
+  if (response.statusCode == 200) {
+    print("Image deleted successfully.");
+    return true;
+  } else {
+    print("Failed to delete image: ${response.statusCode}, ${response.body}");
+    return false;
+  }
+}
+
+
+
+  String? extractImageNameFromUrl(String imageUrl) {
+  try {
+    // Parse the URL
+    Uri uri = Uri.parse(imageUrl);
+
+    // Extract the path segment after "/o/"
+    List<String> segments = uri.path.split('/o/');
+    if (segments.length < 2) {
+      return null; // Invalid URL format
+    }
+
+    // The second part contains the image name
+    String imageName = segments[1];
+
+    // Optionally decode the URL-encoded image name
+    return Uri.decodeComponent(imageName);
+  } catch (e) {
+    print("Error extracting image name: $e");
+    return null;
+  }
+}
+
 }

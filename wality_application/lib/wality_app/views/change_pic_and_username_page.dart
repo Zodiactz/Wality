@@ -5,6 +5,7 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 
 class ChangePicAndUsernamePage extends StatefulWidget {
   const ChangePicAndUsernamePage({super.key});

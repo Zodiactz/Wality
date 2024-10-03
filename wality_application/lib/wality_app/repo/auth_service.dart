@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wality_application/wality_app/models/user.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AuthService {
   Future<String?> createUser(Users newUser) async {
@@ -28,7 +29,8 @@ class AuthService {
   }
 
   Future<String?> updateUserEmail(String userId, String newEmail) async {
-    final String url = '$baseUrl/updateEmail/$userId'; // Replace with actual URL
+    final String url =
+        '$baseUrl/updateEmail/$userId'; // Replace with actual URL
 
     Map<String, String> requestBody = {
       'email': newEmail,
@@ -60,7 +62,8 @@ class AuthService {
   Future<String?> requestPasswordReset(String email) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/reset-password'), // Replace with your backend URL for password reset request
+        Uri.parse(
+            '$baseUrl/reset-password'), // Replace with your backend URL for password reset request
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -84,7 +87,8 @@ class AuthService {
   Future<String?> resetPassword(String token, String newPassword) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/reset-password/confirm'), // Replace with your backend URL for password reset confirmation
+        Uri.parse(
+            '$baseUrl/reset-password/confirm'), // Replace with your backend URL for password reset confirmation
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -104,6 +108,24 @@ class AuthService {
     } catch (e) {
       // Exception: Return error message
       return 'Error resetting password: $e';
+    }
+  }
+
+  /// this will delete cache
+  Future<void> deleteCacheDir() async {
+    final cacheDir = await getTemporaryDirectory();
+
+    if (cacheDir.existsSync()) {
+      cacheDir.deleteSync(recursive: true);
+    }
+  }
+
+  /// this will delete app's storage
+  Future<void> deleteAppDir() async {
+    final appDir = await getApplicationSupportDirectory();
+
+    if (appDir.existsSync()) {
+      appDir.deleteSync(recursive: true);
     }
   }
 }
