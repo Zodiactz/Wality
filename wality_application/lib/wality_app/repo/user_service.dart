@@ -368,7 +368,7 @@ class UserService {
 
       // Conditionally update the image URL if one was uploaded
       if (uploadedImageUrl != null) {
-        deleteImageFromFirebase(uploadedImageUrl);
+        deleteImageFromFirebase(fetchUserImage(userId) as String);
         final imageResponse = await http.post(
           imageUpdateUri,
           headers: <String, String>{
