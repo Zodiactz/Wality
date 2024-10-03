@@ -78,6 +78,10 @@ void openChangeMail(BuildContext context) async {
   Navigator.pushNamed(context, '/changeMail');
 }
 
+void openChangePass(BuildContext context) async {
+  Navigator.pushNamed(context, '/changePass');
+}
+
 void LogOutToOutsite(BuildContext context) async {
   final profilevm = Provider.of<ProfileViewModel>(context, listen: false);
   //await profilevm.signOut();

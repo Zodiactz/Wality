@@ -9,27 +9,27 @@ import 'package:wality_application/wality_app/views_models/authentication_vm.dar
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
 
-class ChangeEmailAndPasswordPage extends StatefulWidget {
-  ChangeEmailAndPasswordPage({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  ChangePasswordPage({super.key});
 
   @override
-  _ChangeEmailAndPasswordPageState createState() =>
-      _ChangeEmailAndPasswordPageState();
+  _ChangePasswordPageState createState() =>
+      _ChangePasswordPageState();
 }
 
-class _ChangeEmailAndPasswordPageState
-    extends State<ChangeEmailAndPasswordPage> {
+class _ChangePasswordPageState
+    extends State<ChangePasswordPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController passwordController2 = TextEditingController();
+  final TextEditingController confirmPassController = TextEditingController();
   final FocusNode usernameFocusNode = FocusNode();
-  final FocusNode emailFocusNode = FocusNode();
+
   final FocusNode passwordFocusNode = FocusNode();
-  final FocusNode confirmPassFocusNote = FocusNode();
+  final FocusNode confirmPassFocusNode = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
@@ -41,6 +41,8 @@ class _ChangeEmailAndPasswordPageState
     usernameFuture = _userService.fetchUsername(userId!);
   }
 
+  
+ 
   void signUp() async {
     if (emailController.text.trim().isNotEmpty &&
         passwordController.text.trim().isNotEmpty) {
@@ -129,6 +131,9 @@ class _ChangeEmailAndPasswordPageState
     }
   }
 
+    
+  //await authProvider.
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,7 +167,7 @@ class _ChangeEmailAndPasswordPageState
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Change email and password',
+                        'Change Password',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -194,26 +199,7 @@ class _ChangeEmailAndPasswordPageState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'New email',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: emailController,
-                            hintText: "",
-                            obscureText: false,
-                            focusNode: emailFocusNode,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Please enter your password to confirm the change',
+                          'New Password',
                           style: TextStyle(
                             fontSize: 20,
                             fontFamily: 'RobotoCondensed',
@@ -225,9 +211,29 @@ class _ChangeEmailAndPasswordPageState
                           height: 50,
                           child: TextFormFieldAuthen(
                             controller: passwordController,
-                            hintText: "",
-                            obscureText: true,
+                            hintText: "Password",
+                            obscureText: false,
                             focusNode: passwordFocusNode,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Please enter the same password to confirm the change',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: 360,
+                          height: 50,
+                          child: TextFormFieldAuthen(
+                            controller: confirmPassController,
+                            hintText: "Confirm password",
+                            obscureText: true,
+                            focusNode: confirmPassFocusNode,
+                            errorMessage: authvm.confirmEmailError,
                           ),
                         ),
                         const SizedBox(height: 16),

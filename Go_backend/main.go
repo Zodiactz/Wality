@@ -77,7 +77,7 @@ func main() {
     app.Get("/getAllUsers", getAllUsers)
     app.Get("/update", getAllUsers)
     app.Post("/updateUserId/:email", updateUserIdByEmail)
-	app.Post("/updateImage/:user_id", updateImage)Old
+	app.Post("/updateImage/:user_id", updateImage)
     app.Delete("/deleteOldImage", deleteImage)
     app.Delete("/deleteUserByEmail/:email", deleteUsersByEmail)
 
