@@ -76,9 +76,10 @@ func main() {
     app.Post("/reset-password/:token", resetPasswordWithToken)
     app.Get("/getAllUsers", getAllUsers)
     app.Get("/update", getAllUsers)
-    app.Post("/updateUserId/:user_id", updateUserId)
+    app.Post("/updateUserId/:user_id", updateUserIdByEmail)
 	app.Post("/updateImage/:user_id", updateImage)
     app.Delete("/deleteOldImage", deleteImage)
+    app.Delete("/deleteUserByEmail", deleteUsersByEmail)
 
 
 
@@ -300,6 +301,22 @@ func deleteUsers(c *fiber.Ctx) error {
     user_id := c.Params("user_id")
 
     result, err := collection.DeleteOne(context.Background(), bson.M{"user_id": user_id})
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    if result.DeletedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User deleted successfully!"})
+}
+
+func deleteUsersByEmail(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    email := c.Params("email")
+
+    result, err := collection.DeleteOne(context.Background(), bson.M{"email": email})
     if err != nil {
         return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
     }
@@ -853,9 +870,9 @@ func transferData(c *fiber.Ctx) error {
     return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User updated successfully!"})
 }
 
-func updateUserId(c *fiber.Ctx) error {
+func updateUserIdByEmail(c *fiber.Ctx) error {
     collection := client.Database("Wality_DB").Collection("Users")
-    user_id := c.Params("user_id")
+    email := c.Params("email")
 
     // Define a struct for the update payload
     var updatePayload struct {       
@@ -867,11 +884,11 @@ func updateUserId(c *fiber.Ctx) error {
         return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
     }
 
-    fmt.Printf("Updating water with ID: %s\n", user_id)
+    fmt.Printf("Updating water with ID: %s\n", email)
     fmt.Printf("Update payload: %+v\n", updatePayload)
 
     // Define the filter and update
-    filter := bson.M{"user_id": user_id}
+    filter := bson.M{"email": email}
     update := bson.M{
         "$set": bson.M{
             "user_id": updatePayload.UserId, // Match the struct field name

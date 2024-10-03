@@ -133,20 +133,13 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
 
         // Step 4: Log in with the new email
         try {
+          await userService.deleteUserByEmail(oldEmail);
+          await app.deleteUser(currentUser);
           final newCredentials = Credentials.emailPassword(
               newEmail, passwordController.text.trim());
           final newUser = await app.logIn(newCredentials);
           print('Logged in with the new email successfully');
-          await userService.updateUserId(oldUserId, newUser.id);
-          await userService.deleteUser(oldUserId);
-          final oldCredentials = Credentials.emailPassword(
-              oldEmail, passwordController.text.trim());
-          final oldUser = await app.logIn(oldCredentials);
-          await userService.deleteUser(oldUserId);
-          await app.deleteUser(oldUser);
-          final lateCredentials = Credentials.emailPassword(
-              newEmail, passwordController.text.trim());
-          await app.logIn(lateCredentials);
+          await userService.updateUserIdByEmal(newEmail, newUser.id);
           openProfilePage(context); // Redirect to profile page
         } catch (e) {
           print('Failed to log in with new email: $e');

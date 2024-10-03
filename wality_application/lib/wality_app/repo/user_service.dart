@@ -315,9 +315,9 @@ class UserService {
     }
   }*/
 
-  Future<String?> updateUserId(String userId, String user_id) async {
+  Future<String?> updateUserIdByEmal(String email, String user_id) async {
     final uri = Uri.parse(
-        '$baseUrl/updateUserId/$userId'); // Ensure this matches your backend endpoint
+        '$baseUrl/updateUserId/$email'); // Ensure this matches your backend endpoint
 
     try {
       final response = await http.post(
@@ -330,7 +330,7 @@ class UserService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-        print("UserId update details ${response.body} from $userId to user_id");
+        print("UserId update details ${response.body} from $email to user_id");
         return data['status'] ??
             'UserId updated successfully'; // Adjusted to match 'status' field
       } else if (response.statusCode == 404) {
@@ -428,6 +428,31 @@ class UserService {
       print('Failed to delete user: $e');
     }
   }
+
+    Future<void> deleteUserByEmail(String email) async {
+    final url = Uri.parse('$baseUrl/deleteUser/$email');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Successfully deleted the user
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User deleted successfully!'
+      } else if (response.statusCode == 404) {
+        // User not found
+        final data = jsonDecode(response.body);
+        print(data['status']); // e.g., 'User not found!'
+      } else {
+        // Other error
+        final data = jsonDecode(response.body);
+        print('Error: ${data['error']}');
+      }
+    } catch (e) {
+      print('Failed to delete user: $e');
+    }
+  }
+
 
 Future<bool> deleteImageFromFirebase(String imageURL) async {
   // Construct the delete URL with the imageName as a query parameter
