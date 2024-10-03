@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/models/water.dart';
 import 'package:wality_application/wality_app/views/change_pic_and_username_page.dart';
-import 'package:wality_application/wality_app/views/reward/reward_page.dart';
+import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home:  /*LogoPage()*/const HomePage(),
+      home:  /*LogoPage(),*/const HomePage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),

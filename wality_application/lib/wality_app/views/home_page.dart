@@ -3,11 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_nav_bar_scaffold.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
-import 'package:realm/realm.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 
 class HomePage extends StatefulWidget {
@@ -33,7 +31,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions using MediaQuery for responsiveness
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -41,13 +38,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       create: (context) => AnimationViewModel(this),
       child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
         builder: (context, animationvm, watervm, child) {
-          return Scaffold(
-            backgroundColor: const Color(0xFF0083AB),
+          return CustomScaffold(
+            currentPage: 'HomePage.dart', // Specify the current page
             body: Stack(
               children: [
                 Positioned.fill(
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: screenHeight * 0.07), // Responsive padding
+                    padding: EdgeInsets.only(bottom: screenHeight * 0.07),
                     child: Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -131,10 +128,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                    //circle
+                                    // Circle
                                     Container(
-                                      width: screenWidth * 0.7, 
-                                      height: screenWidth * 0.7, 
+                                      width: screenWidth * 0.7,
+                                      height: screenWidth * 0.7,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         boxShadow: [
@@ -147,14 +144,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ],
                                         border: Border.all(
                                           color: Colors.white,
-                                          width: screenWidth * 0.03, 
+                                          width: screenWidth * 0.03,
                                         ),
                                       ),
                                     ),
                                     ClipOval(
                                       child: SizedBox(
-                                        width: screenWidth * 0.65, 
-                                        height: screenWidth * 0.65, 
+                                        width: screenWidth * 0.65,
+                                        height: screenWidth * 0.65,
                                         child: AnimatedBuilder(
                                           animation: animationvm
                                               .waveAnimationController!,
@@ -175,7 +172,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       child: Text(
                                         '${watervm.water.mlSaved}/${watervm.water.maxMl}ml',
                                         style: TextStyle(
-                                          fontSize: screenWidth * 0.06, // Responsive font size
+                                          fontSize: screenWidth * 0.06,
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'RobotoCondensed',
@@ -186,7 +183,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               SizedBox(height: screenHeight * 0.01),
-                              //you save text
                               const Text(
                                 'You saved',
                                 style: TextStyle(
@@ -202,7 +198,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    //bottle
+                                    // Bottle
                                     if (animationvm.gifBytes2 != null)
                                       Padding(
                                         padding: EdgeInsets.only(
@@ -242,7 +238,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     ),
-                                    //turtle
+                                    // Turtle
                                     if (animationvm.gifBytes != null)
                                       Padding(
                                         padding: EdgeInsets.only(
@@ -280,13 +276,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: const Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: CustomFloatingActionButton()),
-            bottomNavigationBar:
-                const CustomBottomNavBar(currentPage: 'HomePage.dart'),
           );
         },
       ),

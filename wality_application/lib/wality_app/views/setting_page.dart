@@ -84,6 +84,10 @@ class SettingPage extends StatelessWidget {
                         const SizedBox(
                           height: 12,
                         ),
+                        profilevm.buildDivider(),
+                        const SizedBox(
+                          height: 12,
+                        ),
                         profilevm.buildProfileOption(
                           context,
                           icon: Icons.email_rounded,
