@@ -10,13 +10,11 @@ final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userid = app.currentUser?.id;
 
 class WaterSaveViewModel extends ChangeNotifier {
-  
-  final Water _water = Water(mlSaved: 0,savedCount: 0, maxMl: 550);
-
+  final Water _water = Water(mlSaved: 0, savedCount: 0, maxMl: 550);
 
   Water get water => _water;
 
-   WaterSaveViewModel() {
+  WaterSaveViewModel() {
     _fetchInitialData();
   }
 
@@ -56,7 +54,7 @@ class WaterSaveViewModel extends ChangeNotifier {
     final userId = userid;
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
-      
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         setMlSaved(data['currentMl'] ?? 0);
@@ -68,7 +66,8 @@ class WaterSaveViewModel extends ChangeNotifier {
       print('Error fetching initial data: $e');
     }
   }
-    Future<void> refreshData() async {
+
+  Future<void> refreshData() async {
     await _fetchInitialData();
     notifyListeners(); // Notify listeners to refresh the UI
   }
@@ -79,7 +78,7 @@ class WavePainter extends CustomPainter {
   final double fillRatio;
 
   WavePainter(this.animationValue, this.fillRatio);
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     double waveHeight = size.height * fillRatio;
@@ -109,7 +108,8 @@ class WavePainter extends CustomPainter {
         i,
         size.height -
             waveHeight -
-            sin((i / size.width * 2 * pi) + (animationValue * 2 * pi) + pi) * 10,
+            sin((i / size.width * 2 * pi) + (animationValue * 2 * pi) + pi) *
+                10,
       );
     }
     path.lineTo(size.width, size.height);
@@ -124,6 +124,3 @@ class WavePainter extends CustomPainter {
     return true;
   }
 }
-
-
-

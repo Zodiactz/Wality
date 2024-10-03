@@ -5,21 +5,20 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
-import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
 
-final App app = App(AppConfiguration('wality-1-djgtexn'));
-
-class ChangeEmailPage extends StatefulWidget {
-  ChangeEmailPage({super.key});
+class ChangeEmailAndPasswordPage extends StatefulWidget {
+  ChangeEmailAndPasswordPage({super.key});
 
   @override
-  _ChangeEmailPageState createState() => _ChangeEmailPageState();
+  _ChangeEmailAndPasswordPageState createState() =>
+      _ChangeEmailAndPasswordPageState();
 }
 
-class _ChangeEmailPageState extends State<ChangeEmailPage> {
+class _ChangeEmailAndPasswordPageState
+    extends State<ChangeEmailAndPasswordPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
@@ -31,131 +30,96 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNote = FocusNode();
-  final userId = app.currentUser?.id;
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
-  late var oldUserId = "";
-  late var oldEmail = "";
 
   @override
   void initState() {
     super.initState();
     final userId = _realmService.getCurrentUserId();
     usernameFuture = _userService.fetchUsername(userId!);
-    oldUserId = userId;
   }
 
   void signUp() async {
     if (emailController.text.trim().isNotEmpty &&
         passwordController.text.trim().isNotEmpty) {
       try {
-        final currentUser = app.currentUser;
-        if (currentUser == null) {
-          print('No user is currently logged in');
-          return;
-        }
-
-        // Step 1: Verify the current password
         final credentials = Credentials.emailPassword(
-          currentUser.profile.email ?? '', // Get the current email
-          passwordController.text.trim(), // Use the provided password
+          emailController.text.trim(),
+          passwordController.text.trim(),
         );
-
-        try {
-          await app.logIn(
-              credentials); // Attempt to log in with the current credentials
-          print('Password verification successful');
-        } catch (e) {
-          print('Password verification failed: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Incorrect password')),
-          );
-          return;
-        }
-
-        // Step 2: Proceed with changing the email
-        final newEmail = emailController.text.trim();
-
-        if (newEmail == currentUser.profile.email) {
-          print('New email is the same as the current email');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('New email is the same as the current email')),
-          );
-          return;
-        }
 
         EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
 
         try {
+          // Register a new user
           await authProvider.registerUser(
-            newEmail,
+            emailController.text.trim(),
             passwordController.text.trim(),
           );
-          print('User email changed successfully');
+          print('User registered successfully');
         } catch (e) {
-          print('Error changing email: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error changing email: $e')),
-          );
-          return;
+          print('Error registering user: $e');
         }
 
-        // Step 3: Update user data in the backend (if necessary)
         try {
+          // Fetch the current user data
+          final userId = _realmService.getCurrentUserId();
           final currentUserData = await _userService.fetchUserData(userId!);
-          oldEmail = currentUserData?['email'];
+          print('Current user data: $currentUserData');
+
           if (currentUserData != null) {
-            final updatedUser = Users(
+            // Create a User instance with updated email but handle null fields properly
+            final newUser = Users(
               userId: userId,
-              uid: currentUserData['uid'] ?? '',
-              userName: currentUserData['username'] ?? 'Unknown',
-              email: newEmail, // Update with new email
-              currentMl: currentUserData['currentMl'] ?? 0,
-              totalMl: currentUserData['totalMl'] ?? 0,
-              botLiv: currentUserData['botLiv'] ?? 0,
-              profileImg_link: currentUserData['profileImg_link'] ?? '',
-              fillingLimit: currentUserData['fillingLimit'] ?? 0,
-              startFillingTime: currentUserData['startFillingTime'],
-              eventBot: currentUserData['eventBot'] ?? 0,
+              uid: currentUserData['uid'] ??
+                  '', // Fallback to empty string if null
+              userName: currentUserData['username'] ??
+                  'Unknown', // Handle null username
+              email: emailController.text.trim(), // Updated email
+              currentMl:
+                  currentUserData['currentMl'] ?? 0, // Fallback for currentMl
+              totalMl: currentUserData['totalMl'] ?? 0, // Fallback for totalMl
+              botLiv: currentUserData['botLiv'] ?? 0, // Fallback for botLiv
+              profileImg_link: currentUserData['profileImg_link'] ??
+                  '', // Handle empty or null profile image
+              fillingLimit: currentUserData['fillingLimit'] ??
+                  0, // Fallback for fillingLimit
+              startFillingTime: currentUserData['startFillingTime'] != null
+                  ? currentUserData['startFillingTime']
+                  : null, // Assign null if startFillingTime is null, otherwise use the existing data
+              eventBot:
+                  currentUserData['eventBot'] ?? 0, // Fallback for eventBot
             );
 
-            final result = await _authService.createUser(updatedUser);
+            // Call the service to create the user and handle the response
+            final result = await _authService.createUser(newUser);
+
             if (result != null) {
-              print('User data updated successfully');
+              final emailPW = Credentials.emailPassword(emailController.text, passwordController.text);
+              app.logIn(emailPW);
+              print('User logged in successfully');
+
+              openProfilePage(context);
+              // Log the user in after registration
             } else {
-              print('Failed to update user data');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to create user')),
+              );
             }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('User data is null')),
+            );
           }
         } catch (e) {
-          print('Error updating user data: $e');
-        }
-
-        // Step 4: Log in with the new email
-        try {
-          final oldCredentials = Credentials.emailPassword(
-              oldEmail, passwordController.text.trim());
-          final oldUser = await app.logIn(oldCredentials);
-          print("old email: $oldEmail");
-          print("old user: $oldUser");
-          await userService.deleteUserByEmail(oldEmail);
-          await app.deleteUser(oldUser);
-          final newCredentials = Credentials.emailPassword(
-              newEmail, passwordController.text.trim());
-          final newUser = await app.logIn(newCredentials);
-          print('Logged in with the new email successfully');
-          await userService.updateUserIdByEmal(newEmail, newUser.id);
-          openProfilePage(context); // Redirect to profile page
-        } catch (e) {
-          print('Failed to log in with new email: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: $e')),
-          );
+          print('Error logging in user: $e');
         }
       } catch (e) {
-        print('Sign-up process failed: $e');
+        print('Failed to sign up: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-up process failed: $e')),
+          SnackBar(content: Text('Sign-up failed: $e')),
         );
       }
     } else {
@@ -198,7 +162,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'Change Email',
+                        'Change email and password',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -242,10 +206,9 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                           height: 50,
                           child: TextFormFieldAuthen(
                             controller: emailController,
-                            hintText: "Email",
+                            hintText: "",
                             obscureText: false,
                             focusNode: emailFocusNode,
-                            errorMessage: authvm.emailError,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -262,19 +225,9 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                           height: 50,
                           child: TextFormFieldAuthen(
                             controller: passwordController,
-                            hintText: "Password",
-                            obscureText: !authvm.passwordVisible1,
+                            hintText: "",
+                            obscureText: true,
                             focusNode: passwordFocusNode,
-                            suffixIcon: IconButton(
-                              icon: Icon(authvm.passwordVisible1
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                authvm.togglePasswordVisibility1();
-                              },
-                            ),
-                            errorMessage: authvm.passwordError,
                           ),
                         ),
                         const SizedBox(height: 16),

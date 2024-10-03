@@ -6,6 +6,7 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
+import 'package:wality_application/wality_app/utils/nav_bar/custom_nav_bar_scaffold.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:realm/realm.dart';
@@ -45,14 +46,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileViewModel>(builder: (context, profilevm, child) {
-      return Scaffold(
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
+      return CustomScaffold(
+        currentPage:
+            'ProfilePage.dart', // Specify the current page        extendBody: true,
+
         body: Stack(
           children: [
             Container(
@@ -318,12 +315,6 @@ class _ProfilePageState extends State<ProfilePage> {
             )
           ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: const Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: CustomFloatingActionButton()),
-        bottomNavigationBar:
-            const CustomBottomNavBar(currentPage: 'ProfilePage.dart'),
       );
     });
   }
