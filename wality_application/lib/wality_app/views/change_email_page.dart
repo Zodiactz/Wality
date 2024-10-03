@@ -133,8 +133,13 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
 
         // Step 4: Log in with the new email
         try {
+          final oldCredentials = Credentials.emailPassword(
+              oldEmail, passwordController.text.trim());
+          final oldUser = await app.logIn(oldCredentials);
+          print("old email: $oldEmail");
+          print("old user: $oldUser");
           await userService.deleteUserByEmail(oldEmail);
-          await app.deleteUser(currentUser);
+          await app.deleteUser(oldUser);
           final newCredentials = Credentials.emailPassword(
               newEmail, passwordController.text.trim());
           final newUser = await app.logIn(newCredentials);
