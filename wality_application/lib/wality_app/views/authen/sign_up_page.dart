@@ -10,15 +10,16 @@ import 'package:wality_application/wality_app/views_models/authentication_vm.dar
 import 'package:wality_application/wality_app/models/user.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _authenPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _authenPageState extends State<SignUpPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -31,7 +32,8 @@ class _authenPageState extends State<SignUpPage> {
   final App app = App(AppConfiguration('wality-1-djgtexn'));
 
   final AuthService _authService = AuthService();
-  // Generate UID
+  bool isLoading = false;
+
   String generateUid(int length) {
     const chars =
         'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -40,7 +42,6 @@ class _authenPageState extends State<SignUpPage> {
         .join();
   }
 
-  // Show error snackbar
   void showErrorSnackBar(AuthenticationViewModel authenvm) {
     authenvm.validateAllSignUp(
       usernameController.text,
@@ -94,7 +95,6 @@ class _authenPageState extends State<SignUpPage> {
     }
   }
 
-  // Sign Up Logic
   void signUp(AuthenticationViewModel authenvm) async {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
       bool isValidForSignUp = await authenvm.validateAllSignUp(
@@ -104,6 +104,10 @@ class _authenPageState extends State<SignUpPage> {
           passwordController2.text);
 
       if (isValidForSignUp) {
+        setState(() {
+          isLoading = true;
+        });
+
         try {
           final credentials = Credentials.emailPassword(
             emailController.text.trim(),
@@ -112,16 +116,13 @@ class _authenPageState extends State<SignUpPage> {
           EmailPasswordAuthProvider authProvider =
               EmailPasswordAuthProvider(app);
 
-          // Register a new user
           await authProvider.registerUser(
             emailController.text.trim(),
             passwordController.text.trim(),
           );
 
-          // Log the user in after registration
           final user = await app.logIn(credentials);
 
-          // Create a User instance
           final newUser = Users(
               userId: user.id,
               uid: generateUid(6),
@@ -134,14 +135,11 @@ class _authenPageState extends State<SignUpPage> {
               fillingLimit: 0,
               eventBot: 0);
 
-          // Call the service to create the user and handle the response
           final result = await _authService.createUser(newUser);
 
           if (result != null) {
-            // Success: Navigate to homepage
             openHomePage(context);
           } else {
-            // Show error message from result
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(result!)),
             );
@@ -151,12 +149,17 @@ class _authenPageState extends State<SignUpPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Sign-up failed: $e')),
           );
+        } finally {
+          if (mounted) {
+            setState(() {
+              isLoading = false;
+            });
+          }
         }
       } else {
         showErrorSnackBar(authenvm);
       }
     } else {
-      // Validation failed, show error messages
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields correctly')),
       );
@@ -167,218 +170,214 @@ class _authenPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Consumer<AuthenticationViewModel>(
         builder: (context, authenvm, child) {
-      return Scaffold(
-        body: Listener(
-          onPointerDown: (_) {
-            FocusScope.of(context).unfocus();
-          },
-          child: SingleChildScrollView(
-            physics: authenvm.isScrollable
-                ? const AlwaysScrollableScrollPhysics()
-                : const NeverScrollableScrollPhysics(),
-            reverse: true,
-            child: Container(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
-              ),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF0083AB),
-                    Color.fromARGB(255, 33, 117, 143),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.1, 1.0],
+      return LoadingOverlay(
+        isLoading: isLoading,
+        child: Scaffold(
+          body: Listener(
+            onPointerDown: (_) {
+              FocusScope.of(context).unfocus();
+            },
+            child: SingleChildScrollView(
+              physics: authenvm.isScrollable
+                  ? const AlwaysScrollableScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              reverse: true,
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 50), // Add padding to move content down
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50), // Adds extra space at the top
-                    Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 100),
-                          child: Center(
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                // image
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 90),
-                                  child: Image.asset(
-                                    'assets/images/Logo.png',
-                                    width: 220,
-                                    height: 220,
-                                  ),
-                                ),
-
-                                // text
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 200),
-                                  child: Text(
-                                    'Wality',
-                                    style: TextStyle(
-                                      fontSize: 96,
-                                      fontFamily: 'RobotoCondensed',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF0083AB),
+                      Color.fromARGB(255, 33, 117, 143),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.1, 1.0],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 50),
+                      Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 100),
+                            child: Center(
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 90),
+                                    child: Image.asset(
+                                      'assets/images/Logo.png',
+                                      width: 220,
+                                      height: 220,
                                     ),
                                   ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 200),
+                                    child: Text(
+                                      'Wality',
+                                      style: TextStyle(
+                                        fontSize: 96,
+                                        fontFamily: 'RobotoCondensed',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 136, left: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.chevron_left,
+                                    size: 32,
+                                  ),
+                                  color: Colors.black,
+                                  onPressed: () {
+                                    openChoosewayPage(context);
+                                  },
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        // Back button
-                        Padding(
-                          padding: const EdgeInsets.only(top: 136, left: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        ],
+                      ),
+                      Center(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.chevron_left,
-                                  size: 32,
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: usernameController,
+                                  hintText: "Username",
+                                  obscureText: false,
+                                  focusNode: usernameFocusNode,
+                                  errorMessage: authenvm.usernameError,
+                                  onfieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(emailFocusNode);
+                                  },
                                 ),
-                                color: Colors.black,
-                                onPressed: () {
-                                  openChoosewayPage(context);
-                                },
                               ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: emailController,
+                                  hintText: "Email",
+                                  obscureText: false,
+                                  focusNode: emailFocusNode,
+                                  errorMessage: authenvm.emailError,
+                                  onfieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(passwordFocusNode);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: passwordController,
+                                  hintText: "Password",
+                                  obscureText: !authenvm.passwordVisible1,
+                                  focusNode: passwordFocusNode,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(authenvm.passwordVisible1
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                    color: Colors.grey,
+                                    onPressed: () {
+                                      authenvm.togglePasswordVisibility1();
+                                    },
+                                  ),
+                                  errorMessage: authenvm.passwordError,
+                                  onfieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(confirmPassFocusNote);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: passwordController2,
+                                  hintText: "Confirm Password",
+                                  obscureText: !authenvm.passwordVisible2,
+                                  focusNode: confirmPassFocusNote,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(authenvm.passwordVisible2
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                    color: Colors.grey,
+                                    onPressed: () {
+                                      authenvm.togglePasswordVisibility2();
+                                    },
+                                  ),
+                                  errorMessage: authenvm.confirmPassErrs,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              ElevatedButton(
+                                onPressed: isLoading ? null : () => signUp(authenvm),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF342056),
+                                  fixedSize: const Size(300, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text(
+                                  isLoading ? 'Signing up...' : 'Sign up',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'RobotoCondensed',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              GestureDetector(
+                                onTap: () {
+                                  openSignInPage(context);
+                                },
+                                child: const Text(
+                                  "Already have an account ?",
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontFamily: 'RobotoCondensed',
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 60),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    Center(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 50.0,
-                              width: 300.0,
-                              child: TextFormFieldAuthen(
-                                controller: usernameController,
-                                hintText: "Username",
-                                obscureText: false,
-                                focusNode: usernameFocusNode,
-                                errorMessage: authenvm.usernameError,
-                                onfieldSubmitted: (value) {
-                                  FocusScope.of(context)
-                                      .requestFocus(emailFocusNode);
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              height: 50.0,
-                              width: 300.0,
-                              child: TextFormFieldAuthen(
-                                controller: emailController,
-                                hintText: "Email",
-                                obscureText: false,
-                                focusNode: emailFocusNode,
-                                errorMessage: authenvm.emailError,
-                                onfieldSubmitted: (value) {
-                                  FocusScope.of(context)
-                                      .requestFocus(passwordFocusNode);
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              height: 50.0,
-                              width: 300.0,
-                              child: TextFormFieldAuthen(
-                                controller: passwordController,
-                                hintText: "Password",
-                                obscureText: !authenvm.passwordVisible1,
-                                focusNode: passwordFocusNode,
-                                suffixIcon: IconButton(
-                                  icon: Icon(authenvm.passwordVisible1
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  color: Colors.grey,
-                                  onPressed: () {
-                                    authenvm.togglePasswordVisibility1();
-                                  },
-                                ),
-                                errorMessage: authenvm.passwordError,
-                                onfieldSubmitted: (value) {
-                                  FocusScope.of(context)
-                                      .requestFocus(confirmPassFocusNote);
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              height: 50.0,
-                              width: 300.0,
-                              child: TextFormFieldAuthen(
-                                controller: passwordController2,
-                                hintText: "Confirm Password",
-                                obscureText: !authenvm.passwordVisible2,
-                                focusNode: confirmPassFocusNote,
-                                suffixIcon: IconButton(
-                                  icon: Icon(authenvm.passwordVisible2
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  color: Colors.grey,
-                                  onPressed: () {
-                                    authenvm.togglePasswordVisibility2();
-                                  },
-                                ),
-                                errorMessage: authenvm.confirmPassErrs,
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            ElevatedButton(
-                              onPressed: () {
-                                signUp(authenvm);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF342056),
-                                fixedSize: const Size(300, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: const Text(
-                                'Sign up',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'RobotoCondensed',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            GestureDetector(
-                              onTap: () {
-                                openSignInPage(context);
-                              },
-                              child: const Text(
-                                "Already have an account ?",
-                                style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontFamily: 'RobotoCondensed',
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 60),
-                          ],
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
