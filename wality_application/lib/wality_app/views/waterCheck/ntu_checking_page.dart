@@ -147,12 +147,7 @@ class WaterCheckingPage extends StatelessWidget {
             );
           },
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: const Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: CustomFloatingActionButton()),
-        bottomNavigationBar:
-            const CustomBottomNavBar(currentPage: 'WaterCheckingPage.dart'),
+        
       ),
     );
   }

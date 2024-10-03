@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/models/water.dart';
 import 'package:wality_application/wality_app/views/change_pic_and_username_page.dart';
-import 'package:wality_application/wality_app/views/reward/reward_page.dart';
+import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
@@ -21,12 +20,8 @@ import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
-import 'package:flutter/rendering.dart';
-
-import 'wality_app/views/ranking_page.dart';
 
 void main() {
-
   runApp(
     MultiProvider(
       providers: [
@@ -62,11 +57,12 @@ class MyApp extends StatelessWidget {
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
         '/changeMail': (context) => ChangeEmailPage(),
-        '/settingpage': (context) => SettingPage(),        
+        '/settingpage': (context) => SettingPage(),
         '/rewardpage': (context) => RewardPage(),
         '/rankingpage': (context) => RankingPage(),
         '/qrscanner': (context) => const QrScannerPage(),
-        '/changePicAndUsernamePage': (context) => const ChangePicAndUsernamePage(),
+        '/changePicAndUsernamePage': (context) =>
+            const ChangePicAndUsernamePage(),
       },
     );
   }
