@@ -79,7 +79,7 @@ func main() {
     app.Post("/updateUserId/:user_id", updateUserIdByEmail)
 	app.Post("/updateImage/:user_id", updateImage)
     app.Delete("/deleteOldImage", deleteImage)
-    app.Delete("/deleteUserByEmail", deleteUsersByEmail)
+    app.Delete("/deleteUserByEmail/:email", deleteUsersByEmail)
 
 
 
