@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wality_application/wality_app/models/user.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AuthService {
   Future<String?> createUser(Users newUser) async {
@@ -107,6 +108,24 @@ class AuthService {
     } catch (e) {
       // Exception: Return error message
       return 'Error resetting password: $e';
+    }
+  }
+
+  /// this will delete cache
+  Future<void> deleteCacheDir() async {
+    final cacheDir = await getTemporaryDirectory();
+
+    if (cacheDir.existsSync()) {
+      cacheDir.deleteSync(recursive: true);
+    }
+  }
+
+  /// this will delete app's storage
+  Future<void> deleteAppDir() async {
+    final appDir = await getApplicationSupportDirectory();
+
+    if (appDir.existsSync()) {
+      appDir.deleteSync(recursive: true);
     }
   }
 }
