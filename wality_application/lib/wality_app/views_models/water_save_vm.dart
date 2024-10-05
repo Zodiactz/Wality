@@ -14,9 +14,11 @@ class WaterSaveViewModel extends ChangeNotifier {
 
   Water get water => _water;
 
-  WaterSaveViewModel() {
-    _fetchInitialData();
-  }
+ WaterSaveViewModel() {
+  final currentUserId = app.currentUser?.id;
+  print("WaterSaveViewModel initialized for user: $currentUserId");
+  fetchInitialData();
+}
 
   void addWater(int ml) {
     _water.mlSaved += ml;
@@ -50,25 +52,47 @@ class WaterSaveViewModel extends ChangeNotifier {
     return min(water.mlSaved / water.maxMl, 1.0);
   }
 
-  Future<void> _fetchInitialData() async {
-    final userId = userid;
+  Future<void> fetchInitialData() async {
+    final userId = app.currentUser?.id;
+    print("Fetching data for user: $userId");
+
+    if (userId == null) {
+      print("No user ID found, resetting data.");
+      resetData(); // Reset data if no user is logged in
+      return;
+    }
+
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
+        print("Data fetched for user: $userId - $data");
+
         setMlSaved(data['currentMl'] ?? 0);
         setSavedCount(data['botLiv'] ?? 0);
       } else {
-        throw Exception('Failed to fetch initial data');
+        print(
+            "Error fetching data for user: $userId - Status Code: ${response.statusCode}");
+        resetData(); // Reset to default if there's an error
       }
     } catch (e) {
-      print('Error fetching initial data: $e');
+      print('Error fetching initial data for user: $userId - $e');
+      resetData(); // Reset data on error
     }
   }
 
+  void resetData() {
+    print("Resetting water data");
+    _water.mlSaved = 0;
+    _water.savedCount = 0;
+    _water.maxMl = 550;
+    notifyListeners();
+    print(
+        "Water data after reset: mlSaved=${_water.mlSaved}, savedCount=${_water.savedCount}");
+  }
+
   Future<void> refreshData() async {
-    await _fetchInitialData();
+    await fetchInitialData();
     notifyListeners(); // Notify listeners to refresh the UI
   }
 }

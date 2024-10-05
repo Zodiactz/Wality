@@ -430,7 +430,7 @@ class UserService {
     }
   }
 
-    Future<void> deleteUserByEmail(String email) async {
+  Future<void> deleteUserByEmail(String email) async {
     final url = Uri.parse('$baseUrl/deleteUserByEmail/$email');
 
     try {
@@ -454,46 +454,42 @@ class UserService {
     }
   }
 
+  Future<bool> deleteImageFromFirebase(String imageURL) async {
+    // Construct the delete URL with the imageName as a query parameter
+    final url = Uri.parse('$baseUrl/deleteOldImage?imageURL=$imageURL');
 
-Future<bool> deleteImageFromFirebase(String imageURL) async {
-  // Construct the delete URL with the imageName as a query parameter
-  final url = Uri.parse('$baseUrl/deleteOldImage?imageURL=$imageURL');
+    // Make a DELETE request to the server
+    final response = await http.delete(url);
 
-  // Make a DELETE request to the server
-  final response = await http.delete(url);
-
-  // Check the status code to determine if the request was successful
-  if (response.statusCode == 200) {
-    print("Image deleted successfully.");
-    return true;
-  } else {
-    print("Failed to delete image: ${response.statusCode}, ${response.body}");
-    return false;
+    // Check the status code to determine if the request was successful
+    if (response.statusCode == 200) {
+      print("Image deleted successfully.");
+      return true;
+    } else {
+      print("Failed to delete image: ${response.statusCode}, ${response.body}");
+      return false;
+    }
   }
-}
-
-
 
   String? extractImageNameFromUrl(String imageUrl) {
-  try {
-    // Parse the URL
-    Uri uri = Uri.parse(imageUrl);
+    try {
+      // Parse the URL
+      Uri uri = Uri.parse(imageUrl);
 
-    // Extract the path segment after "/o/"
-    List<String> segments = uri.path.split('/o/');
-    if (segments.length < 2) {
-      return null; // Invalid URL format
+      // Extract the path segment after "/o/"
+      List<String> segments = uri.path.split('/o/');
+      if (segments.length < 2) {
+        return null; // Invalid URL format
+      }
+
+      // The second part contains the image name
+      String imageName = segments[1];
+
+      // Optionally decode the URL-encoded image name
+      return Uri.decodeComponent(imageName);
+    } catch (e) {
+      print("Error extracting image name: $e");
+      return null;
     }
-
-    // The second part contains the image name
-    String imageName = segments[1];
-
-    // Optionally decode the URL-encoded image name
-    return Uri.decodeComponent(imageName);
-  } catch (e) {
-    print("Error extracting image name: $e");
-    return null;
   }
-}
-
 }
