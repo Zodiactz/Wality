@@ -186,7 +186,7 @@ class _RankingPageState extends State<RankingPage> {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: CustomDropdown(
         value: _selectedFilter,
-        items: ['All Time', 'Recently'],
+        items: ['All Time', 'Today','This Month','This Year'],
         onChanged: (String? newValue) {
           if (newValue != null) {
             setState(() {

@@ -58,6 +58,7 @@ dependencies:
   popover: ^0.3.0+1
   cached_network_image: ^3.4.1
   awesome_snackbar_content: ^0.1.4
+  lottie: ^2.7.0
 
   
 
@@ -89,6 +90,7 @@ flutter:
     - assets/model/
     - assets/gif/
     - assets/images/turtle1.png 
+    - assets/animations/Animation - 1725341208654.lottie
 
   # An image asset can refer to one or more resolution-specific "variants", see
 
