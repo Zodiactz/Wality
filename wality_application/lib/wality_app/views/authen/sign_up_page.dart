@@ -218,8 +218,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                       height: 220,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 200),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 200),
                                     child: Text(
                                       'Wality',
                                       style: TextStyle(
@@ -349,7 +349,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ),
                                 child: Text(
                                   isLoading ? 'Signing up...' : 'Sign up',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontFamily: 'RobotoCondensed',
                                     fontWeight: FontWeight.bold,

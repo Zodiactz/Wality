@@ -40,7 +40,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   String formatDateToECMA(DateTime date) {
     // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
-    return DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(date) + 'Z';
+    return '${DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(date)}Z';
   }
 
   DateTime? removeZFromDateTime(DateTime? dateTime) {
@@ -235,7 +235,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
             if (await waterService.updateUserWater(
                 userId!, currentMl, botLiv, totalMl, limit, eventBot)) {
               waterService.updateWaterStatus(scanData.code ?? '', "active");
-              if ((difference != null && difference.inHours >= 1) ||
+              if ((difference.inHours >= 1) ||
                   (difference == null)) {
                 await userService.updateUserFillingTime(userId!);
               }

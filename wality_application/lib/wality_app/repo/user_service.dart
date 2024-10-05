@@ -315,7 +315,7 @@ class UserService {
     }
   }*/
 
-  Future<String?> updateUserIdByEmal(String email, String user_id) async {
+  Future<String?> updateUserIdByEmal(String email, String userId) async {
     final uri = Uri.parse(
         '$baseUrl/updateUserId/$email'); // Ensure this matches your backend endpoint
 
@@ -325,7 +325,7 @@ class UserService {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({'user_id': user_id}),
+        body: jsonEncode({'user_id': userId}),
       );
 
       if (response.statusCode == 200) {

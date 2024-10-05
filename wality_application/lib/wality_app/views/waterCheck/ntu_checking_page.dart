@@ -2,9 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 
 class WaterCheckingPage extends StatelessWidget {
   final File image;

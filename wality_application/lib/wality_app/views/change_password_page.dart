@@ -10,7 +10,7 @@ import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  ChangePasswordPage({super.key});
+  const ChangePasswordPage({super.key});
 
   @override
   _ChangePasswordPageState createState() =>
@@ -88,9 +88,7 @@ class _ChangePasswordPageState
                   '', // Handle empty or null profile image
               fillingLimit: currentUserData['fillingLimit'] ??
                   0, // Fallback for fillingLimit
-              startFillingTime: currentUserData['startFillingTime'] != null
-                  ? currentUserData['startFillingTime']
-                  : null, // Assign null if startFillingTime is null, otherwise use the existing data
+              startFillingTime: currentUserData['startFillingTime'], // Assign null if startFillingTime is null, otherwise use the existing data
               eventBot:
                   currentUserData['eventBot'] ?? 0, // Fallback for eventBot
             );
@@ -107,12 +105,12 @@ class _ChangePasswordPageState
               // Log the user in after registration
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to create user')),
+                const SnackBar(content: Text('Failed to create user')),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('User data is null')),
+              const SnackBar(content: Text('User data is null')),
             );
           }
         } catch (e) {

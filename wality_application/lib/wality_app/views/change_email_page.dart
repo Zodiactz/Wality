@@ -13,7 +13,7 @@ import 'package:wality_application/wality_app/models/user.dart';
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 
 class ChangeEmailPage extends StatefulWidget {
-  ChangeEmailPage({super.key});
+  const ChangeEmailPage({super.key});
 
   @override
   _ChangeEmailPageState createState() => _ChangeEmailPageState();

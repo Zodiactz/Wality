@@ -33,13 +33,13 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     final userId = _realmService.getCurrentUserId();
     if (userId != null) {
-      usernameFuture = _userService.fetchUsername(userId!); // Fetch username
-      _userService.fetchUserImage(userId!).then((value) {
+      usernameFuture = _userService.fetchUsername(userId); // Fetch username
+      _userService.fetchUserImage(userId).then((value) {
         setState(() {
           imgURL = value!;
         });
       });
-      uidFuture = _userService.fetchUserUID(userId!);
+      uidFuture = _userService.fetchUserUID(userId);
     }
   }
 

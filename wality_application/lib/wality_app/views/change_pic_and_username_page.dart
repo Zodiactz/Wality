@@ -38,7 +38,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
 
       usernameController.text =
           currentUsername ?? ''; // Set the current username as initial value
-      ;
     }
   }
 

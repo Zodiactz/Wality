@@ -5,7 +5,7 @@ class CustomDropdown extends StatefulWidget {
   final List<String> items;
   final ValueChanged<String?> onChanged;
 
-  CustomDropdown({
+  const CustomDropdown({super.key, 
     required this.value,
     required this.items,
     required this.onChanged,
@@ -30,19 +30,19 @@ class _CustomDropdownState extends State<CustomDropdown> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             border: Border.all(color: Colors.white, width: 2), // Keep white border here
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [Color(0xFF0083AB), Color(0xFF006080)],
             ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 widget.value,
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Icon(
                 _isOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
@@ -71,14 +71,14 @@ class _CustomDropdownState extends State<CustomDropdown> {
             elevation: 0,
             child: Container(
               decoration: BoxDecoration(
-                color: Color(0xFF0083AB),
+                color: const Color(0xFF0083AB),
                 borderRadius: BorderRadius.circular(12),
                 // Removed white border from here
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
                     blurRadius: 10,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
@@ -99,16 +99,16 @@ class _CustomDropdownState extends State<CustomDropdown> {
         _toggleDropdown();
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               item,
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             if (widget.value == item)
-              Icon(Icons.check, color: Colors.white, size: 20),
+              const Icon(Icons.check, color: Colors.white, size: 20),
           ],
         ),
       ),

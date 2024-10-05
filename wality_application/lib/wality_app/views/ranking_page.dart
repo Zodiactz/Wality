@@ -13,6 +13,8 @@ final userId = app.currentUser?.id;
 String imgURL = "";
 
 class RankingPage extends StatefulWidget {
+  const RankingPage({super.key});
+
   @override
   _RankingPageState createState() => _RankingPageState();
 }
@@ -126,7 +128,7 @@ class _RankingPageState extends State<RankingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -141,9 +143,9 @@ class _RankingPageState extends State<RankingPage> {
               if (!_isLoading && _users.isNotEmpty) _buildUserRank(),
               Expanded(
                 child: _isLoading
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : _users.isEmpty
-                        ? Center(
+                        ? const Center(
                             child: Text('No users found',
                                 style: TextStyle(color: Colors.white)))
                         : ListView.builder(
@@ -165,17 +167,17 @@ class _RankingPageState extends State<RankingPage> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          Expanded(
+          const Expanded(
             child: Text(
               'Ranking',
               style: TextStyle(color: Colors.white, fontSize: 20),
               textAlign: TextAlign.center,
             ),
           ),
-          SizedBox(width: 40),
+          const SizedBox(width: 40),
         ],
       ),
     );
@@ -183,10 +185,10 @@ class _RankingPageState extends State<RankingPage> {
 
   Widget _buildFilterDropdown() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: CustomDropdown(
         value: _selectedFilter,
-        items: ['All Time', 'Today','This Month','This Year'],
+        items: const ['All Time', 'Today','This Month','This Year'],
         onChanged: (String? newValue) {
           if (newValue != null) {
             setState(() {
@@ -204,7 +206,7 @@ Widget _buildUserRank() {
     future: fetchUserName(userId!), // Fetch the username
     builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
       if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
-        return CircularProgressIndicator(); // Show loading indicator while fetching
+        return const CircularProgressIndicator(); // Show loading indicator while fetching
       }
 
       // Find the current user by matching the user ID
@@ -218,36 +220,36 @@ Widget _buildUserRank() {
       final userRank = hasRank ? _users.indexOf(currentUser) + 1 : 0; // Adjusted for rank calculation
 
       return Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               backgroundImage: _getProfileImage(currentUser['profileImg_link']),
               radius: 30,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(snapshot.data ?? 'Username',
-                      style: TextStyle(color: Colors.white, fontSize: 18)),
+                      style: const TextStyle(color: Colors.white, fontSize: 18)),
                   Text(
                     hasRank ? '${currentUser['botLiv']} Bottles' : 'No rank',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],
               ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 hasRank ? 'No.$userRank' : 'No rank',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
           ],
@@ -264,8 +266,8 @@ Widget _buildUserRank() {
 
   Widget _buildRankItem(int rank, dynamic user) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
@@ -274,24 +276,24 @@ Widget _buildUserRank() {
         children: [
           Text(
             '$rank',
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           CircleAvatar(
             backgroundImage: _getProfileImage(user['profileImg_link']),
             radius: 20,
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               user['username'] ?? 'User Name',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
           Text(
             '${user['botLiv']} Bottles',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
           ),
         ],
       ),

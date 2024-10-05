@@ -14,6 +14,8 @@ final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
 
 class RewardPage extends StatefulWidget {
+  const RewardPage({super.key});
+
   @override
   _RewardPageState createState() => _RewardPageState();
 }
@@ -179,11 +181,11 @@ class _RewardPageState extends State<RewardPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState ==
                       flutter_async.ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No coupons available'));
+                    return const Center(child: Text('No coupons available'));
                   }
 
                   // Create coupon widgets from the fetched rewards data
@@ -352,7 +354,7 @@ class _RewardPageState extends State<RewardPage> {
             Positioned(
               left: 99,
               top: 9,
-              child: Container(
+              child: SizedBox(
                 width: 205,
                 height: 70,
                 child: Stack(
@@ -365,7 +367,7 @@ class _RewardPageState extends State<RewardPage> {
                         height: 33,
                         child: Text(
                           couponName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 20,
                             fontFamily: 'Roboto Condensed',
@@ -384,7 +386,7 @@ class _RewardPageState extends State<RewardPage> {
                         height: 33,
                         child: Text(
                           bD,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
                             fontFamily: 'Roboto Condensed',
@@ -402,7 +404,7 @@ class _RewardPageState extends State<RewardPage> {
             Positioned(
               left: 294,
               top: 16,
-              child: Container(
+              child: SizedBox(
                 width: 67,
                 height: 74,
                 child: Stack(
@@ -416,7 +418,7 @@ class _RewardPageState extends State<RewardPage> {
                         child: Text(
                           '$bReq',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 40,
                             fontFamily: 'Roboto Condensed',
@@ -427,7 +429,7 @@ class _RewardPageState extends State<RewardPage> {
                         ),
                       ),
                     ),
-                    Positioned(
+                    const Positioned(
                       left: 0,
                       top: 35,
                       child: SizedBox(
@@ -452,7 +454,7 @@ class _RewardPageState extends State<RewardPage> {
               ),
             ),
             if (isUsed)
-              Positioned(
+              const Positioned(
                 left: 150,
                 top: 30,
                 child: Text(
@@ -491,7 +493,7 @@ class _RewardPageState extends State<RewardPage> {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.of(context).size.height * 0.8,
                     maxWidth: MediaQuery.of(context).size.width * 0.9,
@@ -507,19 +509,19 @@ class _RewardPageState extends State<RewardPage> {
                             backgroundImage: NetworkImage(imgCoupon),
                             radius: 37,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   couponName,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 Text(
                                   bD,
                                   style: TextStyle(
@@ -532,32 +534,32 @@ class _RewardPageState extends State<RewardPage> {
                             children: [
                               Text(
                                 '$bReq',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 48, fontWeight: FontWeight.bold),
                               ),
-                              Text('Bottles', style: TextStyle(fontSize: 16)),
+                              const Text('Bottles', style: TextStyle(fontSize: 16)),
                             ],
                           ),
                         ],
                       ),
-                      Divider(thickness: 1, color: Colors.grey),
-                      SizedBox(height: 5),
+                      const Divider(thickness: 1, color: Colors.grey),
+                      const SizedBox(height: 5),
 
                       // Coupon description
                       Text(
                         fD,
                         textAlign: TextAlign.start,
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                       Text(
                         impD,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Warning message
-                      Text(
+                      const Text(
                         'Show this coupon to the shop before pressing the button!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -565,7 +567,7 @@ class _RewardPageState extends State<RewardPage> {
                             color: Colors.red,
                             fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Buttons
                       Row(
@@ -586,13 +588,13 @@ class _RewardPageState extends State<RewardPage> {
                               backgroundColor:
                                   hasEnoughBottles ? Colors.blue : Colors.grey,
                             ),
-                            child: Text('Use Coupon'),
+                            child: const Text('Use Coupon'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: Text('Exit'),
+                            child: const Text('Exit'),
                           ),
                         ],
                       ),
