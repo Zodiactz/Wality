@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 
 class ChangeInfoViewModel extends ChangeNotifier {
   final TextEditingController usernameController = TextEditingController();
@@ -78,7 +79,7 @@ class ChangeInfoViewModel extends ChangeNotifier {
   void changeInfo(BuildContext context) {
     final currentState = formKey.currentState;
     if (currentState != null && currentState.validate()) {
-      Navigator.pushNamed(context, '/profilepage');
+      openProfilePage(context);
     } else {
       validationAll();
       if (allError != null) {

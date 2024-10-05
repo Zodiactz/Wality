@@ -84,7 +84,7 @@ class _RewardPageState extends State<RewardPage> {
     if (response.statusCode == 200) {
       // Close the pop-up
       await fetchUserCoupons(); // Fetch updated coupons
-      Navigator.pop(context); // Close the pop-up
+     GoBack(context);
     } else {
       // Handle the error
       print('Failed to use coupon');
@@ -592,7 +592,7 @@ class _RewardPageState extends State<RewardPage> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pop();
+                              GoBack(context);
                             },
                             child: const Text('Exit'),
                           ),

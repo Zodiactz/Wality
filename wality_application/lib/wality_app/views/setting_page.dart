@@ -45,7 +45,7 @@ class SettingPage extends StatelessWidget {
                           color: Colors.black,
                         ),
                         onPressed: () {
-                          Navigator.pop(context);
+                          GoBack(context);
                         },
                       ),
                       const SizedBox(width: 8),

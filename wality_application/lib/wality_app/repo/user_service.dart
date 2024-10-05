@@ -68,27 +68,6 @@ class UserService {
     }
   }
 
-  /*Future<String?> updateImage(String passedImageUrl, String imagePath) async {
-    final uri = Uri.parse(
-      '$baseUrl/getImage?url=${Uri.encodeComponent(passedImageUrl)}',
-    );
-
-    try {
-      final response = await http.post(uri);
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        return jsonResponse['profileImg_link'];
-      } else {
-        print('Failed to update image');
-        return null;
-      }
-    } catch (e) {
-      print('Error: $e');
-      return null;
-    }
-  }*/
-
   Future<void> updateUserFillingTime(String userId) async {
     final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
     final headers = {'Content-Type': 'application/json'};
@@ -244,77 +223,6 @@ class UserService {
     }
   }
 
-  /* Future<String?> updateImage(String userId, File imageFile) async {
-    try {
-      // Upload the image first
-      String? uploadedImageUrl = await uploadImage(imageFile);
-
-      if (uploadedImageUrl != null) {
-        // After successful upload, use the image URL to update the user's profile image
-        final uri = Uri.parse('$baseUrl/updateImage/$userId');
-
-        // Make a POST request to update the image
-        final response = await http.post(
-          uri,
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({'profileImg_link': uploadedImageUrl}),
-        );
-
-        // Handle the response for the updateImage request
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          return data['status'] ?? 'Image updated successfully';
-        } else if (response.statusCode == 404) {
-          return 'User not found!';
-        } else {
-          print(
-              'Failed to update image: ${response.statusCode} - ${response.reasonPhrase}');
-          print('Response body: ${response.body}');
-          return jsonDecode(response.body)['error'] ?? 'Unknown error occurred';
-        }
-      } else {
-        return 'Failed to upload image.';
-      }
-    } catch (e) {
-      print('Error uploading and updating image: $e');
-      return 'Error uploading and updating image: $e';
-    }
-  }
-
-  Future<String?> updateUsername(String userId, String username) async {
-    final uri = Uri.parse(
-        '$baseUrl/updateUsername/$userId'); // Ensure this matches your backend endpoint
-
-    try {
-      final response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'username': username}),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        return data['status'] ??
-            'Username updated successfully'; // Adjusted to match 'status' field
-      } else if (response.statusCode == 404) {
-        return 'User not found!'; // Added handling for 404 case
-      } else {
-        print(
-            'Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
-        print('Response body: ${response.body}');
-        return jsonDecode(response.body)['error'] ??
-            'Unknown error occurred'; // Extract the error message if available
-      }
-    } catch (e) {
-      print('Error updating username: $e');
-      return 'Error updating username: $e';
-    }
-  }*/
-
   Future<String?> updateUserIdByEmal(String email, String userId) async {
     final uri = Uri.parse(
         '$baseUrl/updateUserId/$email'); // Ensure this matches your backend endpoint
@@ -430,7 +338,7 @@ class UserService {
     }
   }
 
-    Future<void> deleteUserByEmail(String email) async {
+  Future<void> deleteUserByEmail(String email) async {
     final url = Uri.parse('$baseUrl/deleteUserByEmail/$email');
 
     try {
@@ -454,46 +362,42 @@ class UserService {
     }
   }
 
+  Future<bool> deleteImageFromFirebase(String imageURL) async {
+    // Construct the delete URL with the imageName as a query parameter
+    final url = Uri.parse('$baseUrl/deleteOldImage?imageURL=$imageURL');
 
-Future<bool> deleteImageFromFirebase(String imageURL) async {
-  // Construct the delete URL with the imageName as a query parameter
-  final url = Uri.parse('$baseUrl/deleteOldImage?imageURL=$imageURL');
+    // Make a DELETE request to the server
+    final response = await http.delete(url);
 
-  // Make a DELETE request to the server
-  final response = await http.delete(url);
-
-  // Check the status code to determine if the request was successful
-  if (response.statusCode == 200) {
-    print("Image deleted successfully.");
-    return true;
-  } else {
-    print("Failed to delete image: ${response.statusCode}, ${response.body}");
-    return false;
+    // Check the status code to determine if the request was successful
+    if (response.statusCode == 200) {
+      print("Image deleted successfully.");
+      return true;
+    } else {
+      print("Failed to delete image: ${response.statusCode}, ${response.body}");
+      return false;
+    }
   }
-}
-
-
 
   String? extractImageNameFromUrl(String imageUrl) {
-  try {
-    // Parse the URL
-    Uri uri = Uri.parse(imageUrl);
+    try {
+      // Parse the URL
+      Uri uri = Uri.parse(imageUrl);
 
-    // Extract the path segment after "/o/"
-    List<String> segments = uri.path.split('/o/');
-    if (segments.length < 2) {
-      return null; // Invalid URL format
+      // Extract the path segment after "/o/"
+      List<String> segments = uri.path.split('/o/');
+      if (segments.length < 2) {
+        return null; // Invalid URL format
+      }
+
+      // The second part contains the image name
+      String imageName = segments[1];
+
+      // Optionally decode the URL-encoded image name
+      return Uri.decodeComponent(imageName);
+    } catch (e) {
+      print("Error extracting image name: $e");
+      return null;
     }
-
-    // The second part contains the image name
-    String imageName = segments[1];
-
-    // Optionally decode the URL-encoded image name
-    return Uri.decodeComponent(imageName);
-  } catch (e) {
-    print("Error extracting image name: $e");
-    return null;
   }
-}
-
 }

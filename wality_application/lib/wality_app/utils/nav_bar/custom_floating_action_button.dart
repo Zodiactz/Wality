@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/pop_over_water.dart';
 
 class CustomFloatingActionButton extends StatefulWidget {

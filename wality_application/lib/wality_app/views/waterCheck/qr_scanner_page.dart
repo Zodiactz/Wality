@@ -86,7 +86,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop();
+                GoBack(context);
                 // Resume scanning after dialog is dismissed
                 controller?.resumeCamera();
               },
@@ -109,7 +109,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop();
+                GoBack(context);
                 // Resume scanning after dialog is dismissed
                 Navigator.pushReplacement(
                   context,
@@ -196,7 +196,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
         await Future.delayed(const Duration(seconds: 2));
 
         // Close the dialog after the delay
-        Navigator.of(context).pop();
+        GoBack(context);
 
         // Proceed with the rest of the logic
         final waterAmount = await waterService.fetchWaterId(scanData.code ?? '');
