@@ -68,27 +68,6 @@ class UserService {
     }
   }
 
-  /*Future<String?> updateImage(String passedImageUrl, String imagePath) async {
-    final uri = Uri.parse(
-      '$baseUrl/getImage?url=${Uri.encodeComponent(passedImageUrl)}',
-    );
-
-    try {
-      final response = await http.post(uri);
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        return jsonResponse['profileImg_link'];
-      } else {
-        print('Failed to update image');
-        return null;
-      }
-    } catch (e) {
-      print('Error: $e');
-      return null;
-    }
-  }*/
-
   Future<void> updateUserFillingTime(String userId) async {
     final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
     final headers = {'Content-Type': 'application/json'};
@@ -243,77 +222,6 @@ class UserService {
       return null;
     }
   }
-
-  /* Future<String?> updateImage(String userId, File imageFile) async {
-    try {
-      // Upload the image first
-      String? uploadedImageUrl = await uploadImage(imageFile);
-
-      if (uploadedImageUrl != null) {
-        // After successful upload, use the image URL to update the user's profile image
-        final uri = Uri.parse('$baseUrl/updateImage/$userId');
-
-        // Make a POST request to update the image
-        final response = await http.post(
-          uri,
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({'profileImg_link': uploadedImageUrl}),
-        );
-
-        // Handle the response for the updateImage request
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          return data['status'] ?? 'Image updated successfully';
-        } else if (response.statusCode == 404) {
-          return 'User not found!';
-        } else {
-          print(
-              'Failed to update image: ${response.statusCode} - ${response.reasonPhrase}');
-          print('Response body: ${response.body}');
-          return jsonDecode(response.body)['error'] ?? 'Unknown error occurred';
-        }
-      } else {
-        return 'Failed to upload image.';
-      }
-    } catch (e) {
-      print('Error uploading and updating image: $e');
-      return 'Error uploading and updating image: $e';
-    }
-  }
-
-  Future<String?> updateUsername(String userId, String username) async {
-    final uri = Uri.parse(
-        '$baseUrl/updateUsername/$userId'); // Ensure this matches your backend endpoint
-
-    try {
-      final response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'username': username}),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        return data['status'] ??
-            'Username updated successfully'; // Adjusted to match 'status' field
-      } else if (response.statusCode == 404) {
-        return 'User not found!'; // Added handling for 404 case
-      } else {
-        print(
-            'Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
-        print('Response body: ${response.body}');
-        return jsonDecode(response.body)['error'] ??
-            'Unknown error occurred'; // Extract the error message if available
-      }
-    } catch (e) {
-      print('Error updating username: $e');
-      return 'Error updating username: $e';
-    }
-  }*/
 
   Future<String?> updateUserIdByEmal(String email, String userId) async {
     final uri = Uri.parse(

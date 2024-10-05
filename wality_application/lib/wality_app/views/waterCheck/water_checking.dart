@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+
 class WaterChecking extends StatefulWidget {
   final int? sentCurrentWater;
   final int? sentCurrentBottle;
@@ -196,7 +198,7 @@ class _WaterCheckingState extends State<WaterChecking>
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/homepage');
+                 openHomePage(context);
                 },
                 child: const Text(
                   'OK',

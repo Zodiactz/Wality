@@ -7,6 +7,7 @@ import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -168,7 +169,7 @@ class _RankingPageState extends State<RankingPage> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => GoBack(context),
           ),
           const Expanded(
             child: Text(

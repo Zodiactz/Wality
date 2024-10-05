@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 
 class PopOverChangePicture extends StatelessWidget {
   final Function(String) onImageUploaded; // Callback for image upload URL
@@ -21,7 +22,7 @@ class PopOverChangePicture extends StatelessWidget {
         const SnackBar(content: Text('No image selected')),
       );
     }
-    Navigator.of(context).pop(); // Close the popover
+   GoBack(context);
   }
 
   @override

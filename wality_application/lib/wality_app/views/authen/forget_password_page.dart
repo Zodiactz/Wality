@@ -52,7 +52,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
         );
 
         if (isValidForConfirmEmail) {
-          Navigator.pushNamed(context, '/choosewaypage');
+          openChoosewayPageFromLogoPage(context);
         } else {
           showErrorSnackBar(authenvm);
         }
