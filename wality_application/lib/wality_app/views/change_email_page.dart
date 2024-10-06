@@ -31,7 +31,6 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNote = FocusNode();
-  final userId = app.currentUser?.id;
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
   late var oldUserId = "";

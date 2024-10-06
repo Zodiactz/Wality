@@ -81,15 +81,18 @@ class WaterSaveViewModel extends ChangeNotifier {
     }
   }
 
-  void resetData() {
-    print("Resetting water data");
+void resetData() {
+  print("Resetting water data");
+  
+  // Use addPostFrameCallback to schedule this action after the current build phase
+  WidgetsBinding.instance.addPostFrameCallback((_) {
     _water.mlSaved = 0;
     _water.savedCount = 0;
     _water.maxMl = 550;
     notifyListeners();
-    print(
-        "Water data after reset: mlSaved=${_water.mlSaved}, savedCount=${_water.savedCount}");
-  }
+    print("Water data after reset: mlSaved=${_water.mlSaved}, savedCount=${_water.savedCount}");
+  });
+}
 
   Future<void> refreshData() async {
     await fetchInitialData();

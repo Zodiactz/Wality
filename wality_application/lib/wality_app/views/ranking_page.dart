@@ -10,7 +10,6 @@ import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
-final userId = app.currentUser?.id;
 String imgURL = "";
 
 class RankingPage extends StatefulWidget {
@@ -28,21 +27,32 @@ class _RankingPageState extends State<RankingPage> {
   final UserService _userService = UserService();
   final RealmService _realmService = RealmService();
 
+  String? currentUserId;
+
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    // Set the currentUserId from the realm service
+    currentUserId = _realmService.getCurrentUserId();
+    _loadUsers(); // Load users for the current user
   }
 
   Future<void> _loadUsers() async {
+    if (currentUserId == null) {
+      // Handle case where user is not logged in
+      LogOutToOutsite(
+          context); // You can show a dialog or navigate to login here
+      return;
+    }
+
     setState(() {
       _isLoading = true;
-      _fetchUserImage(userId!);
     });
 
     try {
       final users = await fetchUsers();
       setState(() {
+        // Filter and sort users
         _users = users.where((user) => user['botLiv'] > 0).toList()
           ..sort((a, b) => b['botLiv'].compareTo(a['botLiv']));
         _isLoading = false;
@@ -52,7 +62,19 @@ class _RankingPageState extends State<RankingPage> {
       setState(() {
         _isLoading = false;
       });
-      // You might want to show an error message to the user here
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // If the userId changes (like after a login/logout), reload the users
+    final newUserId = _realmService.getCurrentUserId();
+    if (currentUserId != newUserId) {
+      setState(() {
+        currentUserId = newUserId;
+      });
+      _loadUsers(); // Re-load the users for the new user
     }
   }
 
@@ -80,16 +102,16 @@ class _RankingPageState extends State<RankingPage> {
     }
   }
 
-      Future<String?> fetchUserName(String userId) async { 
+  Future<String?> fetchUserName(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),
     );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['username']; 
+      return data['username'];
     } else {
-      print('Failed to fetch username'); 
+      print('Failed to fetch username');
       return null;
     }
   }
@@ -111,7 +133,7 @@ class _RankingPageState extends State<RankingPage> {
     }
   }
 
-    Future<int?> fetchUserBotLiv(String userId) async {
+  Future<int?> fetchUserBotLiv(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),
     );
@@ -127,6 +149,7 @@ class _RankingPageState extends State<RankingPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("This is user Id: $currentUserId");
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -189,7 +212,7 @@ class _RankingPageState extends State<RankingPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: CustomDropdown(
         value: _selectedFilter,
-        items: const ['All Time', 'Today','This Month','This Year'],
+        items: const ['All Time', 'Today', 'This Month', 'This Year'],
         onChanged: (String? newValue) {
           if (newValue != null) {
             setState(() {
@@ -202,68 +225,70 @@ class _RankingPageState extends State<RankingPage> {
     );
   }
 
-Widget _buildUserRank() {
-  return FutureBuilder<String?>(
-    future: fetchUserName(userId!), // Fetch the username
-    builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-      if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
-        return const CircularProgressIndicator(); // Show loading indicator while fetching
-      }
+  Widget _buildUserRank() {
+    return FutureBuilder<String?>(
+      future: fetchUserName(currentUserId!), // Fetch the username
+      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+        if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
+          return const CircularProgressIndicator(); // Show loading indicator while fetching
+        }
 
-      // Find the current user by matching the user ID
-      final currentUser = _users.firstWhere(
-        (user) => user['user_id'] == userId,
-        orElse: () => {'botLiv': 0} // Default to an object with botLiv = 0
-      );
+        // Find the current user by matching the user ID
+        final currentUser = _users.firstWhere(
+            (user) => user['user_id'] == currentUserId,
+            orElse: () => {'botLiv': 0} // Default to an object with botLiv = 0
+            );
+        print("This is _BuildUserRankId: $currentUser");
 
-      // Check if botLiv is greater than 0 to determine rank display
-      final hasRank = currentUser['botLiv'] > 0;
-      final userRank = hasRank ? _users.indexOf(currentUser) + 1 : 0; // Adjusted for rank calculation
+        // Check if botLiv is greater than 0 to determine rank display
+        final hasRank = currentUser['botLiv'] > 0;
+        final userRank = hasRank
+            ? _users.indexOf(currentUser) + 1
+            : 0; // Adjusted for rank calculation
 
-      return Container(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: _getProfileImage(currentUser['profileImg_link']),
-              radius: 30,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(snapshot.data ?? 'Username',
-                      style: const TextStyle(color: Colors.white, fontSize: 18)),
-                  Text(
-                    hasRank ? '${currentUser['botLiv']} Bottles' : 'No rank',
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
-                ],
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage:
+                    _getProfileImage(currentUser['profileImg_link']),
+                radius: 30,
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(20),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(snapshot.data ?? 'Username',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 18)),
+                    Text(
+                      hasRank ? '${currentUser['botLiv']} Bottles' : 'No rank',
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
-              child: Text(
-                hasRank ? 'No.$userRank' : 'No rank',
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  hasRank ? 'No.$userRank' : 'No rank',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-
-
-
-
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildRankItem(int rank, dynamic user) {
     return Container(

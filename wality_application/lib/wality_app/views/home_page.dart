@@ -4,6 +4,7 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:wality_application/wality_app/utils/nav_bar/custom_nav_bar_scaffold.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
@@ -22,12 +23,49 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final RealmService _realmService = RealmService();
 
   @override
-  void initState() {
-    super.initState();
-    _waterService.refreshWaterDataWithState(context, () => setState(() {}));
-    final userId = _realmService.getCurrentUserId();
-    usernameFuture = _userService.fetchUsername(userId!);
-  }
+void initState() {
+  super.initState();
+
+  _waterService.refreshWaterDataWithState(context, () => setState(() {}));
+
+  // Fetch the user ID safely
+  final userId = _realmService.getCurrentUserId();
+
+  // Add a post frame callback to show the dialog after the first frame is built
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (userId == null) {
+      // Show a popup and navigate to login page
+      _showLoginPopup(context);
+    } else {
+      // Proceed with fetching the username if userId is not null
+      usernameFuture = _userService.fetchUsername(userId);
+    }
+  });
+}
+
+void _showLoginPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent closing the dialog without pressing OK
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Login Required'),
+        content: const Text('User ID is not found. Please login to continue.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              // Close the dialog and navigate to login page
+              Navigator.of(context).pop(); // Close the dialog
+              LogOutToOutsite(context); // Navigate to login page
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
