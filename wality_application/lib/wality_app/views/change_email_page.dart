@@ -33,8 +33,10 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final FocusNode confirmPassFocusNote = FocusNode();
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
-  late var oldUserId = "";
-  late var oldEmail = "";
+  /*late var oldUserId = "";
+  late var oldEmail = "";*/
+  String? oldUserId; // Change to nullable
+  String? oldEmail; // Change to nullable
 
   @override
   void initState() {
@@ -133,11 +135,11 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         // Step 4: Log in with the new email
         try {
           final oldCredentials = Credentials.emailPassword(
-              oldEmail, passwordController.text.trim());
+              oldEmail!, passwordController.text.trim());
           final oldUser = await app.logIn(oldCredentials);
           print("old email: $oldEmail");
           print("old user: $oldUser");
-          await userService.deleteUserByEmail(oldEmail);
+          await userService.deleteUserByEmail(oldEmail!);
           await app.deleteUser(oldUser);
           final newCredentials = Credentials.emailPassword(
               newEmail, passwordController.text.trim());
@@ -281,7 +283,6 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                           padding: const EdgeInsets.only(left: 30),
                           child: ElevatedButton(
                             onPressed: () {
-                              // Directly call signUp without validation
                               changeEmail();
                             },
                             style: ElevatedButton.styleFrom(
@@ -313,5 +314,14 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         );
       }),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
+    super.dispose();
   }
 }

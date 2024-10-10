@@ -226,20 +226,20 @@ class _RankingPageState extends State<RankingPage> {
           child: Row(
             children: [
               ClipOval(
-                            child: imgURL.isNotEmpty
-                                ? Image.network(
-                                    imgURL,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/images/cat.jpg',
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
+                child: imgURL.isNotEmpty
+                    ? Image.network(
+                        imgURL,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/cat.jpg',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

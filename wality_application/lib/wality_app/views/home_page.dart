@@ -25,8 +25,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _waterService.refreshWaterDataWithState(context, () => setState(() {}));
-
     // Fetch the user ID safely
     final userId = _realmService.getCurrentUserId();
 
@@ -66,6 +64,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {
