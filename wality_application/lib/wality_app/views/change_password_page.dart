@@ -88,6 +88,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   'startFillingTime'], // Assign null if startFillingTime is null, otherwise use the existing data
               eventBot:
                   currentUserData['eventBot'] ?? 0, // Fallback for eventBot
+                  dayBot: currentUserData['dayBot'] ?? 0,
+              monthBot: currentUserData['monthBot'] ?? 0,
+              yearBot: currentUserData['yearBot'] ?? 0,
             );
 
             // Call the service to create the user and handle the response

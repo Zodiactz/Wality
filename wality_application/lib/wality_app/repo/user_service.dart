@@ -78,18 +78,28 @@ class UserService {
     }
   }
 
-  Future<void> updateUserFillingTime(String userId) async {
-    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
-    final headers = {'Content-Type': 'application/json'};
-    final body =
-        jsonEncode({'startFillingTime': DateTime.now().toIso8601String()});
+Future<void> updateUserFillingTime(String userId) async {
+  final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
+  final headers = {'Content-Type': 'application/json'};
 
-    try {
-      await http.post(uri, headers: headers, body: body);
-    } catch (e) {
-      print('Error during HTTP request: $e');
-    }
+  // Get the current local time
+  final now = DateTime.now();
+  
+  // Format to include milliseconds and 'Z' at the end
+  final formattedTime = '${now.toIso8601String().split('.').first}.${now.millisecond.toString().padLeft(3, '0')}Z';
+
+  final body = jsonEncode({'startFillingTime': formattedTime});
+
+  try {
+    final result = await http.post(uri, headers: headers, body: body);
+    print("This is update time ${result.body}");
+  } catch (e) {
+    print('Error during HTTP request: $e');
   }
+}
+
+
+
 
   Future<int?> fetchUserEventBot(String userId) async {
     try {
