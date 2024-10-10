@@ -249,6 +249,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                   (difference != null && difference.inHours >= 1)) {
                 await userService.updateUserFillingTime(currentUserId!);
               }
+              //test commit
 
               // Continue after successful update
               final sentCurrentWaterGo = await sentCurrentWater ?? 0;
