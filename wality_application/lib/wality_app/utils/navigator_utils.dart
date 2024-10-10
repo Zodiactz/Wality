@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
+import 'package:wality_application/wality_app/views/main_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/ntu_checking_page.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 
@@ -94,7 +95,7 @@ void GoBack(BuildContext context) async {
 
 void ConfirmAtWaterChecking(BuildContext context) async {
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      MaterialPageRoute(builder: (context) =>  MainPage()),
       (Route<dynamic> route) => false);
 }
 

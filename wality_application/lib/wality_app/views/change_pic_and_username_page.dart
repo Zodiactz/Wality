@@ -1,7 +1,8 @@
+
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dart';
@@ -43,6 +44,8 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
       imgURL = path;
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
