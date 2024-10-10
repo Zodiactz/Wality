@@ -126,7 +126,7 @@ void logoutFromApp(BuildContext context) async {
                         ),
                         profilevm.buildProfileOption(
                           context,
-                          icon: Icons.email_rounded,
+                          icon: Icons.lock,
                           title: 'Change password',
                           onTap: () => openChangePass(context),
                         ),
