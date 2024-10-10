@@ -11,9 +11,6 @@ class Users {
   final int fillingLimit;
   final List<String> couponCheck;
   final int eventBot;
-  final int dayBot;
-  final int monthBot;
-  final int yearBot;
 
   Users({
     this.userId,
@@ -27,10 +24,7 @@ class Users {
     this.startFillingTime,
     required this.fillingLimit,
     this.couponCheck = const [],
-    required this.eventBot,
-    required this.dayBot,
-    required this.monthBot,
-    required this.yearBot,
+    required this.eventBot
   });
 
   // Convert a User instance to a map
@@ -48,9 +42,6 @@ class Users {
       'fillingLimit': fillingLimit,
       'couponCheck': couponCheck,
       'eventBot': eventBot,
-      'dayBot': dayBot,
-      'monthBot': monthBot,
-      'yearBot': yearBot,
     };
   }
 
@@ -71,10 +62,7 @@ class Users {
       fillingLimit: json['fillingLimit'],
       couponCheck:
           json['couponCheck'] != null ? List<String>.from(json['couponCheck']) : [],// Default to empty list if null);
-      eventBot: json['eventBot'],
-      dayBot: json['dayBot'],
-      monthBot: json['monthBot'],
-      yearBot: json['yearBot'],
+      eventBot: json['eventBot']
     ); 
   }
 }

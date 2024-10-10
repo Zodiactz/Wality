@@ -134,9 +134,6 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
               fillingLimit: currentUserData['fillingLimit'] ?? 0,
               startFillingTime: currentUserData['startFillingTime'],
               eventBot: currentUserData['eventBot'] ?? 0,
-              dayBot: currentUserData['dayBot'] ?? 0,
-              monthBot: currentUserData['monthBot'] ?? 0,
-              yearBot: currentUserData['yearBot'] ?? 0,
             );
 
             final result = await _authService.createUser(updatedUser);

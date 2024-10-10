@@ -133,11 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
             botLiv: 0,
             profileImg_link: "",
             fillingLimit: 0,
-            eventBot: 0,
-            dayBot: 0,
-            monthBot: 0,
-            yearBot: 0,
-            );
+            eventBot: 0);
 
         final result = await _authService.createUser(newUser);
 

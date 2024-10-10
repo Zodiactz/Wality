@@ -142,8 +142,8 @@ class _WaterCheckingState extends State<WaterChecking>
     if (!_isFillingStopped) {
       // Check if the original input amount is greater than or equal to 1650
       int delayDuration = initialTotalAmountToFill >= 1650
-          ? 10
-          : 15; // Set speed based on the original input
+          ? 20
+          : 20; // Set speed based on the original input
       Future.delayed(Duration(milliseconds: delayDuration), () {
         setWaterIncrement(increment);
       });
