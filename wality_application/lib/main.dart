@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: /*LogoPage()*/ LogoPage(),
+      home: /*LogoPage()*/ MainPage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),

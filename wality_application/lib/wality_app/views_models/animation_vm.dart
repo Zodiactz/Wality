@@ -24,6 +24,8 @@ class AnimationViewModel extends ChangeNotifier {
     _loadGif2();
   }
 
+  
+
   Future<void> _loadGif() async {
     try {
       final ByteData data = await rootBundle.load('assets/gif/turtle.gif');
