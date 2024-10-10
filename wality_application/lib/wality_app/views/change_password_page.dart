@@ -13,12 +13,10 @@ class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-  _ChangePasswordPageState createState() =>
-      _ChangePasswordPageState();
+  _ChangePasswordPageState createState() => _ChangePasswordPageState();
 }
 
-class _ChangePasswordPageState
-    extends State<ChangePasswordPage> {
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
@@ -41,8 +39,6 @@ class _ChangePasswordPageState
     usernameFuture = _userService.fetchUsername(userId!);
   }
 
-  
- 
   void signUp() async {
     if (emailController.text.trim().isNotEmpty &&
         passwordController.text.trim().isNotEmpty) {
@@ -88,7 +84,8 @@ class _ChangePasswordPageState
                   '', // Handle empty or null profile image
               fillingLimit: currentUserData['fillingLimit'] ??
                   0, // Fallback for fillingLimit
-              startFillingTime: currentUserData['startFillingTime'], // Assign null if startFillingTime is null, otherwise use the existing data
+              startFillingTime: currentUserData[
+                  'startFillingTime'], // Assign null if startFillingTime is null, otherwise use the existing data
               eventBot:
                   currentUserData['eventBot'] ?? 0, // Fallback for eventBot
             );
@@ -97,7 +94,8 @@ class _ChangePasswordPageState
             final result = await _authService.createUser(newUser);
 
             if (result != null) {
-              final emailPW = Credentials.emailPassword(emailController.text, passwordController.text);
+              final emailPW = Credentials.emailPassword(
+                  emailController.text, passwordController.text);
               app.logIn(emailPW);
               print('User logged in successfully');
 
@@ -129,7 +127,6 @@ class _ChangePasswordPageState
     }
   }
 
-    
   //await authProvider.
 
   @override
@@ -210,8 +207,17 @@ class _ChangePasswordPageState
                           child: TextFormFieldAuthen(
                             controller: passwordController,
                             hintText: "Password",
-                            obscureText: false,
+                            obscureText: !authvm.passwordVisible1,
                             focusNode: passwordFocusNode,
+                            suffixIcon: IconButton(
+                                      icon: Icon(authvm.passwordVisible1
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                      color: Colors.grey,
+                                      onPressed: () {
+                                        authvm.togglePasswordVisibility1();
+                                      },
+                                    ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -229,9 +235,18 @@ class _ChangePasswordPageState
                           child: TextFormFieldAuthen(
                             controller: confirmPassController,
                             hintText: "Confirm password",
-                            obscureText: true,
+                            obscureText: !authvm.passwordVisible2,
                             focusNode: confirmPassFocusNode,
                             errorMessage: authvm.confirmEmailError,
+                            suffixIcon: IconButton(
+                                      icon: Icon(authvm.passwordVisible2
+                                          ? Icons.visibility
+                                          : Icons.visibility_off),
+                                      color: Colors.grey,
+                                      onPressed: () {
+                                        authvm.togglePasswordVisibility2();
+                                      },
+                                    ),
                           ),
                         ),
                         const SizedBox(height: 16),

@@ -20,6 +20,8 @@ class RankingPage extends StatefulWidget {
 }
 
 class _RankingPageState extends State<RankingPage> {
+  Future<String?> usernameFuture = Future.value(null);
+  Future<String?> userImage = Future.value(null);
   String _selectedFilter = 'All Time';
   List<dynamic> _users = [];
   bool _isLoading = true;
@@ -32,9 +34,20 @@ class _RankingPageState extends State<RankingPage> {
   @override
   void initState() {
     super.initState();
+
     // Set the currentUserId from the realm service
     currentUserId = _realmService.getCurrentUserId();
     _loadUsers(); // Load users for the current user
+
+    if (currentUserId != null) {
+      usernameFuture =
+          _userService.fetchUsername(currentUserId!); // Fetch username
+      _userService.fetchUserImage(currentUserId!).then((value) {
+        setState(() {
+          imgURL = value!;
+        });
+      });
+    }
   }
 
   Future<void> _loadUsers() async {
@@ -50,7 +63,7 @@ class _RankingPageState extends State<RankingPage> {
     });
 
     try {
-      final users = await fetchUsers();
+      final users = await _userService.fetchUsers();
       setState(() {
         // Filter and sort users
         _users = users.where((user) => user['botLiv'] > 0).toList()
@@ -75,44 +88,6 @@ class _RankingPageState extends State<RankingPage> {
         currentUserId = newUserId;
       });
       _loadUsers(); // Re-load the users for the new user
-    }
-  }
-
-  Future<List<dynamic>> fetchUsers() async {
-    final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load users');
-    }
-  }
-
-  Future<String?> fetchUserImage(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['profileImg_link'];
-    } else {
-      print('Failed to fetch profileImg_link');
-      return null;
-    }
-  }
-
-  Future<String?> fetchUserName(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['username'];
-    } else {
-      print('Failed to fetch username');
-      return null;
     }
   }
 
@@ -227,7 +202,7 @@ class _RankingPageState extends State<RankingPage> {
 
   Widget _buildUserRank() {
     return FutureBuilder<String?>(
-      future: fetchUserName(currentUserId!), // Fetch the username
+      future: _userService.fetchUsername(currentUserId!), // Fetch the username
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
           return const CircularProgressIndicator(); // Show loading indicator while fetching
@@ -250,11 +225,21 @@ class _RankingPageState extends State<RankingPage> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundImage:
-                    _getProfileImage(currentUser['profileImg_link']),
-                radius: 30,
-              ),
+              ClipOval(
+                            child: imgURL.isNotEmpty
+                                ? Image.network(
+                                    imgURL,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/images/cat.jpg',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

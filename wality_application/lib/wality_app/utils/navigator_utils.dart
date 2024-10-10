@@ -29,11 +29,11 @@ void openForgotPassword(BuildContext context) async {
 }
 
 void openHomePage(BuildContext context) async {
-  Navigator.pushNamed(context, '/homepage');
+  Navigator.pushNamed(context, '/mainpage');
 }
 
-void openProfilePage(BuildContext context) async {
-  Navigator.pushNamed(context, '/profilepage');
+void openProfilePage(BuildContext context) {
+  Navigator.pushReplacementNamed(context, '/mainpage', arguments: {'initialPage': 'profile'});
 }
 
 void openSettingPage(BuildContext context) async {

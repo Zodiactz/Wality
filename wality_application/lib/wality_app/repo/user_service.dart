@@ -33,6 +33,16 @@ class UserService {
     }
   }
 
+  Future<List<dynamic>> fetchUsers() async {
+    final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
   Future<String?> fetchUserImage(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),

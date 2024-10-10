@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/views/change_password_page.dart';
 import 'package:wality_application/wality_app/views/change_pic_and_username_page.dart';
+import 'package:wality_application/wality_app/views/main_page.dart';
 import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home:  LogoPage()/*const HomePage()*/,
+      home: /*LogoPage()*/ MainPage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -65,6 +66,7 @@ class MyApp extends StatelessWidget {
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),
+        '/mainpage': (context) => MainPage(),
       },
     );
   }

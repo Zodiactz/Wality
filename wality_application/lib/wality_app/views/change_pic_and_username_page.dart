@@ -33,18 +33,14 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
   Future<void> _fetchCurrentUsername() async {
     final userId = _realmService.getCurrentUserId();
     if (userId != null) {
-      // Fetch the current username from the user service
       final currentUsername = await _userService.fetchUsername(userId);
-
-      usernameController.text =
-          currentUsername ?? ''; // Set the current username as initial value
+      usernameController.text = currentUsername ?? '';
     }
   }
 
-  // Function to update the image URL when selected from Picturecircle
   void _updateImageURL(String path) {
     setState(() {
-      imgURL = path; // Update imgURL with the selected image path
+      imgURL = path;
     });
   }
 
@@ -58,22 +54,30 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
           preferredSize: const Size.fromHeight(kToolbarHeight + 40),
           child: Container(
             decoration: const BoxDecoration(
-              color: Color(0xFF0083AB),
+              color: Color(0xFF00A4CC),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Padding(
               padding: const EdgeInsets.only(top: 16),
               child: AppBar(
-                backgroundColor: const Color(0xFF0083AB),
+                backgroundColor: Colors.transparent,
                 elevation: 0,
                 automaticallyImplyLeading: false,
                 leading: IconButton(
                   icon: const Icon(
-                    Icons.chevron_left,
-                    size: 32,
+                    Icons.arrow_back_ios_new,
+                    size: 30,
+                    color: Colors.white,
                   ),
                   onPressed: () {
                     GoBack(context);
@@ -83,11 +87,11 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                   padding: EdgeInsets.only(right: 50),
                   child: Center(
                     child: Text(
-                      'Change info',
+                      'Update Profile',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'RobotoCondensed',
-                        color: Colors.black,
+                        fontSize: 26,
+                        fontFamily: 'Roboto',
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -104,11 +108,11 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                 gradient: LinearGradient(
                   colors: [
                     Color(0xFFD6F1F3),
-                    Color(0xFF0083AB),
+                    Color(0xFF00A4CC),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.1, 1.0],
+                  stops: [0.2, 1.0],
                 ),
               ),
             ),
@@ -117,28 +121,61 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  // Pass the callback to Picturecircle to get the image path
-                  Picturecircle(onImageUploaded: _updateImageURL),
+                  // Stack to show the picture and the edit icon
+                  // Stack to show the picture and the edit icon, both are clickable
+                  Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // This will trigger the picture editing logic
+                          Picturecircle(onImageUploaded: _updateImageURL);
+                        },
+                        child: Picturecircle(onImageUploaded: _updateImageURL),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            // Trigger the same action as the picture
+                            Picturecircle(onImageUploaded: _updateImageURL);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent.withOpacity(0.8),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 20),
                   TextFormFieldAuthen(
                     controller: usernameController,
-                    hintText: "Username",
+                    hintText: "New Username",
                     obscureText: false,
                     focusNode: FocusNode(),
                     errorMessage: authvm.usernameError,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () async {
                       final userId = _realmService.getCurrentUserId();
                       final newUsername = usernameController.text;
 
-                      // Ensure the user is logged in and there is either a new username or image URL
                       if (userId != null &&
                           (newUsername.isNotEmpty || imgURL.isNotEmpty)) {
                         File? imageFile;
 
-                        // Create a File object directly from the imgURL (the image path)
                         if (imgURL.isNotEmpty) {
                           try {
                             imageFile = File(imgURL);
@@ -154,15 +191,12 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                         }
 
                         try {
-                          // Call the updateUserProfile function with userId, imageFile, and newUsername
                           final result = await _userService.updateUserProfile(
                               userId, imageFile, newUsername);
 
-                          // Provide feedback to the user based on the result
                           if (result == null ||
                               result.contains('successfully')) {
-                            openProfilePage(
-                                context); // Navigate to the profile page upon success
+                            openProfilePage(context);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(result)),
@@ -182,22 +216,24 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF342056),
-                      fixedSize: const Size(300, 50),
+                      backgroundColor: const Color(0xFF00A4CC),
+                      elevation: 5,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(15),
                       ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 60),
                     ),
                     child: const Text(
-                      'Change',
+                      'Update',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'RobotoCondensed',
+                        fontSize: 18,
+                        fontFamily: 'Roboto',
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

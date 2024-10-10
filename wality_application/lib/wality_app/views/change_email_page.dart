@@ -44,7 +44,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
     oldUserId = userId;
   }
 
-  void signUp() async {
+  void changeEmail() async {
     if (emailController.text.trim().isNotEmpty &&
         passwordController.text.trim().isNotEmpty) {
       try {
@@ -282,7 +282,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                           child: ElevatedButton(
                             onPressed: () {
                               // Directly call signUp without validation
-                              signUp();
+                              changeEmail();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF342056),

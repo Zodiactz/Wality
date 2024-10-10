@@ -131,4 +131,27 @@ class AuthenticationViewModel extends ChangeNotifier {
 
     return !_showValidationMessage;
   }
+
+  Future<bool> validateChangePassword(
+      String passwordVal, String confirmPassEr) async {
+    passwordError = validatePassword(passwordVal);
+    confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
+
+    if (passwordVal.isEmpty) {
+      allError = 'Please enter all fields';
+    } else if (passwordVal != confirmPassEr) {
+      allError = "Passwords aren't match";
+    } else {
+      allError = null;
+    }
+
+    _showValidationMessage = 
+        passwordError != null ||
+        confirmPassErrs != null ||
+        allError != null;
+
+    notifyListeners();
+
+    return !_showValidationMessage;
+  }
 }

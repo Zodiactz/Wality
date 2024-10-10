@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_nav_bar_scaffold.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
@@ -23,49 +22,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final RealmService _realmService = RealmService();
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  _waterService.refreshWaterDataWithState(context, () => setState(() {}));
+    _waterService.refreshWaterDataWithState(context, () => setState(() {}));
 
-  // Fetch the user ID safely
-  final userId = _realmService.getCurrentUserId();
+    // Fetch the user ID safely
+    final userId = _realmService.getCurrentUserId();
 
-  // Add a post frame callback to show the dialog after the first frame is built
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (userId == null) {
-      // Show a popup and navigate to login page
-      _showLoginPopup(context);
-    } else {
-      // Proceed with fetching the username if userId is not null
-      usernameFuture = _userService.fetchUsername(userId);
-    }
-  });
-}
+    // Add a post frame callback to show the dialog after the first frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (userId == null) {
+        // Show a popup and navigate to login page
+        _showLoginPopup(context);
+      } else {
+        // Proceed with fetching the username if userId is not null
+        usernameFuture = _userService.fetchUsername(userId);
+      }
+    });
+  }
 
-void _showLoginPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Prevent closing the dialog without pressing OK
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Login Required'),
-        content: const Text('User ID is not found. Please login to continue.'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              // Close the dialog and navigate to login page
-              Navigator.of(context).pop(); // Close the dialog
-              LogOutToOutsite(context); // Navigate to login page
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
+  void _showLoginPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevent closing the dialog without pressing OK
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Login Required'),
+          content:
+              const Text('User ID is not found. Please login to continue.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                // Close the dialog and navigate to login page
+                Navigator.of(context).pop(); // Close the dialog
+                LogOutToOutsite(context); // Navigate to login page
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +76,8 @@ void _showLoginPopup(BuildContext context) {
       create: (context) => AnimationViewModel(this),
       child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
         builder: (context, animationvm, watervm, child) {
-          return CustomScaffold(
-            currentPage: 'HomePage.dart', // Specify the current page
-            body: Stack(
+
+           return Stack(
               children: [
                 Positioned.fill(
                   child: Padding(
@@ -174,8 +173,7 @@ void _showLoginPopup(BuildContext context) {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.3),
+                                            color: Colors.black.withOpacity(0.3),
                                             blurRadius: 10,
                                             offset: const Offset(5, 5),
                                           ),
@@ -231,8 +229,8 @@ void _showLoginPopup(BuildContext context) {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: screenHeight * 0.08),
+                                padding:
+                                    EdgeInsets.only(bottom: screenHeight * 0.08),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -313,7 +311,7 @@ void _showLoginPopup(BuildContext context) {
                   ),
                 ),
               ],
-            ),
+            
           );
         },
       ),

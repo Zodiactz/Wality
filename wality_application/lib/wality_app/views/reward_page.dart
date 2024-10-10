@@ -33,8 +33,6 @@ class _RewardPageState extends State<RewardPage> {
     botAmount = userService.fetchUserEventBot(userId!);
   }
 
-
-
   Future<bool> userBotMoreThanEventBot(int couponBot) async {
     int userBot = await botAmount ?? 0;
     if (userBot < couponBot) {
@@ -84,7 +82,7 @@ class _RewardPageState extends State<RewardPage> {
     if (response.statusCode == 200) {
       // Close the pop-up
       await fetchUserCoupons(); // Fetch updated coupons
-     GoBack(context);
+      GoBack(context);
     } else {
       // Handle the error
       print('Failed to use coupon');
@@ -96,24 +94,32 @@ class _RewardPageState extends State<RewardPage> {
     return Scaffold(
       extendBody: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 55),
+        preferredSize: const Size.fromHeight(kToolbarHeight + 50),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF0083AB),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-          ),
+    decoration: BoxDecoration(
+      color: const Color(0xFF0083AB),
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF0083AB).withOpacity(1),
+          spreadRadius: 5,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 32),
                 child: Row(
                   children: [
                     IconButton(
                       icon: const Icon(
                         Icons.chevron_left,
+                        color: Colors.black,
                         size: 32,
                       ),
                       onPressed: () {
@@ -174,7 +180,7 @@ class _RewardPageState extends State<RewardPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 0),
+            padding: const EdgeInsets.only(top: 8),
             child: SingleChildScrollView(
               child: FutureBuilder<List<dynamic>>(
                 future: fetchRewards(),
@@ -537,7 +543,8 @@ class _RewardPageState extends State<RewardPage> {
                                 style: const TextStyle(
                                     fontSize: 48, fontWeight: FontWeight.bold),
                               ),
-                              const Text('Bottles', style: TextStyle(fontSize: 16)),
+                              const Text('Bottles',
+                                  style: TextStyle(fontSize: 16)),
                             ],
                           ),
                         ],
