@@ -211,13 +211,11 @@ class _QrScannerPageState extends State<QrScannerPage> {
           difference = now.difference(startTime);
         }
 
-        print("This is difference: $difference");
-
         if ((limitTest! + waterAmount <= 2000 &&
                 (difference != null && difference.inHours < 1)) ||
             (difference != null && difference.inHours >= 1) ||
             (difference == null)) {
-          if (difference != null && difference.inHours >= 1) {
+          if (difference!.inHours >= 1) {
             fillingLimit = Future.value(0);
           }
           // Fetch and update user water data
@@ -237,7 +235,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
           if (await waterService.updateUserWater(
               userId!, currentMl, botLiv, totalMl, limit, eventBot)) {
             waterService.updateWaterStatus(scanData.code ?? '', "active");
-            if (difference != null && difference.inHours >= 1) {
+            if ((difference.inHours >= 1) || (difference == null)) {
               await userService.updateUserFillingTime(userId!);
             }
             // Await the Future values before navigating
