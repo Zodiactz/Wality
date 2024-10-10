@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
+
     // Fetch the user ID safely
     final userId = _realmService.getCurrentUserId();
 
@@ -64,8 +65,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
