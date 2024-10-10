@@ -9,6 +9,7 @@ import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.d
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/models/user.dart';
+import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 
@@ -35,6 +36,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final UserService _userService = UserService();
   late var oldUserId = "";
   late var oldEmail = "";
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -45,30 +47,39 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   }
 
   void changeEmail() async {
+    setState(() {
+      isLoading = true;
+    });
+
     if (emailController.text.trim().isNotEmpty &&
         passwordController.text.trim().isNotEmpty) {
       try {
         final currentUser = app.currentUser;
         if (currentUser == null) {
           print('No user is currently logged in');
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
 
         // Step 1: Verify the current password
         final credentials = Credentials.emailPassword(
-          currentUser.profile.email ?? '', // Get the current email
-          passwordController.text.trim(), // Use the provided password
+          currentUser.profile.email ?? '',
+          passwordController.text.trim(),
         );
 
         try {
-          await app.logIn(
-              credentials); // Attempt to log in with the current credentials
+          await app.logIn(credentials);
           print('Password verification successful');
         } catch (e) {
           print('Password verification failed: $e');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Incorrect password')),
           );
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
 
@@ -81,6 +92,9 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
             const SnackBar(
                 content: Text('New email is the same as the current email')),
           );
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
 
@@ -97,19 +111,22 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error changing email: $e')),
           );
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
 
         // Step 3: Update user data in the backend (if necessary)
         try {
-          final currentUserData = await _userService.fetchUserData(userId!);
+          final currentUserData = await _userService.fetchUserData(oldUserId);
           oldEmail = currentUserData?['email'];
           if (currentUserData != null) {
             final updatedUser = Users(
-              userId: userId,
+              userId: oldUserId,
               uid: currentUserData['uid'] ?? '',
               userName: currentUserData['username'] ?? 'Unknown',
-              email: newEmail, // Update with new email
+              email: newEmail,
               currentMl: currentUserData['currentMl'] ?? 0,
               totalMl: currentUserData['totalMl'] ?? 0,
               botLiv: currentUserData['botLiv'] ?? 0,
@@ -137,13 +154,13 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           final oldUser = await app.logIn(oldCredentials);
           print("old email: $oldEmail");
           print("old user: $oldUser");
-          await userService.deleteUserByEmail(oldEmail);
+          await _userService.deleteUserByEmail(oldEmail);
           await app.deleteUser(oldUser);
           final newCredentials = Credentials.emailPassword(
               newEmail, passwordController.text.trim());
           final newUser = await app.logIn(newCredentials);
           print('Logged in with the new email successfully');
-          await userService.updateUserIdByEmal(newEmail, newUser.id);
+          await _userService.updateUserIdByEmal(newEmail, newUser.id);
           openProfilePage(context); // Redirect to profile page
         } catch (e) {
           print('Failed to log in with new email: $e');
@@ -156,8 +173,17 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sign-up process failed: $e')),
         );
+      } finally {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
       }
     } else {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email and password cannot be empty')),
       );
@@ -166,152 +192,153 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body:
-          Consumer<AuthenticationViewModel>(builder: (context, authvm, child) {
-        return Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              child: Container(
-                width: double.maxFinite,
-                height: 180,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0083AB),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chevron_left,
-                          size: 32,
-                          color: Colors.black,
-                        ),
-                        onPressed: () {
-                          GoBack(context);
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Change Email',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 150,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 150,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 15, right: 15),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'New email',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: emailController,
-                            hintText: "Email",
-                            obscureText: false,
-                            focusNode: emailFocusNode,
-                            errorMessage: authvm.emailError,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Please enter your password to confirm the change',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: passwordController,
-                            hintText: "Password",
-                            obscureText: !authvm.passwordVisible1,
-                            focusNode: passwordFocusNode,
-                            suffixIcon: IconButton(
-                              icon: Icon(authvm.passwordVisible1
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                authvm.togglePasswordVisibility1();
-                              },
+    return Consumer<AuthenticationViewModel>(
+      builder: (context, authvm, child) {
+        return LoadingOverlay(
+          isLoading: isLoading,
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.maxFinite,
+                    height: 180,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF0083AB),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_left,
+                              size: 32,
+                              color: Colors.black,
                             ),
-                            errorMessage: authvm.passwordError,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: ElevatedButton(
                             onPressed: () {
-                              // Directly call signUp without validation
-                              changeEmail();
+                              GoBack(context);
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF342056),
-                              fixedSize: const Size(300, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Change',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'RobotoCondensed',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Change Email',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+                Positioned(
+                  top: 150,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height - 150,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20, left: 15, right: 15),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'New email',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 360,
+                              height: 50,
+                              child: TextFormFieldAuthen(
+                                controller: emailController,
+                                hintText: "Email",
+                                obscureText: false,
+                                focusNode: emailFocusNode,
+                                errorMessage: authvm.emailError,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Please enter your password to confirm the change',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 360,
+                              height: 50,
+                              child: TextFormFieldAuthen(
+                                controller: passwordController,
+                                hintText: "Password",
+                                obscureText: !authvm.passwordVisible1,
+                                focusNode: passwordFocusNode,
+                                suffixIcon: IconButton(
+                                  icon: Icon(authvm.passwordVisible1
+                                      ? Icons.visibility
+                                      : Icons.visibility_off),
+                                  color: Colors.grey,
+                                  onPressed: () {
+                                    authvm.togglePasswordVisibility1();
+                                  },
+                                ),
+                                errorMessage: authvm.passwordError,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 30),
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : changeEmail,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF342056),
+                                  fixedSize: const Size(300, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text(
+                                  isLoading ? 'Changing...' : 'Change',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'RobotoCondensed',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
-      }),
+      },
     );
   }
 }
