@@ -25,7 +25,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPassController = TextEditingController();
   final FocusNode usernameFocusNode = FocusNode();
-
+  final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNode = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
@@ -37,95 +37,106 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     super.initState();
     final userId = _realmService.getCurrentUserId();
     usernameFuture = _userService.fetchUsername(userId!);
+    _fetchCurrentemail();
   }
 
-  void signUp() async {
-    if (emailController.text.trim().isNotEmpty &&
-        passwordController.text.trim().isNotEmpty) {
-      try {
-        final credentials = Credentials.emailPassword(
-          emailController.text.trim(),
-          passwordController.text.trim(),
+  Future<void> _fetchCurrentemail() async {
+    final userId = _realmService.getCurrentUserId();
+    if (userId != null) {
+      final currentEmail = await _userService.fetchEmail(userId);
+      emailController.text = currentEmail ?? '';
+    }
+  } 
+  void changePassword() async {
+  // Unfocus the text fields to make sure the input is registered
+  emailFocusNode.unfocus();
+  passwordFocusNode.unfocus();
+
+  // Print the values to ensure they're being captured
+  print('Email: ${emailController.text}');
+  print('Password: ${passwordController.text}');
+
+  if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Email and password cannot be empty')),
+    );
+    return;
+  }
+
+  try {
+    final credentials = Credentials.emailPassword(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+
+    try {
+      // Register a new user
+      await authProvider.registerUser(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+      print('User registered successfully');
+    } catch (e) {
+      print('Error registering user: $e');
+    }
+
+    try {
+      // Fetch the current user data
+      final userId = _realmService.getCurrentUserId();
+      final currentUserData = await _userService.fetchUserData(userId!);
+      print('Current user data: $currentUserData');
+
+      if (currentUserData != null) {
+        // Create a User instance with updated email but handle null fields properly
+        final newUser = Users(
+          userId: userId,
+          uid: currentUserData['uid'] ?? '',
+          userName: currentUserData['username'] ?? 'Unknown',
+          email: emailController.text.trim(),
+          currentMl: currentUserData['currentMl'] ?? 0,
+          totalMl: currentUserData['totalMl'] ?? 0,
+          botLiv: currentUserData['botLiv'] ?? 0,
+          profileImg_link: currentUserData['profileImg_link'] ?? '',
+          fillingLimit: currentUserData['fillingLimit'] ?? 0,
+          startFillingTime: currentUserData['startFillingTime'],
+          eventBot: currentUserData['eventBot'] ?? 0,
         );
 
-        EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+        // Call the service to create the user and handle the response
+        final result = await _authService.createUser(newUser);
 
-        try {
-          // Register a new user
-          await authProvider.registerUser(
-            emailController.text.trim(),
-            passwordController.text.trim(),
+        if (result != null) {
+          final emailPW = Credentials.emailPassword(
+              emailController.text.trim(), passwordController.text.trim());
+          await app.logIn(emailPW);
+          print('User logged in successfully');
+
+          openProfilePage(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to create user')),
           );
-          print('User registered successfully');
-        } catch (e) {
-          print('Error registering user: $e');
         }
-
-        try {
-          // Fetch the current user data
-          final userId = _realmService.getCurrentUserId();
-          final currentUserData = await _userService.fetchUserData(userId!);
-          print('Current user data: $currentUserData');
-
-          if (currentUserData != null) {
-            // Create a User instance with updated email but handle null fields properly
-            final newUser = Users(
-              userId: userId,
-              uid: currentUserData['uid'] ??
-                  '', // Fallback to empty string if null
-              userName: currentUserData['username'] ??
-                  'Unknown', // Handle null username
-              email: emailController.text.trim(), // Updated email
-              currentMl:
-                  currentUserData['currentMl'] ?? 0, // Fallback for currentMl
-              totalMl: currentUserData['totalMl'] ?? 0, // Fallback for totalMl
-              botLiv: currentUserData['botLiv'] ?? 0, // Fallback for botLiv
-              profileImg_link: currentUserData['profileImg_link'] ??
-                  '', // Handle empty or null profile image
-              fillingLimit: currentUserData['fillingLimit'] ??
-                  0, // Fallback for fillingLimit
-              startFillingTime: currentUserData[
-                  'startFillingTime'], // Assign null if startFillingTime is null, otherwise use the existing data
-              eventBot:
-                  currentUserData['eventBot'] ?? 0, // Fallback for eventBot
-            );
-
-            // Call the service to create the user and handle the response
-            final result = await _authService.createUser(newUser);
-
-            if (result != null) {
-              final emailPW = Credentials.emailPassword(
-                  emailController.text, passwordController.text);
-              app.logIn(emailPW);
-              print('User logged in successfully');
-
-              openProfilePage(context);
-              // Log the user in after registration
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Failed to create user')),
-              );
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('User data is null')),
-            );
-          }
-        } catch (e) {
-          print('Error logging in user: $e');
-        }
-      } catch (e) {
-        print('Failed to sign up: $e');
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-up failed: $e')),
+          const SnackBar(content: Text('User data is null')),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email and password cannot be empty')),
-      );
+    } catch (e) {
+      print('Error logging in user: $e');
     }
+  } catch (e) {
+    print('Failed to sign up: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Sign-up failed: $e')),
+    );
   }
+}
+
+
+
 
   //await authProvider.
 
@@ -194,7 +205,27 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'New Password',
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: 360,
+                          height: 50,
+                          child: TextFormFieldAuthen(
+                            controller: emailController,
+                            hintText: "Email",
+                            obscureText: false,
+                            focusNode: emailFocusNode,
+                           
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Please enter the new password',
                           style: TextStyle(
                             fontSize: 20,
                             fontFamily: 'RobotoCondensed',
@@ -206,9 +237,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           height: 50,
                           child: TextFormFieldAuthen(
                             controller: passwordController,
-                            hintText: "Password",
+                            hintText: "New Password",
                             obscureText: !authvm.passwordVisible1,
                             focusNode: passwordFocusNode,
+                            errorMessage: authvm.passwordError,
                             suffixIcon: IconButton(
                                       icon: Icon(authvm.passwordVisible1
                                           ? Icons.visibility
@@ -221,41 +253,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Please enter the same password to confirm the change',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: confirmPassController,
-                            hintText: "Confirm password",
-                            obscureText: !authvm.passwordVisible2,
-                            focusNode: confirmPassFocusNode,
-                            errorMessage: authvm.confirmEmailError,
-                            suffixIcon: IconButton(
-                                      icon: Icon(authvm.passwordVisible2
-                                          ? Icons.visibility
-                                          : Icons.visibility_off),
-                                      color: Colors.grey,
-                                      onPressed: () {
-                                        authvm.togglePasswordVisibility2();
-                                      },
-                                    ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.only(left: 30),
                           child: ElevatedButton(
                             onPressed: () {
                               // Directly call signUp without validation
-                              signUp();
+                              changePassword();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF342056),

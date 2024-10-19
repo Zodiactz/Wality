@@ -19,6 +19,18 @@ class UserService {
     }
   }
 
+  Future<String?> fetchEmail(String userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['email'];
+    } else {
+      print('Failed to fetch email');
+      return null;
+    }
+  }
+
   Future<String?> fetchUserUID(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),

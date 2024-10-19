@@ -96,85 +96,84 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void signUp(AuthenticationViewModel authenvm) async {
-  if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-    bool isValidForSignUp = await authenvm.validateAllSignUp(
-        usernameController.text,
-        emailController.text,
-        passwordController.text,
-        passwordController2.text);
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      bool isValidForSignUp = await authenvm.validateAllSignUp(
+          usernameController.text,
+          emailController.text,
+          passwordController.text,
+          passwordController2.text);
 
-    if (isValidForSignUp) {
-      setState(() {
-        isLoading = true;
-      });
+      if (isValidForSignUp) {
+        setState(() {
+          isLoading = true;
+        });
 
-      try {
-        final credentials = Credentials.emailPassword(
-          emailController.text.trim(),
-          passwordController.text.trim(),
-        );
-        EmailPasswordAuthProvider authProvider =
-            EmailPasswordAuthProvider(app);
+        try {
+          final credentials = Credentials.emailPassword(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
+          EmailPasswordAuthProvider authProvider =
+              EmailPasswordAuthProvider(app);
 
-        await authProvider.registerUser(
-          emailController.text.trim(),
-          passwordController.text.trim(),
-        );
+          await authProvider.registerUser(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
 
-        final user = await app.logIn(credentials);
+          final user = await app.logIn(credentials);
 
-        final newUser = Users(
-            userId: user.id,
-            uid: generateUid(6),
-            userName: usernameController.text.trim(),
-            email: emailController.text.trim(),
-            currentMl: 0,
-            totalMl: 0,
-            botLiv: 0,
-            profileImg_link: "",
-            fillingLimit: 0,
-            eventBot: 0);
+          final newUser = Users(
+              userId: user.id,
+              uid: generateUid(6),
+              userName: usernameController.text.trim(),
+              email: emailController.text.trim(),
+              currentMl: 0,
+              totalMl: 0,
+              botLiv: 0,
+              profileImg_link: "",
+              fillingLimit: 0,
+              eventBot: 0);
 
-        final result = await _authService.createUser(newUser);
+          final result = await _authService.createUser(newUser);
 
-        if (result != null) {
-          openHomePage(context);
-        } else {
+          if (result != null) {
+            openHomePage(context);
+          } else {
+            showAwesomeSnackBar(
+              context,
+              "Sign-up Failed",
+              "Failed to create user. Please try again.",
+              ContentType.failure,
+            );
+          }
+        } catch (e) {
           showAwesomeSnackBar(
             context,
             "Sign-up Failed",
             "Failed to create user. Please try again.",
             ContentType.failure,
           );
+        } finally {
+          if (mounted) {
+            setState(() {
+              isLoading = false;
+            });
+          }
         }
-      } catch (e) {
-        showAwesomeSnackBar(
-          context,
-          "Sign-up Failed",
-          "Failed to create user. Please try again.",
-          ContentType.failure,
-        );
-      } finally {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
+      } else {
+        // Call the function to show the error snackbar when validation fails
+        showErrorSnackBar(authenvm);
       }
     } else {
-      // Call the function to show the error snackbar when validation fails
-      showErrorSnackBar(authenvm);
+      showAwesomeSnackBar(
+        context,
+        "Form Error",
+        "Please fill in all fields correctly.",
+        ContentType.failure,
+      );
     }
-  } else {
-    showAwesomeSnackBar(
-      context,
-      "Form Error",
-      "Please fill in all fields correctly.",
-      ContentType.failure,
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +348,8 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                               const SizedBox(height: 28),
                               ElevatedButton(
-                                onPressed: isLoading ? null : () => signUp(authenvm),
+                                onPressed:
+                                    isLoading ? null : () => signUp(authenvm),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF342056),
                                   fixedSize: const Size(300, 50),

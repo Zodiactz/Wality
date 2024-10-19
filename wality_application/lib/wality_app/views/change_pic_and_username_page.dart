@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -44,8 +43,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
       imgURL = path;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {

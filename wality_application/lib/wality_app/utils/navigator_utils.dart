@@ -102,3 +102,7 @@ void ConfirmAtWaterChecking(BuildContext context) async {
 void OpenChangePictureAndUsernamePage(BuildContext context) async {
   Navigator.pushNamed(context, '/changePicAndUsernamePage');
 }
+
+void OpenAdminPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/adminpage');
+}

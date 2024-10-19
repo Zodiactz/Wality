@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/views/admin_page.dart';
 import 'package:wality_application/wality_app/views/change_password_page.dart';
 import 'package:wality_application/wality_app/views/change_pic_and_username_page.dart';
 import 'package:wality_application/wality_app/views/main_page.dart';
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),
+        '/adminpage': (context) => const AdminPage(),
         '/mainpage': (context) => MainPage(),
       },
     );
