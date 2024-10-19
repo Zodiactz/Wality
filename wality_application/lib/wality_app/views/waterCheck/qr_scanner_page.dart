@@ -4,6 +4,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
@@ -12,9 +13,10 @@ import 'package:wality_application/wality_app/views/waterCheck/water_checking.da
 import 'package:intl/intl.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
-final userId = app.currentUser?.id;
 final WaterService waterService = WaterService();
 final UserService userService = UserService();
+final RealmService _realmService = RealmService();
+String? currentUserId = _realmService.getCurrentUserId();
 
 class QrScannerPage extends StatefulWidget {
   const QrScannerPage({super.key});
@@ -134,13 +136,13 @@ class _QrScannerPageState extends State<QrScannerPage> {
     super.initState();
 
     // Fetch user-related water data when the widget is initialized
-    if (userId != null) {
-      currentWater = userService.fetchWaterAmount(userId!);
-      currentBottle = userService.fetchBottleAmount(userId!);
-      totalWater = userService.fetchTotalWater(userId!);
-      fillingLimit = userService.fetchUserFillingLimit(userId!);
-      startHour = userService.fetchUserStartTime(userId!);
-      eBot = userService.fetchUserEventBot(userId!);
+    if (currentUserId != null) {
+      currentWater = userService.fetchWaterAmount(currentUserId!);
+      currentBottle = userService.fetchBottleAmount(currentUserId!);
+      totalWater = userService.fetchTotalWater(currentUserId!);
+      fillingLimit = userService.fetchUserFillingLimit(currentUserId!);
+      startHour = userService.fetchUserStartTime(currentUserId!);
+      eBot = userService.fetchUserEventBot(currentUserId!);
     } else {
       print('User ID is null, cannot fetch data.');
     }
@@ -181,88 +183,99 @@ class _QrScannerPageState extends State<QrScannerPage> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-  this.controller = controller;
-  controller.scannedDataStream.listen((scanData) async {
-    // Pause scanning while processing
-    controller.pauseCamera();
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) async {
+      // Pause scanning while processing
+      controller.pauseCamera();
 
-    // Show dialog indicating scanning
-    _showDialogWithAutoDismiss(
-        'Scanning', 'Please wait while we process the QR code...');
+      // Show dialog indicating scanning
+      _showDialogWithAutoDismiss(
+          'Scanning', 'Please wait while we process the QR code...');
 
-    // Ensure the dialog is shown before proceeding
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Introduce a delay of 2 seconds
-      await Future.delayed(const Duration(seconds: 2));
+      // Ensure the dialog is shown before proceeding
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Introduce a delay of 2 seconds
+        await Future.delayed(const Duration(seconds: 2));
 
-      // Close the dialog after the delay
-      GoBack(context);
+        // Close the dialog after the delay
+        GoBack(context);
 
-      // Proceed with the rest of the logic
-      final waterAmount = await waterService.fetchWaterId(scanData.code ?? '');
+        // Proceed with the rest of the logic
+        final waterAmount =
+            await waterService.fetchWaterId(scanData.code ?? '');
 
-      if (waterAmount != null) {
-        final startTime = removeZFromDateTime((await startHour));
-        final limitTest = (await fillingLimit);
-        DateTime now = DateTime.now();
+        if (waterAmount != null) {
+          final startTime = removeZFromDateTime((await startHour));
+          final limitTest = (await fillingLimit);
+          DateTime now = DateTime.now();
 
-        Duration? difference;
-        if (startTime != null) {
-          difference = now.difference(startTime);
-        }
-
-        if ((limitTest! + waterAmount <= 2000 &&
-                (difference != null && difference.inHours < 1)) ||
-            (difference != null && difference.inHours >= 1) ||
-            (difference == null)) {
-          if (difference!.inHours >= 1) {
-            fillingLimit = Future.value(0);
-          }
-          // Fetch and update user water data
-          var currentMl = (await currentWater ?? 0) + waterAmount;
-          var botLiv = (await currentBottle ?? 0);
-          final totalMl = (await totalWater ?? 0) + waterAmount;
-          final limit = (await fillingLimit ?? 0) + waterAmount;
-          var eventBot = (await eBot ?? 0);
-
-          // Adjust the values if necessary
-          if (currentMl >= 550) {
-            eventBot += currentMl ~/ 550;
-            botLiv += currentMl ~/ 550;
-            currentMl = currentMl % 550;
+          Duration? difference;
+          if (startTime != null) {
+            difference = now.difference(startTime);
           }
 
-          if (await waterService.updateUserWater(
-              userId!, currentMl, botLiv, totalMl, limit, eventBot)) {
-            waterService.updateWaterStatus(scanData.code ?? '', "active");
-            if ((difference.inHours >= 1) || (difference == null)) {
-              await userService.updateUserFillingTime(userId!);
+          print("This is difference: $difference");
+
+          if ((limitTest! + waterAmount <= 2000 &&
+                  (difference != null && difference.inHours < 1)) ||
+              (difference != null && difference.inHours >= 1) ||
+              (difference == null)) {
+            // If more than an hour has passed, reset fillingLimit
+            if (difference != null && difference.inHours >= 1) {
+              fillingLimit = Future.value(0);
             }
-            // Await the Future values before navigating
-            final sentCurrentWaterGo = await sentCurrentWater ?? 0; // Default to 0
-            final sentCurrentBottleGo = await sentCurrentBottle ?? 0; // Default to 0
 
-            _showDialogContinue(
-                'Success',
-                'Your water has been updated! Please wait for a few seconds',
-                sentCurrentWaterGo,
-                sentCurrentBottleGo,
-                waterAmount);
+            // Fetch and update user water data
+            var currentMl = (await currentWater ?? 0) + waterAmount;
+            var botLiv = (await currentBottle ?? 0);
+            final totalMl = (await totalWater ?? 0) + waterAmount;
+            final limit = (await fillingLimit ?? 0) + waterAmount;
+            var eventBot = (await eBot ?? 0);
+
+            // Adjust the values if necessary
+            if (currentMl >= 550) {
+              eventBot += currentMl ~/ 550;
+              botLiv += currentMl ~/ 550;
+              currentMl = currentMl % 550;
+            }
+
+            // Update user water details
+            if (await waterService.updateUserWater(
+                currentUserId!, currentMl, botLiv, totalMl, limit, eventBot)) {
+              waterService.updateWaterStatus(scanData.code ?? '', "active");
+
+              // Update filling time if the time difference is more than 1 hour or is null
+              if (difference == null ||
+                  (difference != null && difference.inHours >= 1)) {
+                await userService.updateUserFillingTime(currentUserId!);
+              }
+              //test commit
+
+              // Continue after successful update
+              final sentCurrentWaterGo = await sentCurrentWater ?? 0;
+              final sentCurrentBottleGo = await sentCurrentBottle ?? 0;
+
+              _showDialogContinue(
+                  'Success',
+                  'Your water has been updated! Please wait for a few seconds',
+                  sentCurrentWaterGo,
+                  sentCurrentBottleGo,
+                  waterAmount);
+            } else {
+              _showDialog(
+                  'Error', 'Failed to update your water. Please try again.');
+            }
           } else {
-            _showDialog('Error', 'Failed to update your water. Please try again.');
+            _showDialog('Exceeded limit',
+                'Your water filling has exceeded the limit. Please wait');
           }
         } else {
-          _showDialog('Exceeded limit',
-              'Your water filling has exceeded the limit. Please wait');
+          _showDialog('Unavailable',
+              'This QR code is unavailable. Please try another.');
         }
-      } else {
-        _showDialog('Unavailable',
-            'This QR code is unavailable. Please try another.');
-      }
+      });
     });
-  });
-}
-
+  }
 
   @override
   void dispose() {
