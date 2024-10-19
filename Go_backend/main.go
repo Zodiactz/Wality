@@ -28,25 +28,25 @@ var client *mongo.Client
 var bucket *storage.BucketHandle
 
 func main() {
-    // MongoDB connection URI
-    uri := "mongodb+srv://notephotogame:0834965642Abc@clusterwality.wh4zl.mongodb.net/?retryWrites=true&w=majority"
-    serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-    opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+	// MongoDB connection URI
+	uri := "mongodb+srv://notephotogame:0834965642Abc@clusterwality.wh4zl.mongodb.net/?retryWrites=true&w=majority"
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
-    // Create a new client and connect to the server
-    var err error
-    client, err = mongo.Connect(context.TODO(), opts)
-    if err != nil {
-        log.Fatal(err)
-    }
+	// Create a new client and connect to the server
+	var err error
+	client, err = mongo.Connect(context.TODO(), opts)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Ping the MongoDB server to check the connection
-    if err := client.Ping(context.TODO(), nil); err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println("Connected to MongoDB!")
+	// Ping the MongoDB server to check the connection
+	if err := client.Ping(context.TODO(), nil); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connected to MongoDB!")
 
-    	// Initialize Firebase Storage (assumes you have a service account JSON file)
+	// Initialize Firebase Storage (assumes you have a service account JSON file)
 	err = initializeFirebase()
 	if err != nil {
 		log.Fatalf("Failed to initialize Firebase: %v", err)
