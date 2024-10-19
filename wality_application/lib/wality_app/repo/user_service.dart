@@ -98,15 +98,52 @@ Future<void> updateUserFillingTime(String userId) async {
   }
 }
 
-
-
-
-  Future<int?> fetchUserEventBot(String userId) async {
+ Future<int?> fetchUserEventBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         return data['eventBot'];
+      }
+    } catch (e) {
+      print('Error fetching eventBot: $e');
+    }
+    return null;
+  }
+
+   Future<int?> fetchUserDayBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['dayBot'];
+      }
+    } catch (e) {
+      print('Error fetching eventBot: $e');
+    }
+    return null;
+  }
+
+   Future<int?> fetchUserMonthBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['monthBot'];
+      }
+    } catch (e) {
+      print('Error fetching eventBot: $e');
+    }
+    return null;
+  }
+
+
+  Future<int?> fetchUserYearBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['yearBot'];
       }
     } catch (e) {
       print('Error fetching eventBot: $e');
