@@ -52,9 +52,7 @@ class _RankingPageState extends State<RankingPage> {
 
   Future<void> _loadUsers() async {
     if (currentUserId == null) {
-      // Handle case where user is not logged in
-      LogOutToOutsite(
-          context); // You can show a dialog or navigate to login here
+      LogOutToOutsite(context);
       return;
     }
 
@@ -64,9 +62,54 @@ class _RankingPageState extends State<RankingPage> {
 
     try {
       final users = await _userService.fetchUsers();
+      List<dynamic> filteredUsers;
+
+      if (_selectedFilter == 'Today') {
+        filteredUsers = users.where((user) {
+          if (user['last_active'] == null) return false;
+
+          DateTime userLastActive = DateTime.parse(user['last_active']);
+          DateTime today = DateTime.now();
+          DateTime todayStart = DateTime(today.year, today.month, today.day);
+          DateTime todayEnd = DateTime(today.year, today.month, today.day, 23, 59, 59);
+
+          return userLastActive.isAfter(todayStart) && userLastActive.isBefore(todayEnd);
+        }).toList();
+      } else if (_selectedFilter == 'This Month') {
+        DateTime now = DateTime.now();
+        DateTime monthStart = DateTime(now.year, now.month, 1);
+        DateTime monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+        filteredUsers = users.where((user) {
+          if (user['last_active'] == null) return false;
+          
+          DateTime userLastActive;
+          try {
+            userLastActive = DateTime.parse(user['last_active']);
+          } catch (e) {
+            print("Error parsing last_active for user: ${user['username']} - $e");
+            return false;
+          }
+
+          // Check if the user was active between the start and end of the current month
+          return userLastActive.isAfter(monthStart) && 
+                 userLastActive.isBefore(monthEnd) &&
+                 user['botLiv'] > 0; // Only include users with bottles
+        }).toList();
+      } else if (_selectedFilter == 'This Year') {
+        DateTime now = DateTime.now();
+        filteredUsers = users.where((user) {
+          if (user['last_active'] == null) return false;
+          DateTime userLastActive = DateTime.parse(user['last_active']);
+          return userLastActive.year == now.year && user['botLiv'] > 0;
+        }).toList();
+      } else {
+        // All Time
+        filteredUsers = users.where((user) => user['botLiv'] > 0).toList();
+      }
+
       setState(() {
-        // Filter and sort users
-        _users = users.where((user) => user['botLiv'] > 0).toList()
+        _users = filteredUsers
           ..sort((a, b) => b['botLiv'].compareTo(a['botLiv']));
         _isLoading = false;
       });
@@ -77,6 +120,7 @@ class _RankingPageState extends State<RankingPage> {
       });
     }
   }
+
 
   @override
   void didChangeDependencies() {

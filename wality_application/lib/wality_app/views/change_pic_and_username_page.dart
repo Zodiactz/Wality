@@ -54,7 +54,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
           preferredSize: const Size.fromHeight(kToolbarHeight + 40),
           child: Container(
             decoration: const BoxDecoration(
-              color: Color(0xFF00A4CC),
+              color: Color(0xFF0083AB),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),
@@ -106,14 +106,14 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFD6F1F3),
-                    Color(0xFF00A4CC),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.2, 1.0],
-                ),
+                colors: [
+                  Color(0xFFD6F1F3),
+                  Color(0xFF0083AB),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.1, 1.0],
+              ),
               ),
             ),
             Padding(
@@ -216,7 +216,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A4CC),
+                      backgroundColor: const Color(0xFF0083AB),
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
