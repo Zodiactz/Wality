@@ -16,7 +16,7 @@ final App app = App(AppConfiguration('wality-1-djgtexn'));
 final WaterService waterService = WaterService();
 final UserService userService = UserService();
 final RealmService _realmService = RealmService();
-String? currentUserId = _realmService.getCurrentUserId();
+String? currentUserId;
 
 class QrScannerPage extends StatefulWidget {
   const QrScannerPage({super.key});
@@ -39,6 +39,10 @@ class _QrScannerPageState extends State<QrScannerPage> {
   String? waterid;
   Future<DateTime?>? startHour;
   Future<int?>? eBot;
+  Future<int?>? dBot;
+  Future<int?>? mBot;
+  Future<int?>? yBot;
+
 
   String formatDateToECMA(DateTime date) {
     // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
@@ -133,9 +137,12 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   @override
   void initState() {
+    currentUserId = _realmService.getCurrentUserId();
     super.initState();
+    _fetchUserData();
+  }
 
-    // Fetch user-related water data when the widget is initialized
+  void _fetchUserData() {
     if (currentUserId != null) {
       currentWater = userService.fetchWaterAmount(currentUserId!);
       currentBottle = userService.fetchBottleAmount(currentUserId!);
@@ -143,6 +150,9 @@ class _QrScannerPageState extends State<QrScannerPage> {
       fillingLimit = userService.fetchUserFillingLimit(currentUserId!);
       startHour = userService.fetchUserStartTime(currentUserId!);
       eBot = userService.fetchUserEventBot(currentUserId!);
+      dBot = userService.fetchUserEventBot(currentUserId!);
+      mBot = userService.fetchUserEventBot(currentUserId!);
+      yBot = userService.fetchUserEventBot(currentUserId!);
     } else {
       print('User ID is null, cannot fetch data.');
     }
@@ -206,20 +216,22 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
         if (waterAmount != null) {
           final startTime = removeZFromDateTime((await startHour));
-          final limitTest = (await fillingLimit);
+          final limitTest = (await fillingLimit ?? 0);
           DateTime now = DateTime.now();
 
           Duration? difference;
           if (startTime != null) {
             difference = now.difference(startTime);
           }
-
+          print("user_id: $currentUserId");
           print("This is difference: $difference");
+          print("limitTest: $limitTest");
+          print("WaterAmount: $waterAmount");
 
-          if ((limitTest! + waterAmount <= 2000 &&
+          if ((limitTest + waterAmount <= 2000 &&
                   (difference != null && difference.inHours < 1)) ||
               (difference != null && difference.inHours >= 1) ||
-              (difference == null)) {
+              (limitTest + waterAmount <= 2000 && difference == null)) {
             // If more than an hour has passed, reset fillingLimit
             if (difference != null && difference.inHours >= 1) {
               fillingLimit = Future.value(0);
@@ -231,17 +243,23 @@ class _QrScannerPageState extends State<QrScannerPage> {
             final totalMl = (await totalWater ?? 0) + waterAmount;
             final limit = (await fillingLimit ?? 0) + waterAmount;
             var eventBot = (await eBot ?? 0);
+            var dayBot = (await dBot ?? 0);
+            var monthBot = (await mBot ?? 0);
+            var yearBot = (await yBot ?? 0);
 
             // Adjust the values if necessary
             if (currentMl >= 550) {
               eventBot += currentMl ~/ 550;
+              dayBot += currentMl ~/ 550;
+              monthBot += currentMl ~/ 550;
+              yearBot += currentMl ~/ 550;
               botLiv += currentMl ~/ 550;
               currentMl = currentMl % 550;
             }
 
             // Update user water details
             if (await waterService.updateUserWater(
-                currentUserId!, currentMl, botLiv, totalMl, limit, eventBot)) {
+                currentUserId!, currentMl, botLiv, totalMl, limit, eventBot, dayBot, monthBot, yearBot)) {
               waterService.updateWaterStatus(scanData.code ?? '', "active");
 
               // Update filling time if the time difference is more than 1 hour or is null

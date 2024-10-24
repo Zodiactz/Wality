@@ -19,7 +19,7 @@ class WaterService {
   }
 
   Future<bool> updateUserWater(String userId, int currentMl, int botLiv,
-      int totalMl, int limit, int eBot) async {
+      int totalMl, int limit, int eBot, int dBot, int mBot, int yBot) async {
     final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
@@ -28,6 +28,9 @@ class WaterService {
       'totalMl': totalMl,
       'fillingLimit': limit,
       'eventBot': eBot,
+      'dayBot': dBot,
+      'monthBot': mBot,
+      'yearBot': yBot,
     });
 
     try {
