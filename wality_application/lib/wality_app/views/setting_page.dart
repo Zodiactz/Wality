@@ -13,7 +13,7 @@ class SettingPage extends StatelessWidget {
   final App app = App(AppConfiguration('wality-1-djgtexn'));
   final authService = AuthService();
 
-void logoutFromApp(BuildContext context) async {
+  void logoutFromApp(BuildContext context) async {
     try {
       final currentUserId = app.currentUser?.id;
       print("Logging out user: $currentUserId");
@@ -23,8 +23,10 @@ void logoutFromApp(BuildContext context) async {
       await authService.deleteAppDir(); // Delete app data
 
       // Clear WaterSaveViewModel data
-      final waterSaveVM = Provider.of<WaterSaveViewModel>(context, listen: false);
-      waterSaveVM.resetData(); // Reset water data to ensure old values are cleared
+      final waterSaveVM =
+          Provider.of<WaterSaveViewModel>(context, listen: false);
+      waterSaveVM
+          .resetData(); // Reset water data to ensure old values are cleared
       print("Water data reset for user: $currentUserId");
 
       // Restart app or navigate to login
@@ -32,22 +34,20 @@ void logoutFromApp(BuildContext context) async {
     } catch (e) {
       print("Error during logout: $e");
     }
-}
-
-
+  }
 
   void restartApp(BuildContext context) {
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ChangeNotifierProvider(
-        create: (_) => WaterSaveViewModel(), // New instance of WaterSaveViewModel
-        child: LogoPage(), // Login screen
-      )),
-    (Route<dynamic> route) => false, // Remove all previous routes
-  );
-}
-
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ChangeNotifierProvider(
+                create: (_) =>
+                    WaterSaveViewModel(), // New instance of WaterSaveViewModel
+                child: LogoPage(), // Login screen
+              )),
+      (Route<dynamic> route) => false, // Remove all previous routes
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,19 +111,19 @@ void logoutFromApp(BuildContext context) async {
                     padding: const EdgeInsets.only(top: 20, left: 8),
                     child: Column(
                       children: [
-                        /*profilevm.buildProfileOption(
-                          context,
-                          icon: Icons.email_rounded,
-                          title: 'Change email',
-                          onTap: () => openChangeMail(context),
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        profilevm.buildDivider(),*/
-                        const SizedBox(
-                          height: 12,
-                        ),
+                        // profilevm.buildProfileOption(
+                        //   context,
+                        //   icon: Icons.email_rounded,
+                        //   title: 'Change email',
+                        //   onTap: () => openChangeMail(context),
+                        // ),
+                        // const SizedBox(
+                        //   height: 12,
+                        // ),
+                        // profilevm.buildDivider(),
+                        // const SizedBox(
+                        //   height: 12,
+                        // ),
                         profilevm.buildProfileOption(
                           context,
                           icon: Icons.lock,
