@@ -1,604 +1,319 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-// import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
-import 'package:realm/realm.dart';
-import 'dart:convert';
-import 'package:wality_application/wality_app/utils/constant.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/repo/user_service.dart';
-
-final App app = App(AppConfiguration('wality-1-djgtexn'));
-final userId = app.currentUser?.id;
+import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/water_service.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
   @override
-  _AdminPageState createState() => _AdminPageState();
+  State<AdminPage> createState() => _AdminPageState();
 }
 
 class _AdminPageState extends State<AdminPage> {
-  List<String> couponCheck = [];
-  bool isLoading = true;
-  Future<int?>? botAmount;
-  final UserService userService = UserService();
+  final UserService _userService = UserService();
+  final RealmService _realmService = RealmService();
+  final WaterService _waterService = WaterService();
+  List<dynamic> _users = [];
+  List<dynamic> _filteredUsers = []; // New list for filtered and sorted users
+  bool _isLoading = true;
+  String? currentUserId;
+  TextEditingController searchController = TextEditingController();
+  bool _isScanning = false;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? controller;
 
   @override
   void initState() {
     super.initState();
-    fetchUserCoupons();
-    botAmount = userService.fetchUserEventBot(userId!);
+    currentUserId = _realmService.getCurrentUserId();
+    _loadUsers();
   }
 
-  Future<bool> userBotMoreThanEventBot(int couponBot) async {
-    int userBot = await botAmount ?? 0;
-    if (userBot < couponBot) {
-      return false;
-    } else {
-      return true;
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller?.pauseCamera();
+    } else if (Platform.isIOS) {
+      controller?.resumeCamera();
     }
   }
 
-  Future<void> fetchUserCoupons() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8080/getCoupons/$userId'));
+  Future<void> _loadUsers() async {
+    if (currentUserId == null) {
+      LogOutToOutsite(context);
+      return;
+    }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final users = await _userService.fetchUsers();
       setState(() {
-        couponCheck = List<String>.from(data['couponCheck']);
-        isLoading = false;
+        _users = users;
+        _filteredUsers = List.from(users); // Initialize filtered list
+        _sortUsers(_filteredUsers); // Sort initially
+        _isLoading = false;
       });
-    } else {
-      // Handle error
+    } catch (e) {
+      print('Error loading users: $e');
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
-      print("Failed to load coupons: ${response.body}");
     }
   }
 
-  Future<List<dynamic>> fetchRewards() async {
-    final response = await http.get(Uri.parse(
-        '$baseUrl/getAllCoupons')); // Replace with your actual endpoint
+  // New method to sort users alphabetically
+  void _sortUsers(List<dynamic> users) {
+    users.sort((a, b) {
+      String usernameA = (a['username'] ?? '').toString().toLowerCase();
+      String usernameB = (b['username'] ?? '').toString().toLowerCase();
+      return usernameA.compareTo(usernameB);
+    });
+  }
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body); // Parse the response body as JSON
+  void _filterUsers(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredUsers = List.from(_users);
+      } else {
+        _filteredUsers = _users.where((user) {
+          final username = (user['username'] ?? '').toString().toLowerCase();
+          return username.contains(query.toLowerCase());
+        }).toList();
+      }
+      // Sort the filtered results alphabetically
+      _sortUsers(_filteredUsers);
+    });
+  }
+
+  ImageProvider _getProfileImage(String? profileImgLink) {
+    if (profileImgLink != null && profileImgLink.isNotEmpty) {
+      return NetworkImage(profileImgLink);
     } else {
-      throw Exception('Failed to load rewards');
+      return const AssetImage('assets/images/cat.jpg');
     }
   }
 
-  void useCoupon(String couponId, String userId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"couponCheck": couponId}),
+  void _startQRScanner() {
+    setState(() {
+      _isScanning = true;
+    });
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.pop(context);
+                controller?.resumeCamera();
+              },
+            ),
+          ],
+        );
+      },
     );
+  }
 
-    if (response.statusCode == 200) {
-      // Close the pop-up
-      await fetchUserCoupons(); // Fetch updated coupons
-      GoBack(context);
-    } else {
-      // Handle the error
-      print('Failed to use coupon');
-    }
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) async {
+      controller.pauseCamera();
+
+      if (scanData.code != null) {
+        try {
+          final waterAmount = await _waterService.fetchWaterId(scanData.code!);
+          if (waterAmount != null) {
+            _showDialog('Success', 'Water ID found: $waterAmount ml');
+          } else {
+            _showDialog('Error', 'Invalid QR code or water not found');
+          }
+        } catch (e) {
+          _showDialog('Error', 'Failed to process QR code: $e');
+        }
+      } else {
+        _showDialog('Error', 'Failed to read QR code');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 50),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF0083AB),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0083AB).withOpacity(1),
-                spreadRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
+    if (_isScanning) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Scan QR Code'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => setState(() => _isScanning = false),
           ),
+        ),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              flex: 5,
+              child: QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+                overlay: QrScannerOverlayShape(
+                  borderColor: Colors.white,
+                  borderRadius: 10,
+                  borderLength: 30,
+                  borderWidth: 10,
+                  cutOutSize: 300,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0083AB), Color(0xFF003545)],
+          ),
+        ),
+        child: SafeArea(
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 32),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
                     IconButton(
                       icon: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.black,
-                        size: 32,
+                        Icons.arrow_back,
+                        color: Colors.white,
                       ),
-                      onPressed: () {
-                        GoBack(context);
-                      },
+                      onPressed: () => GoBack(context),
                     ),
                     const Expanded(
                       child: Center(
-                        child: Padding(
-                          padding:
-                              EdgeInsets.only(right: 46.0), // Right padding
-                          child: Text(
-                            'Admin',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontFamily: 'RobotoCondensed',
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        child: Text(
+                          'Admin',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
                           ),
                         ),
                       ),
                     ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.qr_code_scanner,
+                        color: Colors.white,
+                      ),
+                      onPressed: _startQRScanner,
+                    ),
                   ],
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    onChanged: _filterUsers,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : _filteredUsers.isEmpty // Changed from _users to _filteredUsers
+                        ? const Center(
+                            child: Text(
+                              'No users found',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            itemCount: _filteredUsers.length, // Changed from _users to _filteredUsers
+                            itemBuilder: (context, index) {
+                              final user = _filteredUsers[index]; // Changed from _users to _filteredUsers
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16.0),
+                                padding: const EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 25,
+                                      backgroundImage: _getProfileImage(
+                                          user['profileImg_link']),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        user['username'] ?? 'Unknown User',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
               ),
             ],
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFD6F1F3),
-                  Color(0xFF0083AB),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0.1, 1.0],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: SingleChildScrollView(
-              child: FutureBuilder<List<dynamic>>(
-                future: fetchRewards(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState ==
-                      flutter_async.ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No coupons available'));
-                  }
-
-                  // Create coupon widgets from the fetched rewards data
-                  List<Widget> couponWidgets = snapshot.data!.map((reward) {
-                    return buildCouponWidget(
-                      context,
-                      reward['coupon_id'],
-                      reward['coupon_name'],
-                      reward['b_desc'],
-                      reward['bot_req'],
-                      reward['img_couponLink'],
-                      reward['f_desc'],
-                      reward['imp_desc'],
-                    );
-                  }).toList();
-
-                  return Center(
-                    child: Column(
-                      children: couponWidgets,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          // White floating bar at the bottom
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: MediaQuery.of(context)
-                    .size
-                    .width, // Full width of the screen
-                height: MediaQuery.of(context).size.height *
-                    0.17, // 8% of screen height for the floating bar
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, -1), // Position of the shadow
-                    ),
-                  ],
-                ),
-
-                child: Column(
-                  children: [
-                    const Text(
-                      'You saved bottles of this event', // Add any text or action buttons
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: 'RobotoCondensed',
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.1),
-                      child: FutureBuilder<int?>(
-                        future: botAmount,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              flutter_async.ConnectionState.waiting) {
-                            return const Text(
-                              'Loading',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return const Text(
-                              'Error',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasData) {
-                            return Text(
-                              '${snapshot.data}',
-                              style: const TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else {
-                            return const Text(
-                              'Bot not Found',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                    const Text(
-                      'This event will be end at 1/1/2025', // Add any text or action buttons
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'RobotoCondensed',
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCouponWidget(BuildContext context, String cId, String couponName,
-      String bD, int bReq, String imgCoupon, String fD, String impD) {
-    bool isUsed = couponCheck.contains(cId);
-
-    return GestureDetector(
-      onTap: () => isUsed
-          ? null
-          : _showCouponPopup(
-              context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
-      child: Container(
-        padding: const EdgeInsets.only(top: 10),
-        width: 375,
-        height: 102,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Container(
-                width: 375,
-                height: 92,
-                decoration: ShapeDecoration(
-                  color: isUsed ? Colors.grey : Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 14,
-              top: 9,
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(imgCoupon),
-                radius: 37,
-              ),
-            ),
-            Positioned(
-              left: 99,
-              top: 9,
-              child: SizedBox(
-                width: 205,
-                height: 70,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 5,
-                      child: SizedBox(
-                        width: 205,
-                        height: 33,
-                        child: Text(
-                          couponName,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontFamily: 'Roboto Condensed',
-                            fontWeight: FontWeight.w700,
-                            height: 0,
-                            letterSpacing: -0.40,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      top: 40,
-                      child: SizedBox(
-                        width: 205,
-                        height: 33,
-                        child: Text(
-                          bD,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontFamily: 'Roboto Condensed',
-                            fontWeight: FontWeight.w300,
-                            height: 0,
-                            letterSpacing: -0.36,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 294,
-              top: 16,
-              child: SizedBox(
-                width: 67,
-                height: 74,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: -17,
-                      top: 2,
-                      child: SizedBox(
-                        width: 100,
-                        height: 50,
-                        child: Text(
-                          '$bReq',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 40,
-                            fontFamily: 'Roboto Condensed',
-                            fontWeight: FontWeight.w500,
-                            height: 0.7,
-                            letterSpacing: -1.28,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      left: 0,
-                      top: 35,
-                      child: SizedBox(
-                        width: 67,
-                        height: 33,
-                        child: Text(
-                          'Bottles',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontFamily: 'Roboto Condensed',
-                            fontWeight: FontWeight.w700,
-                            height: 0,
-                            letterSpacing: -0.40,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (isUsed)
-              const Positioned(
-                left: 150,
-                top: 30,
-                child: Text(
-                  'Used',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _showCouponPopup(
-      BuildContext context,
-      String couponName,
-      String bD,
-      int bReq,
-      String imgCoupon,
-      String fD,
-      String impD,
-      String cId) async {
-    bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Image and coupon details
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(imgCoupon),
-                            radius: 37,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  couponName,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  bD,
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                '$bReq',
-                                style: const TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
-                              ),
-                              const Text('Bottles',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Divider(thickness: 1, color: Colors.grey),
-                      const SizedBox(height: 5),
-
-                      // Coupon description
-                      Text(
-                        fD,
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        impD,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Warning message
-                      const Text(
-                        'Show this coupon to the shop before pressing the button!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              if (hasEnoughBottles) {
-                                useCoupon(cId, userId!);
-                                print(
-                                    "///////////cid=$cId//////$hasEnoughBottles");
-                              } else {
-                                null;
-                              }
-                              // Use coupon action
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  hasEnoughBottles ? Colors.blue : Colors.grey,
-                            ),
-                            child: const Text('Use Coupon'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              GoBack(context);
-                            },
-                            child: const Text('Exit'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
     );
   }
 }
