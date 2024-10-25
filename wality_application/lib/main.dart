@@ -64,7 +64,6 @@ class MyApp extends StatelessWidget {
         '/settingpage': (context) => SettingPage(),
         '/rewardpage': (context) => RewardPage(),
         '/rankingpage': (context) => RankingPage(),
-        '/adminpage': (context) => AdminPage(),
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),
