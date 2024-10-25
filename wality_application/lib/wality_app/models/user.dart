@@ -14,6 +14,8 @@ class Users {
   final int dayBot;
   final int monthBot;
   final int yearBot;
+  final String realName;
+  final String sID;
 
   Users({
     this.userId,
@@ -31,6 +33,8 @@ class Users {
     required this.dayBot,
     required this.monthBot,
     required this.yearBot,
+    required this.realName,
+    required this.sID,
   });
 
   // Convert a User instance to a map
@@ -51,6 +55,8 @@ class Users {
       'dayBot': dayBot,
       'monthBot': monthBot,
       'yearBot': yearBot,
+      'realName': realName,
+      'sID': sID,
     };
   }
 
@@ -67,14 +73,15 @@ class Users {
       profileImg_link: json['profileImg_link'],
       startFillingTime: json['startFillingTime'] != null
           ? DateTime.parse(json['startFillingTime'])
-          : null, // Handle null value
-      fillingLimit: json['fillingLimit'],
+          : null, fillingLimit: json['fillingLimit'], 
       couponCheck:
           json['couponCheck'] != null ? List<String>.from(json['couponCheck']) : [],// Default to empty list if null);
       eventBot: json['eventBot'],
       dayBot: json['dayBot'],
       monthBot: json['monthBot'],
       yearBot: json['yearBot'],
+      realName: json['realName'],
+      sID: json['sID'],
     ); 
   }
 }

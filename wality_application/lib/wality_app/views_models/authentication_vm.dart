@@ -59,6 +59,13 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
+  bool isPasswordValidate(String? value) {
+  return value != null &&
+      value.isNotEmpty &&
+      RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+          .hasMatch(value);
+}
+
   String? validateConfirmPass(String? value, String? value2) {
     if (value2 == null || value2.isEmpty) {
       return 'Confirm passoword is required';

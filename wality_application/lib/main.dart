@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
         '/waterChecking': (context) => const WaterChecking(),
         '/homepage': (context) => const HomePage(),
         '/profilepage': (context) => const ProfilePage(),
-        '/changeMail': (context) => ChangeEmailPage(),
+        // '/changeMail': (context) => ChangeEmailPage(),
         '/changePass': (context) => ChangePasswordPage(),
         '/settingpage': (context) => SettingPage(),
         '/rewardpage': (context) => RewardPage(),

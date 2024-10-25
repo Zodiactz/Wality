@@ -137,6 +137,8 @@ class _SignUpPageState extends State<SignUpPage> {
             dayBot: 0,
             monthBot: 0,
             yearBot: 0,
+            realName: '',
+            sID: '',
             );
 
         final result = await _authService.createUser(newUser);
