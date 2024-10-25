@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/views/admin_page.dart';
 import 'package:wality_application/wality_app/views/change_password_page.dart';
 import 'package:wality_application/wality_app/views/change_pic_and_username_page.dart';
 import 'package:wality_application/wality_app/views/main_page.dart';
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: LogoPage()/*MainPage()*/,
+      home: /*LogoPage()*/ MainPage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
         '/settingpage': (context) => SettingPage(),
         '/rewardpage': (context) => RewardPage(),
         '/rankingpage': (context) => RankingPage(),
+        '/adminpage': (context) => AdminPage(),
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),

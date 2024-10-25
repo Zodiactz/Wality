@@ -57,6 +57,10 @@ void openRankingPage(BuildContext context) async {
   Navigator.pushNamed(context, '/rankingpage');
 }
 
+void openAdminPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/adminpage');
+}
+
 void openWaterCheckingPage(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
   final XFile? image = await picker.pickImage(source: ImageSource.camera);

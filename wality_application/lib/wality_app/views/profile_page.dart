@@ -295,6 +295,19 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(
                           height: 12,
                         ),
+                        profilevm.buildProfileOption(
+                          context,
+                          icon: Icons.admin_panel_settings,
+                          title: 'Admin',
+                          onTap: () => openAdminPage(context),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        profilevm.buildDivider(),
+                        const SizedBox(
+                          height: 12,
+                        ),
                       ],
                     ),
                   ),
