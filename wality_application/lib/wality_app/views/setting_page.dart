@@ -111,7 +111,7 @@ void logoutFromApp(BuildContext context) async {
                     padding: const EdgeInsets.only(top: 20, left: 8),
                     child: Column(
                       children: [
-                        profilevm.buildProfileOption(
+                        /*profilevm.buildProfileOption(
                           context,
                           icon: Icons.email_rounded,
                           title: 'Change email',
@@ -120,7 +120,7 @@ void logoutFromApp(BuildContext context) async {
                         const SizedBox(
                           height: 12,
                         ),
-                        profilevm.buildDivider(),
+                        profilevm.buildDivider(),*/
                         const SizedBox(
                           height: 12,
                         ),

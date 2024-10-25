@@ -74,20 +74,52 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(width: 16),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 32, top: 60),
-                          child: ClipOval(
-                            child: imgURL.isNotEmpty
-                                ? Image.network(
-                                    imgURL,
-                                    width: 96,
-                                    height: 96,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/images/cat.jpg',
-                                    width: 96,
-                                    height: 96,
-                                    fit: BoxFit.cover,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              GestureDetector(
+                                onTap: () =>
+                                    OpenChangePictureAndUsernamePage(context),
+                                child: ClipOval(
+                                  child: imgURL.isNotEmpty
+                                      ? Image.network(
+                                          imgURL,
+                                          width: 96,
+                                          height: 96,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.asset(
+                                          'assets/images/cat.jpg',
+                                          width: 96,
+                                          height: 96,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    onTap:
+                                    () => OpenChangePictureAndUsernamePage(
+                                        context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueAccent.withOpacity(0.8),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
                                   ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 28),
@@ -169,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
                                   } else if (snapshot.hasData) {
                                     return Text(
-                                      'uid: ${snapshot.data}',
+                                      'ID: ${snapshot.data}',
                                       style: const TextStyle(
                                         fontSize: 24,
                                         color: Colors.black,
@@ -190,6 +222,53 @@ class _ProfilePageState extends State<ProfilePage> {
                                   }
                                 },
                               ),
+                              FutureBuilder<String?>(
+                                future: uidFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      flutter_async.ConnectionState.waiting) {
+                                    return const Text(
+                                      'Loading...',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'RobotoCondensed-Thin',
+                                      ),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return const Text(
+                                      'Error',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'RobotoCondensed-Thin',
+                                      ),
+                                    );
+                                  } else if (snapshot.hasData) {
+                                    return Text(
+                                      'Fullname: ${snapshot.data}',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'RobotoCondensed-Thin',
+                                      ),
+                                    );
+                                  } else {
+                                    return const Text(
+                                      'uid not found',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'RobotoCondensed-Thin',
+                                      ),
+                                    );
+                                  }
+                                },
+                              ), /*
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF342056),
@@ -224,7 +303,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ],
                                   ),
                                 ),
-                              ),
+                              ),*/
                             ],
                           ),
                         ),
@@ -291,7 +370,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(
                           height: 12,
                         ),
-                        profilevm.buildDivider(),
+                        
                         const SizedBox(
                           height: 12,
                         ),

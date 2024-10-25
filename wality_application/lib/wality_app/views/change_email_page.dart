@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
@@ -341,4 +341,4 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
       },
     );
   }
-}
+}*/
