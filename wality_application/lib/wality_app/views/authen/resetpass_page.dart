@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'dart:convert';
 import 'package:wality_application/wality_app/utils/custom_dropdown.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
@@ -10,12 +11,15 @@ import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
+import 'package:wality_application/wality_app/views/setting_page.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String token;
   final String tokenId;
-   const ResetPasswordPage({Key? key, required this.token, required this.tokenId}) : super(key: key);
+  const ResetPasswordPage(
+      {Key? key, required this.token, required this.tokenId})
+      : super(key: key);
 
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
@@ -26,6 +30,63 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController confirmPassController = TextEditingController();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPassFocusNode = FocusNode();
+  bool _isLoading = false;
+  final App app = App(AppConfiguration('wality-1-djgtexn'));
+  final authService = AuthService();
+  final settingService = SettingPage();
+
+  void _showDialogWithLogOut(String title, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                settingService.logoutFromApp(context);
+                // Resume scanning after dialog is dismissed
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _resetPassword() async {
+    EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+    if (passwordController.text != confirmPassController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match!')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Add the logic to complete password reset using widget.token and widget.tokenId
+      await authProvider.completeResetPassword(
+          passwordController.text, widget.token, widget.tokenId);
+
+      _showDialogWithLogOut('Change Password Successfully',
+          'Click OK to bring you back to the login page');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +105,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(top: 20.0),
                   child: Text(
                     'Reset Password Page',
@@ -123,9 +184,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 30),
                           child: ElevatedButton(
-                            onPressed: () {
-                              //logic here
-                            },
+                            onPressed: _isLoading ? null : _resetPassword,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF342056),
                               fixedSize: const Size(300, 50),
@@ -133,15 +192,27 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: const Text(
-                              'Change',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'RobotoCondensed',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width:
+                                        24, // Set a fixed width for the spinner
+                                    height:
+                                        24, // Set a fixed height for the spinner
+                                    child: CircularProgressIndicator(
+                                      color: Colors
+                                          .white, // Set the spinner color to match the button text color
+                                      strokeWidth: 2, // Set the stroke width
+                                    ),
+                                  )
+                                : const Text(
+                                    'Change',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'RobotoCondensed',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 8),
