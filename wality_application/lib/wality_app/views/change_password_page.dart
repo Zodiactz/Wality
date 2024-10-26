@@ -54,9 +54,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 currentUser!.profile.email!, newPass);
             openProfilePage(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text(
-                      'Passowrd changed successfully!')),
+              const SnackBar(content: Text('Passowrd changed successfully!')),
             );
           } catch (e) {
             print('Change Password Fail: $e');

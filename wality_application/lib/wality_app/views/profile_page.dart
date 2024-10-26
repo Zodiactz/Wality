@@ -24,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String?> usernameFuture = Future.value(null);
   Future<String?> userImage = Future.value(null);
   Future<String?> uidFuture = Future.value(null);
+  Future<String?> realNameFuture = Future.value(null);
+  Future<String?> sIDFuture = Future.value(null);
   String imgURL = "";
 
   final UserService _userService = UserService();
@@ -40,7 +42,8 @@ class _ProfilePageState extends State<ProfilePage> {
           imgURL = value!;
         });
       });
-      uidFuture = _userService.fetchUserUID(userId);
+      sIDFuture = _userService.fetchSID(userId);
+      realNameFuture = _userService.fetchRealName(userId);
     }
   }
 
@@ -176,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 },
                               ),
                               FutureBuilder<String?>(
-                                future: uidFuture,
+                                future: sIDFuture,
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       flutter_async.ConnectionState.waiting) {
@@ -204,14 +207,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       'ID: ${snapshot.data}',
                                       style: const TextStyle(
                                         fontSize: 24,
-                                        color: Colors.black,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'RobotoCondensed-Thin',
                                       ),
                                     );
                                   } else {
                                     return const Text(
-                                      'uid not found',
+                                      'ID not found',
                                       style: TextStyle(
                                         fontSize: 24,
                                         color: Colors.white,
@@ -223,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 },
                               ),
                               FutureBuilder<String?>(
-                                future: uidFuture,
+                                future: realNameFuture,
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       flutter_async.ConnectionState.waiting) {
@@ -248,17 +251,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
                                   } else if (snapshot.hasData) {
                                     return Text(
-                                      'Fullname: ${snapshot.data}',
+                                      'Name: ${snapshot.data}',
                                       style: const TextStyle(
                                         fontSize: 24,
-                                        color: Colors.black,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'RobotoCondensed-Thin',
                                       ),
                                     );
                                   } else {
                                     return const Text(
-                                      'uid not found',
+                                      'Name not found',
                                       style: TextStyle(
                                         fontSize: 24,
                                         color: Colors.white,
@@ -363,19 +366,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         profilevm.buildProfileOption(
                           context,
-                          icon: Icons.settings,
-                          title: 'Setting',
-                          onTap: () => openSettingPage(context),
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        profilevm.buildProfileOption(
-                          context,
                           icon: Icons.admin_panel_settings,
                           title: 'Admin',
                           onTap: () => openAdminPage(context),
@@ -384,6 +374,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           height: 12,
                         ),
                         profilevm.buildDivider(),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        profilevm.buildProfileOption(
+                          context,
+                          icon: Icons.settings,
+                          title: 'Setting',
+                          onTap: () => openSettingPage(context),
+                        ),
                         const SizedBox(
                           height: 12,
                         ),

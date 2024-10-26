@@ -18,7 +18,7 @@ class UserService {
       return null;
     }
   }
-  
+
   Future<String?> fetchEmail(String userId) async {
     final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
     if (response.statusCode == 200) {
@@ -43,6 +43,35 @@ class UserService {
       return null;
     }
   }
+
+   Future<String?> fetchRealName(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['realName'];
+    } else {
+      print('Failed to fetch uid');
+      return null;
+    }
+  }
+
+  Future<String?> fetchSID(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/userId/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['sID'];
+    } else {
+      print('Failed to fetch id');
+      return null;
+    }
+  }
+
 
   Future<List<dynamic>> fetchUsers() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
@@ -89,28 +118,26 @@ class UserService {
     }
   }
 
-Future<void> updateUserFillingTime(String userId) async {
-  final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
-  final headers = {'Content-Type': 'application/json'};
+  Future<void> updateUserFillingTime(String userId) async {
+    final uri = Uri.parse('$baseUrl/updateUserFillingTime/$userId');
+    final headers = {'Content-Type': 'application/json'};
 
-  // Get the current local time
-  final now = DateTime.now();
-  
-  // Format to include milliseconds and 'Z' at the end
-  final formattedTime = '${now.toIso8601String().split('.').first}.${now.millisecond.toString().padLeft(3, '0')}Z';
+    // Get the current local time
+    final now = DateTime.now();
 
-  final body = jsonEncode({'startFillingTime': formattedTime});
+    // Format to include milliseconds and 'Z' at the end
+    final formattedTime =
+        '${now.toIso8601String().split('.').first}.${now.millisecond.toString().padLeft(3, '0')}Z';
 
-  try {
-    final result = await http.post(uri, headers: headers, body: body);
-    print("This is update time ${result.body}");
-  } catch (e) {
-    print('Error during HTTP request: $e');
+    final body = jsonEncode({'startFillingTime': formattedTime});
+
+    try {
+      final result = await http.post(uri, headers: headers, body: body);
+      print("This is update time ${result.body}");
+    } catch (e) {
+      print('Error during HTTP request: $e');
+    }
   }
-}
-
-
-
 
   Future<int?> fetchUserEventBot(String userId) async {
     try {

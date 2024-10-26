@@ -80,9 +80,6 @@ func main() {
 	app.Post("/updateImage/:user_id", updateImage)
 	app.Delete("/deleteOldImage", deleteImage)
 	app.Delete("/deleteUserByEmail/:email", deleteUsersByEmail)
-	app.Get("/students", getAllStudents)
-	app.Get("/students/id/:student_id", getStudentByID)
-	app.Get("/students/name/:fullname", getStudentByName)
 
 	// New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -905,92 +902,6 @@ func updateUserIdByEmail(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Water updated successfully!"})
 }
 
-func getAllStudents(c *fiber.Ctx) error {
-	collection := client.Database("Wality_DB").Collection("StudentID")
-
-	// Use Find() to get all records
-	cursor, err := collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Could not fetch students",
-		})
-	}
-	defer cursor.Close(context.Background())
-
-	var students []Student
-	if err := cursor.All(context.Background(), &students); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Error while decoding students",
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(students)
-}
-
-// GetStudentByID retrieves a single student by their student_id
-func getStudentByID(c *fiber.Ctx) error {
-	studentID, err := c.ParamsInt("student_id")
-	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid student ID format",
-		})
-	}
-
-	collection := client.Database("Wality_DB").Collection("StudentID")
-
-	var student Student
-	err = collection.FindOne(context.Background(), bson.M{"student_id": studentID}).Decode(&student)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return c.Status(http.StatusNotFound).JSON(fiber.Map{
-				"status": "Student not found",
-			})
-		}
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(student)
-}
-
-// GetStudentByName retrieves students by their fullname (supports partial matches)
-func getStudentByName(c *fiber.Ctx) error {
-	name := c.Params("fullname")
-
-	collection := client.Database("Wality_DB").Collection("StudentID")
-
-	// Create a case-insensitive regex pattern for the name
-	filter := bson.M{"fullname": bson.M{
-		"$regex":   name,
-		"$options": "i", // case-insensitive
-	}}
-
-	cursor, err := collection.Find(context.Background(), filter)
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-	defer cursor.Close(context.Background())
-
-	var students []Student
-	if err := cursor.All(context.Background(), &students); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	if len(students) == 0 {
-		return c.Status(http.StatusNotFound).JSON(fiber.Map{
-			"status": "No students found with that name",
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(students)
-}
 
 type Users struct {
 	UserId           string     `json:"user_id"`
@@ -1007,7 +918,4 @@ type Users struct {
 	EventBot         int        `json:"eventBot"`
 }
 
-type Student struct {
-	StudentID int    `json:"student_id"`
-	Fullname  string `json:"fullname"`
-}
+
