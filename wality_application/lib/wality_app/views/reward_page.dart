@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-// import 'package:wality_application/wality_app/utils/nav_bar/floating_action_button.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
 import 'package:realm/realm.dart';
 import 'dart:convert';
 import 'package:wality_application/wality_app/utils/constant.dart';
@@ -21,19 +19,27 @@ class RewardPage extends StatefulWidget {
 }
 
 class _RewardPageState extends State<RewardPage> {
+  final UserService _userService = UserService();
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
-  Future<int?>? waterAmount;
+  int? waterAmount;
 
   final UserService userService = UserService();
+  final RealmService _realmService = RealmService();
+
 
   @override
   void initState() {
+    final userId = _realmService.getCurrentUserId();
     super.initState();
     fetchUserCoupons();
     botAmount = userService.fetchUserEventBot(userId!);
-    waterAmount = userService.fetchWaterAmount(userId!);
+     _userService.fetchWaterAmount(userId).then((amount) {
+          setState(() {
+            waterAmount = amount;
+          });
+        });
   }
 
   Future<bool> userBotMoreThanEventBot(int couponBot) async {
@@ -309,62 +315,16 @@ class _RewardPageState extends State<RewardPage> {
                               }
                             },
                           ),
-                          const Text(
-                            '/',
-                            style: TextStyle(
+                          Text(
+                            ' / ${waterAmount ?? 0} ml',
+                            style: const TextStyle(
                               fontSize: 50,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'RobotoCondensed-Thin',
                             ),
                           ),
-                          FutureBuilder<int?>(
-                            future: waterAmount,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  flutter_async.ConnectionState.waiting) {
-                                return const Text(
-                                  'Loading',
-                                  style: TextStyle(
-                                    fontSize: 50,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Text(
-                                  'Error',
-                                  style: TextStyle(
-                                    fontSize: 50,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else if (snapshot.hasData) {
-                                return Text(
-                                  '${snapshot.data} ml',
-                                  style: const TextStyle(
-                                    fontSize: 50,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else {
-                                return const Text(
-                                  'Water not Found',
-                                  style: TextStyle(
-                                    fontSize: 50,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              }
-                            },
-                          ),
+                         
                         ],
                       ),
                     ),
