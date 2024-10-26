@@ -18,13 +18,14 @@ class _AdminPageState extends State<AdminPage> {
   final RealmService _realmService = RealmService();
   final WaterService _waterService = WaterService();
   List<dynamic> _users = [];
-  List<dynamic> _filteredUsers = []; // New list for filtered and sorted users
+  List<dynamic> _filteredUsers = [];
   bool _isLoading = true;
   String? currentUserId;
   TextEditingController searchController = TextEditingController();
   bool _isScanning = false;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
+
 
   @override
   void initState() {
@@ -57,8 +58,8 @@ class _AdminPageState extends State<AdminPage> {
       final users = await _userService.fetchUsers();
       setState(() {
         _users = users;
-        _filteredUsers = List.from(users); // Initialize filtered list
-        _sortUsers(_filteredUsers); // Sort initially
+        _filteredUsers = List.from(users);
+        _sortUsers(_filteredUsers);
         _isLoading = false;
       });
     } catch (e) {
@@ -69,7 +70,6 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  // New method to sort users alphabetically
   void _sortUsers(List<dynamic> users) {
     users.sort((a, b) {
       String usernameA = (a['username'] ?? '').toString().toLowerCase();
@@ -88,7 +88,6 @@ class _AdminPageState extends State<AdminPage> {
           return username.contains(query.toLowerCase());
         }).toList();
       }
-      // Sort the filtered results alphabetically
       _sortUsers(_filteredUsers);
     });
   }
@@ -150,6 +149,136 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
+  void _showUserDetails(dynamic user) {
+    final String userId = user['_id'];
+    final String realName = user['realName'];
+    final String sID = user['sID'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: _getProfileImage(user['profileImg_link']),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        user['username'] ?? 'Unknown User',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'ID: ',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                userId,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                            Row(
+                            children: [
+                              const Text(
+                                'Name: ',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                realName,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        
+                          const SizedBox(height: 16),
+                            Row(
+                            children: [
+                              const Text(
+                                'SID: ',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                sID,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
   @override
   void dispose() {
     controller?.dispose();
@@ -267,7 +396,7 @@ class _AdminPageState extends State<AdminPage> {
                           color: Colors.white,
                         ),
                       )
-                    : _filteredUsers.isEmpty // Changed from _users to _filteredUsers
+                    : _filteredUsers.isEmpty
                         ? const Center(
                             child: Text(
                               'No users found',
@@ -276,35 +405,38 @@ class _AdminPageState extends State<AdminPage> {
                           )
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                            itemCount: _filteredUsers.length, // Changed from _users to _filteredUsers
+                            itemCount: _filteredUsers.length,
                             itemBuilder: (context, index) {
-                              final user = _filteredUsers[index]; // Changed from _users to _filteredUsers
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 16.0),
-                                padding: const EdgeInsets.all(16.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 25,
-                                      backgroundImage: _getProfileImage(
-                                          user['profileImg_link']),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Text(
-                                        user['username'] ?? 'Unknown User',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                              final user = _filteredUsers[index];
+                              return GestureDetector(
+                                onTap: () => _showUserDetails(user),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 16.0),
+                                  padding: const EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundImage: _getProfileImage(
+                                            user['profileImg_link']),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          user['username'] ?? 'Unknown User',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             },
