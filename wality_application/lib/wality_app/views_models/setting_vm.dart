@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ProfileViewModel extends ChangeNotifier {
+class SettingViewModel extends ChangeNotifier {
   Divider buildDivider() {
     return const Divider(
       color: Colors.grey,
@@ -10,7 +10,7 @@ class ProfileViewModel extends ChangeNotifier {
     );
   }
 
-  Flexible buildProfileOption(BuildContext context,
+  Flexible buildSettingOption(BuildContext context,
       {required IconData icon,
       required String title,
       required VoidCallback onTap}) {
@@ -28,7 +28,7 @@ class ProfileViewModel extends ChangeNotifier {
               child: Icon(
                 icon,
                 size: 44,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             const SizedBox(width: 8),
@@ -37,6 +37,7 @@ class ProfileViewModel extends ChangeNotifier {
               style: const TextStyle(
                 fontSize: 18,
                 fontFamily: 'RobotoCondensed',
+                color: Colors.white
               ),
             ),
           ],

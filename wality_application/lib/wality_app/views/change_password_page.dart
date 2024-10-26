@@ -96,111 +96,125 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Stack(
                     children: [
-                        IconButton(
-                        icon: const Icon(Icons.chevron_left,
-                          color: Colors.white, size: 32),
-                        onPressed: () {
-                          GoBack(context);
-                        },
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          icon: const Icon(Icons.chevron_left,
+                              color: Colors.white, size: 32),
+                          onPressed: () {
+                            GoBack(context);
+                          },
                         ),
-                        SizedBox(width: 24),
-                     Center(
-                          child: const Text(
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: const Text(
                           'Change Password',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
-                          ),
-                        
                         ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 40),
-                  const Text(
+                ),
+                const SizedBox(height: 40),
+                Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Text(
                     'New Password',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'RobotoCondensed',
-                      color: Colors.white,
+                    fontSize: 20,
+                    fontFamily: 'RobotoCondensed',
+                    color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  TextFormFieldAuthen(
-                    controller: passwordController,
-                    hintText: "Password",
-                    obscureText: !authvm.passwordVisible1,
-                    focusNode: passwordFocusNode,
-                    suffixIcon: IconButton(
-                      icon: Icon(authvm.passwordVisible1
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      color: Colors.grey,
-                      onPressed: () {
-                        authvm.togglePasswordVisibility1();
-                      },
-                    ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextFormFieldAuthen(
+                  controller: passwordController,
+                  hintText: "Password",
+                  obscureText: !authvm.passwordVisible1,
+                  focusNode: passwordFocusNode,
+                  suffixIcon: IconButton(
+                    icon: Icon(authvm.passwordVisible1
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                    color: Colors.grey,
+                    onPressed: () {
+                    authvm.togglePasswordVisibility1();
+                    },
                   ),
-                  const SizedBox(height: 30),
-                  const Text(
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Text(
                     'Confirm New Password',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'RobotoCondensed',
-                      color: Colors.white,
+                    fontSize: 20,
+                    fontFamily: 'RobotoCondensed',
+                    color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  TextFormFieldAuthen(
-                    controller: confirmPassController,
-                    hintText: "Confirm password",
-                    obscureText: !authvm.passwordVisible2,
-                    focusNode: confirmPassFocusNode,
-                    suffixIcon: IconButton(
-                      icon: Icon(authvm.passwordVisible2
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      color: Colors.grey,
-                      onPressed: () {
-                        authvm.togglePasswordVisibility2();
-                      },
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextFormFieldAuthen(
+                  controller: confirmPassController,
+                  hintText: "Confirm password",
+                  obscureText: !authvm.passwordVisible2,
+                  focusNode: confirmPassFocusNode,
+                  suffixIcon: IconButton(
+                    icon: Icon(authvm.passwordVisible2
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                    color: Colors.grey,
+                    onPressed: () {
+                    authvm.togglePasswordVisibility2();
+                    },
+                  ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                Center(
+                  child: ElevatedButton(
+                  onPressed: () {
+                    changePass();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF342056),
+                    fixedSize: const Size(300, 50),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Call your change password function here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF342056),
-                        fixedSize: const Size(300, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Change',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'RobotoCondensed',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                  child: const Text(
+                    'Change',
+                    style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'RobotoCondensed',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                     ),
                   ),
-                ],
-              ),
+                  ),
+                ),
+                
+              ],
             ),
           ),
         );
@@ -208,4 +222,3 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 }
-

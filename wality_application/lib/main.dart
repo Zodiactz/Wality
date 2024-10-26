@@ -22,6 +22,7 @@ import 'package:wality_application/wality_app/views/waterCheck/water_checking.da
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
+import 'package:wality_application/wality_app/views_models/setting_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:wality_application/wality_app/views/admin_page.dart';
@@ -32,6 +33,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => ChangeInfoViewModel()),
         ChangeNotifierProvider(create: (context) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (context) => SettingViewModel()),
         ChangeNotifierProvider(create: (context) => AuthenticationViewModel()),
         ChangeNotifierProvider(create: (context) => WaterSaveViewModel()),
         ChangeNotifierProvider(

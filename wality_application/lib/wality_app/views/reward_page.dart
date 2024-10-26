@@ -28,6 +28,470 @@ class _RewardPageState extends State<RewardPage> {
   final UserService userService = UserService();
   final RealmService _realmService = RealmService();
 
+  @override
+  void initState() {
+    final userId = _realmService.getCurrentUserId();
+    super.initState();
+    fetchUserCoupons();
+    botAmount = userService.fetchUserEventBot(userId!);
+    _userService.fetchWaterAmount(userId).then((amount) {
+      setState(() {
+        waterAmount = amount;
+      });
+    });
+  }
+
+  // Keep all your existing methods for coupon functionality
+  Future<bool> userBotMoreThanEventBot(int couponBot) async {
+    int userBot = await botAmount ?? 0;
+    if (userBot < couponBot) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<void> fetchUserCoupons() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8080/getCoupons/$userId'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        couponCheck = List<String>.from(data['couponCheck']);
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      print("Failed to load coupons: ${response.body}");
+    }
+  }
+
+  Future<List<dynamic>> fetchRewards() async {
+    final response = await http.get(Uri.parse('$baseUrl/getAllCoupons'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load rewards');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0083AB), Color(0xFF005678)],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header with back button and title
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.chevron_left,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                      onPressed: () => GoBack(context),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Rewards',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                  ],
+                ),
+              ),
+
+              // Dropdown styled like the ranking page
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const ListTile(
+                    title: Text(
+                      'Available Rewards',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'RobotoCondensed',
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Rewards list with ranking page styling
+              Expanded(
+                child: FutureBuilder<List<dynamic>>(
+                  future: fetchRewards(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState ==
+                        flutter_async.ConnectionState.waiting) {
+                      return const Center(
+                          child:
+                              CircularProgressIndicator(color: Colors.white));
+                    } else if (snapshot.hasError) {
+                      return Center(
+                          child: Text('Error: ${snapshot.error}',
+                              style: const TextStyle(color: Colors.white)));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text('No rewards available',
+                              style: TextStyle(color: Colors.white)));
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final reward = snapshot.data![index];
+                        return _buildRewardItem(
+                          context,
+                          reward['coupon_id'],
+                          reward['coupon_name'],
+                          reward['b_desc'],
+                          reward['bot_req'],
+                          reward['img_couponLink'],
+                          reward['f_desc'],
+                          reward['imp_desc'],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              // Bottom info panel styled like ranking page
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const Text(
+                      'You saved bottles of this event',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'RobotoCondensed',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FutureBuilder<int?>(
+                          future: botAmount,
+                          builder: (context, snapshot) {
+                            return Text(
+                              '${snapshot.data ?? 0}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            );
+                          },
+                        ),
+                        Text(
+                          ' / ${waterAmount ?? 0} ml',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Text(
+                      'This event will end on 1/1/2025',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontFamily: 'RobotoCondensed',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRewardItem(BuildContext context, String cId, String couponName,
+      String bD, int bReq, String imgCoupon, String fD, String impD) {
+    bool isUsed = couponCheck.contains(cId);
+
+    return GestureDetector(
+      onTap: () => isUsed
+          ? null
+          : _showCouponPopup(
+              context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: isUsed
+              ? Colors.white.withOpacity(0.05)
+              : Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(imgCoupon),
+            radius: 25,
+          ),
+          title: Text(
+            couponName,
+            style: TextStyle(
+              color: isUsed ? Colors.white38 : Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'RobotoCondensed',
+            ),
+          ),
+          subtitle: Text(
+            bD,
+            style: TextStyle(
+              color: isUsed ? Colors.white24 : Colors.white70,
+              fontFamily: 'RobotoCondensed',
+            ),
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$bReq',
+                style: TextStyle(
+                  color: isUsed ? Colors.white38 : Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'RobotoCondensed',
+                ),
+              ),
+              Text(
+                'Bottles',
+                style: TextStyle(
+                  color: isUsed ? Colors.white24 : Colors.white70,
+                  fontSize: 14,
+                  fontFamily: 'RobotoCondensed',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Keep your existing _showCouponPopup method
+  Future<void> _showCouponPopup(
+      BuildContext context,
+      String couponName,
+      String bD,
+      int bReq,
+      String imgCoupon,
+      String fD,
+      String impD,
+      String cId) async {
+    bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                    maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Image and coupon details
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(imgCoupon),
+                            radius: 37,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  couponName,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  bD,
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                '$bReq',
+                                style: const TextStyle(
+                                    fontSize: 48, fontWeight: FontWeight.bold),
+                              ),
+                              const Text('Bottles',
+                                  style: TextStyle(fontSize: 16)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Divider(thickness: 1, color: Colors.grey),
+                      const SizedBox(height: 5),
+
+                      // Coupon description
+                      Text(
+                        fD,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        impD,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Warning message
+                      const Text(
+                        'Show this coupon to the shop before pressing the button!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              if (hasEnoughBottles) {
+                                print(
+                                    "///////////cid=$cId//////$hasEnoughBottles");
+                              } else {
+                                null;
+                              }
+                              // Use coupon action
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  hasEnoughBottles ? Colors.blue : Colors.grey,
+                            ),
+                            child: const Text('Use Coupon'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              GoBack(context);
+                            },
+                            child: const Text('Exit'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+/*import 'package:flutter/material.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:realm/realm.dart';
+import 'dart:convert';
+import 'package:wality_application/wality_app/utils/constant.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/src/widgets/async.dart' as flutter_async;
+import 'package:wality_application/wality_app/repo/user_service.dart';
+
+final App app = App(AppConfiguration('wality-1-djgtexn'));
+final userId = app.currentUser?.id;
+
+class RewardPage extends StatefulWidget {
+  const RewardPage({super.key});
+
+  @override
+  _RewardPageState createState() => _RewardPageState();
+}
+
+class _RewardPageState extends State<RewardPage> {
+  final UserService _userService = UserService();
+  List<String> couponCheck = [];
+  bool isLoading = true;
+  Future<int?>? botAmount;
+  int? waterAmount;
+
+  final UserService userService = UserService();
+  final RealmService _realmService = RealmService();
+
 
   @override
   void initState() {
@@ -641,3 +1105,4 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 }
+*/
