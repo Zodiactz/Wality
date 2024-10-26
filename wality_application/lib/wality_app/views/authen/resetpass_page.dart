@@ -13,7 +13,9 @@ import 'package:wality_application/wality_app/utils/text_form_field_authen.dart'
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+  final String token;
+  final String tokenId;
+   const ResetPasswordPage({Key? key, required this.token, required this.tokenId}) : super(key: key);
 
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
