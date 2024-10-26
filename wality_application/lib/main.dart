@@ -69,19 +69,22 @@ class MyApp extends StatelessWidget {
         '/rankingpage': (context) => RankingPage(),
         '/adminpage': (context) => AdminPage(),
         '/qrscanner': (context) => const QrScannerPage(),
-        '/changePicAndUsernamePage': (context) => const ChangePicAndUsernamePage(),
+        '/changePicAndUsernamePage': (context) =>
+            const ChangePicAndUsernamePage(),
         '/adminpage': (context) => const AdminPage(),
         '/mainpage': (context) => MainPage(),
       },
       onGenerateRoute: (RouteSettings settings) {
         // Check if the route is the reset password path
-        if (settings.name != null && settings.name!.startsWith('/resetPassword')) {
+        if (settings.name != null &&
+            settings.name!.startsWith('/resetPassword')) {
           final uri = Uri.parse(settings.name!);
           final token = uri.queryParameters['token'] ?? '';
           final tokenId = uri.queryParameters['tokenId'] ?? '';
 
           return MaterialPageRoute(
-            builder: (context) => ResetPasswordPage(token: token, tokenId: tokenId),
+            builder: (context) =>
+                ResetPasswordPage(token: token, tokenId: tokenId),
           );
         }
 

@@ -123,7 +123,7 @@ class _RewardPageState extends State<RewardPage> {
               ),
 
               // Dropdown styled like the ranking page
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
                   decoration: BoxDecoration(
@@ -147,7 +147,7 @@ class _RewardPageState extends State<RewardPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 24),*/
 
               // Rewards list with ranking page styling
               Expanded(
