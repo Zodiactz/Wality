@@ -34,13 +34,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final AuthService _authService = AuthService();
   bool isLoading = false;
 
-  String generateUid(int length) {
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-    return List.generate(length, (index) => chars[random.nextInt(chars.length)])
-        .join();
-  }
+  // String generateUid(int length) {
+  //   const chars =
+  //       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  //   final random = Random();
+  //   return List.generate(length, (index) => chars[random.nextInt(chars.length)])
+  //       .join();
+  // }
 
   void showErrorSnackBar(AuthenticationViewModel authenvm) {
     authenvm.validateAllSignUp(
@@ -125,7 +125,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
           final newUser = Users(
             userId: user.id,
-            uid: generateUid(6),
+            // uid: generateUid(6),
             userName: usernameController.text.trim(),
             email: emailController.text.trim(),
             currentMl: 0,
@@ -139,6 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
             yearBot: 0,
             realName: '',
             sID: '',
+            isAdmin: false,
           );
 
           final result = await _authService.createUser(newUser);
