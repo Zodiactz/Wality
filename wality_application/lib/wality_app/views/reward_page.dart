@@ -24,6 +24,8 @@ class _RewardPageState extends State<RewardPage> {
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
+  Future<int?>? waterAmount;
+
   final UserService userService = UserService();
 
   @override
@@ -31,6 +33,7 @@ class _RewardPageState extends State<RewardPage> {
     super.initState();
     fetchUserCoupons();
     botAmount = userService.fetchUserEventBot(userId!);
+    waterAmount = userService.fetchWaterAmount(userId!);
   }
 
   Future<bool> userBotMoreThanEventBot(int couponBot) async {
@@ -96,20 +99,20 @@ class _RewardPageState extends State<RewardPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight + 50),
         child: Container(
-    decoration: BoxDecoration(
-      color: const Color(0xFF0083AB),
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(20),
-        bottomRight: Radius.circular(20),
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: const Color(0xFF0083AB).withOpacity(1),
-          spreadRadius: 5,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0083AB),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0083AB).withOpacity(1),
+                spreadRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Column(
             children: [
               Padding(
@@ -245,7 +248,7 @@ class _RewardPageState extends State<RewardPage> {
                 child: Column(
                   children: [
                     const Text(
-                      'You saved bottles of this event', // Add any text or action buttons
+                      'You saved bottles of this event',
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'RobotoCondensed',
@@ -255,56 +258,118 @@ class _RewardPageState extends State<RewardPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 0.1),
-                      child: FutureBuilder<int?>(
-                        future: botAmount,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              flutter_async.ConnectionState.waiting) {
-                            return const Text(
-                              'Loading',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return const Text(
-                              'Error',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasData) {
-                            return Text(
-                              '${snapshot.data}',
-                              style: const TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else {
-                            return const Text(
-                              'Bot not Found',
-                              style: TextStyle(
-                                fontSize: 50,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          }
-                        },
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // Center-aligns contents
+                        children: [
+                          FutureBuilder<int?>(
+                            future: botAmount,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  flutter_async.ConnectionState.waiting) {
+                                return const Text(
+                                  'Loading',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                  'Error',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  '${snapshot.data}',
+                                  style: const TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                  'Bot not Found',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          const Text(
+                            '/',
+                            style: TextStyle(
+                              fontSize: 50,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed-Thin',
+                            ),
+                          ),
+                          FutureBuilder<int?>(
+                            future: waterAmount,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  flutter_async.ConnectionState.waiting) {
+                                return const Text(
+                                  'Loading',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                  'Error',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  '${snapshot.data} ml',
+                                  style: const TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                  'Water not Found',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     const Text(
-                      'This event will be end at 1/1/2025', // Add any text or action buttons
+                      'This event will end on 1/1/2025',
                       style: TextStyle(
                         fontSize: 18,
                         fontFamily: 'RobotoCondensed',
