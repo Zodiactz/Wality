@@ -18,17 +18,17 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPassController = TextEditingController();
+  final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmPassFocusNode = FocusNode();
   final RealmService _realmService = RealmService();
   final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPassController = TextEditingController();
   final FocusNode usernameFocusNode = FocusNode();
   final AuthenticationViewModel authvm = AuthenticationViewModel();
-  final FocusNode passwordFocusNode = FocusNode();
-  final FocusNode confirmPassFocusNode = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
   final EmailPasswordAuthProvider authP =
       EmailPasswordAuthProvider(App(AppConfiguration('wality-1-djgtexn')));
@@ -82,164 +82,130 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     }
   }
 
-  //await authProvider.
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       body:
           Consumer<AuthenticationViewModel>(builder: (context, authvm, child) {
-        return Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              child: Container(
-                width: double.maxFinite,
-                height: 180,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0083AB),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Row(
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF0083AB), Color(0xFF003545)],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chevron_left,
-                          size: 32,
-                          color: Colors.black,
-                        ),
+                        IconButton(
+                        icon: const Icon(Icons.chevron_left,
+                          color: Colors.white, size: 32),
                         onPressed: () {
                           GoBack(context);
                         },
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Change Password',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
                         ),
-                      ),
+                        SizedBox(width: 24),
+                     Center(
+                          child: const Text(
+                          'Change Password',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          ),
+                        
+                        ),
                     ],
                   ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 150,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 150,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 15, right: 15),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'New Password',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: passwordController,
-                            hintText: "Password",
-                            obscureText: !authvm.passwordVisible1,
-                            focusNode: passwordFocusNode,
-                            suffixIcon: IconButton(
-                              icon: Icon(authvm.passwordVisible1
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                authvm.togglePasswordVisibility1();
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Please enter the same password to confirm the change',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 360,
-                          height: 50,
-                          child: TextFormFieldAuthen(
-                            controller: confirmPassController,
-                            hintText: "Confirm password",
-                            obscureText: !authvm.passwordVisible2,
-                            focusNode: confirmPassFocusNode,
-                            errorMessage: authvm.confirmEmailError,
-                            suffixIcon: IconButton(
-                              icon: Icon(authvm.passwordVisible2
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              color: Colors.grey,
-                              onPressed: () {
-                                authvm.togglePasswordVisibility2();
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Directly call signUp without validation
-                              changePass();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF342056),
-                              fixedSize: const Size(300, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'Change',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: 'RobotoCondensed',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
+                  const SizedBox(height: 40),
+                  const Text(
+                    'New Password',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'RobotoCondensed',
+                      color: Colors.white,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  TextFormFieldAuthen(
+                    controller: passwordController,
+                    hintText: "Password",
+                    obscureText: !authvm.passwordVisible1,
+                    focusNode: passwordFocusNode,
+                    suffixIcon: IconButton(
+                      icon: Icon(authvm.passwordVisible1
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      color: Colors.grey,
+                      onPressed: () {
+                        authvm.togglePasswordVisibility1();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Confirm New Password',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'RobotoCondensed',
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormFieldAuthen(
+                    controller: confirmPassController,
+                    hintText: "Confirm password",
+                    obscureText: !authvm.passwordVisible2,
+                    focusNode: confirmPassFocusNode,
+                    suffixIcon: IconButton(
+                      icon: Icon(authvm.passwordVisible2
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      color: Colors.grey,
+                      onPressed: () {
+                        authvm.togglePasswordVisibility2();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Call your change password function here
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF342056),
+                        fixedSize: const Size(300, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Change',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'RobotoCondensed',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         );
       }),
     );
   }
 }
+
