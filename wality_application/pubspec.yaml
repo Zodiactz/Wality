@@ -60,6 +60,7 @@ dependencies:
   awesome_snackbar_content: ^0.1.4
   lottie: ^2.7.0
   uni_links: ^0.5.1
+  qr_flutter: ^4.1.0
 
   
 

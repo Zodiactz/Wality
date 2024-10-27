@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:wality_application/wality_app/repo/qrValid_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:realm/realm.dart';
@@ -7,6 +11,7 @@ import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/repo/user_service.dart';
+import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -24,9 +29,27 @@ class _RewardPageState extends State<RewardPage> {
   bool isLoading = true;
   Future<int?>? botAmount;
   int? waterAmount;
+  final qrService = QRValidService();
 
   final UserService userService = UserService();
   final RealmService _realmService = RealmService();
+
+  void useCoupon(String couponId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"couponCheck": couponId}),
+    );
+
+    if (response.statusCode == 200) {
+      // Close the pop-up
+      await fetchUserCoupons(); // Fetch updated coupons
+      GoBack(context);
+    } else {
+      // Handle the error
+      print('Failed to use coupon');
+    }
+  }
 
   @override
   void initState() {
@@ -76,6 +99,27 @@ class _RewardPageState extends State<RewardPage> {
     } else {
       throw Exception('Failed to load rewards');
     }
+  }
+
+  void _showDialogSuccess(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                GoBack(context);
+                // Resume scanning after dialog is dismissed
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -257,8 +301,16 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
-  Widget _buildRewardItem(BuildContext context, String cId, String couponName,
-      String bD, int bReq, String imgCoupon, String fD, String impD) {
+  Widget _buildRewardItem(
+    BuildContext context,
+    String cId,
+    String couponName,
+    String bD,
+    int bReq,
+    String imgCoupon,
+    String fD,
+    String impD,
+  ) {
     bool isUsed = couponCheck.contains(cId);
 
     return GestureDetector(
@@ -266,58 +318,75 @@ class _RewardPageState extends State<RewardPage> {
           ? null
           : _showCouponPopup(
               context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: isUsed
-              ? Colors.white.withOpacity(0.05)
-              : Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(imgCoupon),
-            radius: 25,
-          ),
-          title: Text(
-            couponName,
-            style: TextStyle(
-              color: isUsed ? Colors.white38 : Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'RobotoCondensed',
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: isUsed
+                  ? Colors.white.withOpacity(0.05)
+                  : Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          subtitle: Text(
-            bD,
-            style: TextStyle(
-              color: isUsed ? Colors.white24 : Colors.white70,
-              fontFamily: 'RobotoCondensed',
-            ),
-          ),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$bReq',
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(imgCoupon),
+                radius: 25,
+              ),
+              title: Text(
+                couponName,
                 style: TextStyle(
                   color: isUsed ? Colors.white38 : Colors.white,
-                  fontSize: 24,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'RobotoCondensed',
                 ),
               ),
-              Text(
-                'Bottles',
+              subtitle: Text(
+                bD,
                 style: TextStyle(
                   color: isUsed ? Colors.white24 : Colors.white70,
-                  fontSize: 14,
                   fontFamily: 'RobotoCondensed',
                 ),
               ),
-            ],
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$bReq',
+                    style: TextStyle(
+                      color: isUsed ? Colors.white38 : Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'RobotoCondensed',
+                    ),
+                  ),
+                  Text(
+                    'Bottles',
+                    style: TextStyle(
+                      color: isUsed ? Colors.white24 : Colors.white70,
+                      fontSize: 14,
+                      fontFamily: 'RobotoCondensed',
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (isUsed)
+            const Positioned(
+              left: 150,
+              top: 30,
+              child: Text(
+                'Used',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -412,7 +481,7 @@ class _RewardPageState extends State<RewardPage> {
 
                       // Warning message
                       const Text(
-                        'Show this coupon to the shop before pressing the button!',
+                        'Coupon will generate QR code for scanning',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 18,
@@ -426,14 +495,28 @@ class _RewardPageState extends State<RewardPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (hasEnoughBottles) {
-                                print(
-                                    "///////////cid=$cId//////$hasEnoughBottles");
+                                await qrService.deleteALLQRofThisUser(userId!);
+                                // Await the result of createQR to get the actual qr_id
+                                final qr_id =
+                                    await qrService.createQR(userId!, cId);
+
+                                // Check if qr_id is not null before proceeding
+                                if (qr_id != null) {
+                                  GoBack(context);
+                                  _showCouponPopupQR(
+                                      context, qr_id, couponName);
+                                  print(
+                                      "///////////cid=$cId//////$hasEnoughBottles");
+                                } else {
+                                  // Handle the case where qr_id is null (optional)
+                                  print('Failed to generate QR code.');
+                                }
                               } else {
-                                null;
+                                // Optionally handle the case where there aren't enough bottles
+                                print('Not enough bottles to use the coupon.');
                               }
-                              // Use coupon action
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
@@ -458,6 +541,197 @@ class _RewardPageState extends State<RewardPage> {
         );
       },
     );
+  }
+
+  Future<void> _showCouponPopupQR(
+      BuildContext context, String qr_id, String couponName) async {
+    bool couponIsActive = false; // Track if the coupon is active
+    bool qrCodeExpire = false; // Track if the QR code has expired
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.8,
+                        maxWidth: MediaQuery.of(context).size.width * 0.9,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'QR Code for Scanning',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Display appropriate icon based on coupon status
+                          if (couponIsActive)
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 150.0,
+                            )
+                          else if (qrCodeExpire)
+                            const Icon(
+                              Icons.close_rounded,
+                              color: Color.fromARGB(255, 187, 14, 14),
+                              size: 200.0,
+                            )
+                          else
+                            QrImageView(
+                              data: qr_id,
+                              version: QrVersions.auto,
+                              size: 200.0,
+                            ),
+
+                          const SizedBox(height: 20),
+
+                          // StreamBuilder to monitor coupon status
+                          StreamBuilder<Map<String, dynamic>?>(
+                            stream: _checkCouponStatusStream(qr_id),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  flutter_async.ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError &&
+                                  snapshot.error == 'expired') {
+                                // Handle expired coupon
+                                if (!qrCodeExpire) {
+                                  qrCodeExpire = true; // Mark as expired
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    setState(() {}); // Update UI
+                                  });
+                                }
+                                print('Coupon has expired'); // Debug log
+                                return const Text('QR Code has expired.');
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data == null) {
+                                // Handle used coupon
+                                if (!couponIsActive && !qrCodeExpire) {
+                                  couponIsActive = true; // Mark as used
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    setState(() {}); // Update UI
+                                    _showDialogSuccess('Coupon Used!',
+                                        'Coupon used successfully!');
+                                    GoBack(context); // Close dialog after use
+                                  });
+                                }
+                                print('Coupon used successfully'); // Debug log
+                                return const Text('Coupon used successfully.');
+                              } else {
+                                // Handle valid coupon
+                                print(
+                                    'Coupon is still valid: $couponName'); // Debug log
+                                return Text(
+                                  'Coupon is still valid: $couponName',
+                                  style: const TextStyle(fontSize: 16),
+                                );
+                              }
+                            },
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  GoBack(context);
+                                  await qrService
+                                      .deleteALLQRofThisUser(userId!);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                ),
+                                child: const Text('Exit'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Stream<Map<String, dynamic>?> _checkCouponStatusStream(String qrId) {
+    final controller = StreamController<Map<String, dynamic>?>.broadcast();
+    Timer? timer;
+    bool isCouponUsed = false; // Flag to track coupon usage
+
+    Future<void> checkStatus() async {
+      // Exit immediately if coupon is already used
+      if (isCouponUsed) {
+        print('checkStatus skipped as coupon is already used');
+        return; // Exit immediately
+      }
+
+      try {
+        final couponData = await qrService.fetchRewardsById(qrId);
+        if (couponData == null) {
+          // Coupon has been used
+          isCouponUsed = true; // Set the flag
+          controller.add(null); // Notify that coupon has been used
+          timer?.cancel(); // Cancel timer
+          controller.close(); // Close the stream
+        } else {
+          controller.add(couponData); // Emit valid coupon data
+        }
+      } catch (e) {
+        // Emit error only if coupon is not used yet
+        if (!isCouponUsed) {
+          controller.addError(
+              'error_fetching_data'); // Emit error if coupon is not used yet
+        }
+      }
+    }
+
+    // Start a periodic timer to check status every second for 30 seconds
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      // Immediately stop the timer if the coupon is used
+      if (isCouponUsed) {
+        t.cancel(); // Stop the timer if coupon is used
+        return; // Exit to prevent further checks
+      }
+
+      if (t.tick >= 30) {
+        controller.addError('expired'); // Emit expired error
+        controller.close(); // Close the stream
+        t.cancel(); // Stop the timer
+      } else {
+        checkStatus(); // Check coupon status
+      }
+    });
+
+    // Clean up on stream cancellation
+    controller.onCancel = () {
+      timer?.cancel(); // Ensure timer is canceled if stream is canceled
+    };
+
+    return controller.stream; // Return the stream for subscription
   }
 }
 
