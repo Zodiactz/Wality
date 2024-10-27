@@ -150,135 +150,205 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void _showUserDetails(dynamic user) {
-    final String userId = user['_id'];
-    final String realName = user['realName'];
-    final String sID = user['sID'];
+  final String userId = user['_id'];
+  final String realName = user['realName'];
+  final String sID = user['sID'];
+  final int botLiv = user['botLiv'] ?? 0;
+  final int dayBot = user['dayBot'] ?? 0;
+  final int monthBot = user['monthBot'] ?? 0;
+  final int eventBot = user['eventBot'] ?? 0;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, controller) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
               ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    const SizedBox(height: 20),
-                    Center(
-                      child: CircleAvatar(
-                        radius: 50,
+            ),
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: [
+                  // Pull Bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 20),
+                    width: 48,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  
+                  // Profile Section
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 48,
                         backgroundImage: _getProfileImage(user['profileImg_link']),
                       ),
+                  
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    user['username'] ?? 'Unknown User',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: Text(
-                        user['username'] ?? 'Unknown User',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Personal Information Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'PERSONAL INFORMATION',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            letterSpacing: 1.2,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildInfoRow('User ID', userId),
+                              const SizedBox(height: 12),
+                              _buildInfoRow('Real Name', realName),
+                              const SizedBox(height: 12),
+                              _buildInfoRow('Student ID', sID),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 30),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'ID: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                userId,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Bottle Statistics Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'BOTTLE STATISTICS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            letterSpacing: 1.2,
                           ),
-                          const SizedBox(height: 16),
-                            Row(
-                            children: [
-                              const Text(
-                                'Name: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                realName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        
-                          const SizedBox(height: 16),
-                            Row(
-                            children: [
-                              const Text(
-                                'SID: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              Text(
-                                sID,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.5,
+                          children: [
+                            _buildStatCard('Total Bottles', botLiv, Colors.green),
+                            _buildStatCard('Daily Bottles', dayBot, Colors.blue),
+                            _buildStatCard('Monthly Bottles', monthBot, Colors.purple),
+                            _buildStatCard('Event Bottles', eventBot, Colors.orange),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  // Add bottom padding to ensure content isn't cut off
+                  const SizedBox(height: 24),
+                ],
               ),
-            ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _buildInfoRow(String label, String value) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+      ),
+      Text(
+        value,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildStatCard(String label, int value, MaterialColor color) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: color[50],
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
           ),
-        );
-      },
-    );
-  }
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value.toString(),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color[600],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  
+
   @override
   void dispose() {
     controller?.dispose();
