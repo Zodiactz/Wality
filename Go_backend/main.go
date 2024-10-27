@@ -80,6 +80,10 @@ func main() {
 	app.Post("/updateImage/:user_id", updateImage)
 	app.Delete("/deleteOldImage", deleteImage)
 	app.Delete("/deleteUserByEmail/:email", deleteUsersByEmail)
+	app.Post("/createQRValid", createQRValid)
+	app.Post("/updateQRValidStatus/:qr_id", updateQRValidStatus)
+	app.Delete("/deleteAllQR/:user_id", deleteAllQR)
+	app.Get("/getQRValidByQRId/:qr_id", getQRValidByQRId)
 
 	// New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -227,6 +231,98 @@ func generateRandomString(n int) string {
 	}
 	return hex.EncodeToString(bytes)
 }
+
+// Create QRvalid check
+func createQRValid(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("QRValidCheck")
+	var person bson.M
+	if err := c.BodyParser(&person); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	_, err := collection.InsertOne(context.Background(), person)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "QR created successfully!"})
+}
+
+// Update QRValidStatus
+func updateQRValidStatus(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("QRValidCheck")
+	qr_id := c.Params("qr_id")
+
+	// Define a struct for the update payload
+	var updatePayload struct {
+		QrStatus string `json:"qrStatus"`
+	}
+
+	// Parse the request body into the struct
+	if err := c.BodyParser(&updatePayload); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	fmt.Printf("Updating qr with ID: %s\n", qr_id)
+	fmt.Printf("Update payload: %+v\n", updatePayload)
+
+	// Define the filter and update
+	filter := bson.M{"qr_id": qr_id}
+	update := bson.M{
+		"$set": bson.M{
+			"qrStatus": updatePayload.QrStatus, // Match the struct field name
+		},
+	}
+
+	// Perform the update operation
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// Check if a document was matched and updated
+	if result.MatchedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "QR not found!"})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "QR updated successfully!"})
+}
+
+// deleteAllofThatUserQRValid
+func deleteAllQR(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("QRValidCheck")
+
+	// Get the username from the URL parameter
+	user_id := c.Params("user_id")
+
+	// Define the filter to match users with the specified username
+	filter := bson.M{"user_id": user_id}
+
+	result, err := collection.DeleteMany(context.Background(), filter)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if result.DeletedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "No QR with user_id '" + user_id + "' found to delete!"})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "All QR with user_id '" + user_id + "' deleted successfully!"})
+}
+
+//Get QR by user_id
+func getQRValidByQRId(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("QRValidCheck")
+	qr_id := c.Params("qr_id")
+
+	var result bson.M
+	err := collection.FindOne(context.Background(), bson.M{"qr_id": qr_id}).Decode(&result)
+	if err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "QR not found!"})
+	}
+	return c.Status(http.StatusOK).JSON(result)
+}
+
+
+
 
 // Create a new person
 func createPerson(c *fiber.Ctx) error {

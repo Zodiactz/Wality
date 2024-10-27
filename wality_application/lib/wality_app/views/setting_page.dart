@@ -5,7 +5,9 @@ import 'package:wality_application/main.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
+import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
+import 'package:wality_application/wality_app/views_models/setting_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 
 class SettingPage extends StatelessWidget {
@@ -48,6 +50,116 @@ class SettingPage extends StatelessWidget {
       (Route<dynamic> route) => false, // Remove all previous routes
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController confirmPassController = TextEditingController();
+    final FocusNode passwordFocusNode = FocusNode();
+    final FocusNode confirmPassFocusNode = FocusNode();
+
+    return Scaffold(
+        body: Consumer<SettingViewModel>(builder: (context, settingvm, child) {
+      return Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0083AB), Color(0xFF003545)],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          icon: const Icon(Icons.chevron_left,
+                              color: Colors.white, size: 32),
+                          onPressed: () {
+                            GoBack(context);
+                          },
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Setting',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 15, top: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20, left: 8),
+                      child: Column(
+                        children: [
+                          // profilevm.buildProfileOption(
+                          //   context,
+                          //   icon: Icons.email_rounded,
+                          //   title: 'Change email',
+                          //   onTap: () => openChangeMail(context),
+                          // ),
+                          // const SizedBox(
+                          //   height: 12,
+                          // ),
+                          // profilevm.buildDivider(),
+                          // const SizedBox(
+                          //   height: 12,
+                          // ),
+                          settingvm.buildSettingOption(
+                            context,
+                            icon: Icons.lock,
+                            title: 'Change password',
+                            onTap: () => openChangePass(context),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          settingvm.buildDivider(),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          settingvm.buildSettingOption(
+                            context,
+                            icon: Icons.logout,
+                            title: 'Log out',
+                            onTap: () => logoutFromApp(context),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }));
+  }
+}
+
+
+
+/*
 
   @override
   Widget build(BuildContext context) {
@@ -156,3 +268,4 @@ class SettingPage extends StatelessWidget {
     });
   }
 }
+*/

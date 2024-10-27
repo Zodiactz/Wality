@@ -1,10 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:wality_application/wality_app/repo/qrValid_service.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:wality_application/wality_app/views/reward_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -25,6 +30,8 @@ class _AdminPageState extends State<AdminPage> {
   bool _isScanning = false;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
+  final qrService = QRValidService();
+  String? usernameFuture;
 
 
   @override
@@ -100,10 +107,20 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-  void _startQRScanner() {
-    setState(() {
-      _isScanning = true;
-    });
+  void _showDialogWithAutoDismiss(String title, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: const <Widget>[
+            // No action buttons to ensure the dialog cannot be dismissed
+          ],
+        );
+      },
+    );
   }
 
   void _showDialog(String title, String message) {
@@ -117,7 +134,8 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.pop(context);
+                GoBack(context);
+                // Resume scanning after dialog is dismissed
                 controller?.resumeCamera();
               },
             ),
@@ -127,25 +145,122 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  void _showDialogAndGoToAdmin(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                GoBack(context);
+                // Resume scanning after dialog is dismissed
+                openAdminPage(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDialogContinue(String title, String message, int sentCurrentWaterGo,
+      int sentCurrentBottleGo, int sentWaterAmountGo) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                GoBack(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _startQRScanner() {
+    setState(() {
+      _isScanning = true;
+    });
+  }
+
+  void useCoupon(String couponId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"couponCheck": couponId}),
+    );
+
+    if (response.statusCode == 200) {
+      // Close the pop-up
+      GoBack(context);
+    } else {
+      // Handle the error
+      print('Failed to use coupon');
+    }
+  }
+
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) async {
+      // Pause scanning while processing
       controller.pauseCamera();
 
-      if (scanData.code != null) {
-        try {
-          final waterAmount = await _waterService.fetchWaterId(scanData.code!);
-          if (waterAmount != null) {
-            _showDialog('Success', 'Water ID found: $waterAmount ml');
+      // Show dialog indicating scanning
+      _showDialogWithAutoDismiss(
+          'Scanning', 'Please wait while we process the QR code...');
+
+      // Ensure the dialog is shown before proceeding
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Introduce a delay of 2 seconds
+        await Future.delayed(const Duration(seconds: 2));
+
+        // Close the dialog after the delay
+        GoBack(context);
+
+        // Get the QR code value
+        String? qr_id = scanData.code;
+
+        // Fetch user ID and coupon data based on the QR code
+        final user_id = await qrService.fetchQRValidUserId(qr_id ?? '');
+        if (user_id != null) {
+          // Fetch coupon details using the fetched user ID
+          final couponData = await qrService.fetchRewardsById(qr_id ?? '');
+          usernameFuture = await _userService.fetchUsername(user_id);
+
+          // Check if coupon data is available
+          if (couponData!.isNotEmpty) {
+            // Extract coupon details
+            String couponName = couponData['coupon_name'];
+            String bD = couponData['b_desc'];
+            int bReq = couponData['bot_req'];
+            String imgCoupon = couponData['img_couponLink'];
+            String fD = couponData['f_desc'];
+            String impD = couponData['imp_desc'];
+            String cId = couponData['coupon_id'];
+
+            // Show the coupon popup with the retrieved data
+            _showCouponPopup(context, couponName, bD, bReq, imgCoupon, fD, impD,
+                cId, usernameFuture ?? '', user_id);
           } else {
-            _showDialog('Error', 'Invalid QR code or water not found');
+            _showDialog(
+                'Unavailable', 'No coupon details found for this QR code.');
           }
-        } catch (e) {
-          _showDialog('Error', 'Failed to process QR code: $e');
+        } else {
+          _showDialog('Unavailable',
+              'This QR code is unavailable. Please try another.');
         }
-      } else {
-        _showDialog('Error', 'Failed to read QR code');
-      }
+      });
     });
   }
 
@@ -516,6 +631,142 @@ Widget _buildStatCard(String label, int value, MaterialColor color) {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showCouponPopup(
+      BuildContext context,
+      String couponName,
+      String bD,
+      int bReq,
+      String imgCoupon,
+      String fD,
+      String impD,
+      String cId,
+      String userName,
+      String user_id) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                    maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Image and coupon details
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(imgCoupon),
+                            radius: 37,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  couponName,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  bD,
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                '$bReq',
+                                style: const TextStyle(
+                                    fontSize: 48, fontWeight: FontWeight.bold),
+                              ),
+                              const Text('Bottles',
+                                  style: TextStyle(fontSize: 16)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Divider(thickness: 1, color: Colors.grey),
+                      const SizedBox(height: 5),
+
+                      // Coupon description
+                      Text(
+                        fD,
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        impD,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Warning message
+                      Text(
+                        'This Coupon is going to be used by \n $userName',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              useCoupon(cId, user_id);
+                              await qrService
+                                  .deleteALLQRofThisUser(user_id);
+                              GoBack(context);
+                              _showDialogAndGoToAdmin(
+                                  'Success!', 'This coupon is activated');
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue),
+                            child: const Text('Authorize coupon'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              GoBack(context);
+                            },
+                            child: const Text('Exit'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

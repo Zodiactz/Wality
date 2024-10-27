@@ -110,3 +110,7 @@ void OpenChangePictureAndUsernamePage(BuildContext context) async {
 void OpenAdminPage(BuildContext context) async {
   Navigator.pushNamed(context, '/adminpage');
 }
+
+void OpenResetPasswordPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/resetpass');
+}
