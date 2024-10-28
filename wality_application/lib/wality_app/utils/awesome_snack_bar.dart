@@ -12,7 +12,7 @@ void showAwesomeSnackBar(
       message: message,
       contentType: type,
     ),
-    duration: const Duration(seconds: 3), // Set the duration to 3 seconds
+    duration: const Duration(seconds: 2), // Set the duration to 3 seconds
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }

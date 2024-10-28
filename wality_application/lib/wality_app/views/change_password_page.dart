@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:realm/realm.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -56,12 +58,48 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  void changePass() async {
+  Future<void> _handlePasswordUpdate(AuthenticationViewModel authvm) async {
+    authvm.clearErrors();
     EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
     final currentUser = app.currentUser;
     final Pass = passwordController.text.trim();
     final cPass = confirmPassController.text.trim();
     final userEmail = currentUser!.profile.email ?? '';
+
+    final PassError = authvm.validatePassword(Pass);
+    final cPassError = authvm.validateConfirmPass(cPass , Pass);
+    if (PassError != null) {
+      authvm.setPasswordError(PassError);
+      showAwesomeSnackBar(
+        context,
+        "Error",
+        PassError,
+        ContentType.failure,
+      );
+      return;
+    }
+    if (cPassError != null) {
+      authvm.setConfirmPasswordError(cPass);
+      showAwesomeSnackBar(
+        context,
+        "Error",
+        cPassError,
+        ContentType.failure,
+      );
+      return;
+    }
+    if (PassError != null && cPassError != null) {
+      final combinedError = '$PassError\n$cPassError';
+      showAwesomeSnackBar(
+      context,
+      "Error",
+      combinedError,
+      ContentType.failure,
+      );
+      return;
+    }
+
+    
     if (Pass.isNotEmpty && cPass.isNotEmpty) {
       if (Pass == cPass) {
         final credentials = Credentials.emailPassword(
@@ -78,26 +116,36 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             _showDialog("Mail sent!",
                 "Please check your email for changing password request");
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Change Password Fail: $e')),
+            showAwesomeSnackBar(
+              context,
+              'Error',
+              'Change Password Fail: $e',
+              ContentType.failure,
             );
           }
         } catch (e) {
           print('Password verification failed: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Incorrect password')),
+          showAwesomeSnackBar(
+            context,
+            'Error',
+            'Incorrect password',
+            ContentType.failure,
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Password and confirm Password must be the same')),
+        showAwesomeSnackBar(
+          context,
+          'Error',
+          'Password and confirm Password must be the same',
+          ContentType.failure,
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password and confirm Password can not be empty')),
+      showAwesomeSnackBar(
+        context,
+        'Error',
+        'Please fill in all fields',
+        ContentType.failure,
       );
     }
   }
@@ -151,7 +199,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: const Text(
-                    'New Password',
+                    'Please enter your current password',
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'RobotoCondensed',
@@ -176,13 +224,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         authvm.togglePasswordVisibility1();
                       },
                     ),
+                    borderColor:
+                        authvm.passwordError != null ? Colors.red : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: const Text(
-                    'Confirm Password',
+                    'Please confirm your password',
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'RobotoCondensed',
@@ -207,13 +257,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         authvm.togglePasswordVisibility2();
                       },
                     ),
+                    borderColor: (authvm.passwordError != null || authvm.confirmPassErrs != null) 
+                        ? Colors.red
+                        : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 40),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      changePass();
+                      _handlePasswordUpdate(authvm);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF342056),

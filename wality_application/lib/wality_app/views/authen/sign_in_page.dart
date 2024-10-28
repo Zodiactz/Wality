@@ -53,7 +53,7 @@ class _SignInPageState extends State<SignInPage> {
       showAwesomeSnackBar(
         context,
         "Sign-in Failed",
-        "Invalid email or password. Please try again.",
+        "Invalid email or password.",
         ContentType.failure,
       );
     }
@@ -66,7 +66,7 @@ class _SignInPageState extends State<SignInPage> {
 
     final email = emailController.text.trim();
     final pass = passwordController.text.trim();
-    
+
     try {
       final emailPwCredentials = Credentials.emailPassword(email, pass);
       await app.logIn(emailPwCredentials);
@@ -169,7 +169,7 @@ class _SignInPageState extends State<SignInPage> {
                                       Icons.chevron_left,
                                       size: 32,
                                     ),
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     onPressed: () {
                                       openChoosewayPage(context);
                                     },
@@ -193,11 +193,13 @@ class _SignInPageState extends State<SignInPage> {
                                     hintText: "Email",
                                     obscureText: false,
                                     focusNode: emailFocusNode,
-                                    errorMessage: authenvm.emailError,
-                                    onfieldSubmitted: (value) {
+                                    onFieldSubmitted: (value) {
                                       FocusScope.of(context)
                                           .requestFocus(passwordFocusNode);
                                     },
+                                    borderColor: authenvm.emailError != null
+                                        ? Colors.red
+                                        : Colors.grey,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -218,7 +220,9 @@ class _SignInPageState extends State<SignInPage> {
                                         authenvm.togglePasswordVisibility1();
                                       },
                                     ),
-                                    errorMessage: authenvm.passwordError,
+                                    borderColor: authenvm.passwordError != null
+                                        ? Colors.red
+                                        : Colors.grey,
                                   ),
                                 ),
                                 const SizedBox(height: 28),

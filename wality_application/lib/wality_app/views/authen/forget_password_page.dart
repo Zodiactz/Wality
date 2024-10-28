@@ -24,10 +24,11 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
     String? emailError;
     String? confirmEmailError;
 
-     void showErrorSnackBar(AuthenticationViewModel authenvm) {
+    void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllForgetPassword(
         emailController.text,
-        confirmEmailController.text,);
+        confirmEmailController.text,
+      );
 
       if (authenvm.allError != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +128,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                   Icons.chevron_left,
                                   size: 32,
                                 ),
-                                color: Colors.black,
+                                color: Colors.white,
                                 onPressed: () {
                                   GoBack(context);
                                 },
@@ -155,7 +156,13 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                       hintText: "Email",
                                       obscureText: false,
                                       focusNode: emailFocusNode,
-                                      errorMessage:emailError,
+                                      onFieldSubmitted: (value) {
+                                        FocusScope.of(context).requestFocus(
+                                            confirmEmailFocusNode);
+                                      },
+                                      borderColor: authenvm.emailError != null
+                                          ? Colors.red
+                                          : Colors.grey,
                                     ),
                                   ),
                                   const SizedBox(height: 20),
@@ -167,7 +174,11 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                       hintText: "Confirm Email",
                                       obscureText: false,
                                       focusNode: confirmEmailFocusNode,
-                                      errorMessage: confirmEmailError,
+                                      onFieldSubmitted: (value) {},
+                                      borderColor:
+                                          authenvm.confirmEmailError != null
+                                              ? Colors.red
+                                              : Colors.grey,
                                     ),
                                   ),
                                 ],

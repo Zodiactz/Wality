@@ -73,37 +73,10 @@ class SettingPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          icon: const Icon(Icons.chevron_left,
-                              color: Colors.white, size: 32),
-                          onPressed: () {
-                            GoBack(context);
-                          },
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Setting',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildAppBar(context),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.only(left: 15, top: 20),
+                    padding: const EdgeInsets.only(left: 15, top: 4),
                     child: Padding(
                       padding: const EdgeInsets.only(top: 20, left: 8),
                       child: Column(
@@ -157,7 +130,36 @@ class SettingPage extends StatelessWidget {
   }
 }
 
-
+Widget _buildAppBar(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Row(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Colors.white,
+            size: 32,
+          ),
+          onPressed: () => GoBack(context),
+        ),
+        const Expanded(
+          child: Text(
+            'Setting',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'RobotoCondensed',
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(width: 40),
+      ],
+    ),
+  );
+}
 
 /*
 

@@ -543,8 +543,9 @@ Widget _buildStatCard(String label, int value, MaterialColor color) {
                   children: [
                     IconButton(
                       icon: const Icon(
-                        Icons.arrow_back,
+                        Icons.chevron_left,
                         color: Colors.white,
+                        size: 32,
                       ),
                       onPressed: () => GoBack(context),
                     ),
@@ -553,9 +554,11 @@ Widget _buildStatCard(String label, int value, MaterialColor color) {
                         child: Text(
                           'Admin',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
                         ),
                       ),
                     ),

@@ -147,7 +147,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               onPressed: () {
                                 authvm.togglePasswordVisibility1();
                               },
-                            ),
+                            ), 
                           ),
                         ),
                         const SizedBox(height: 40),
@@ -168,7 +168,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             hintText: "Confirm password",
                             obscureText: !authvm.passwordVisible2,
                             focusNode: confirmPassFocusNode,
-                            errorMessage: authvm.confirmEmailError,
                             suffixIcon: IconButton(
                               icon: Icon(authvm.passwordVisible2
                                   ? Icons.visibility
@@ -177,7 +176,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               onPressed: () {
                                 authvm.togglePasswordVisibility2();
                               },
-                            ),
+                            ), 
                           ),
                         ),
                         const SizedBox(height: 40),

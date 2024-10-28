@@ -71,9 +71,11 @@ class _RankingPageState extends State<RankingPage> {
           DateTime userLastActive = DateTime.parse(user['last_active']);
           DateTime today = DateTime.now();
           DateTime todayStart = DateTime(today.year, today.month, today.day);
-          DateTime todayEnd = DateTime(today.year, today.month, today.day, 23, 59, 59);
+          DateTime todayEnd =
+              DateTime(today.year, today.month, today.day, 23, 59, 59);
 
-          return userLastActive.isAfter(todayStart) && userLastActive.isBefore(todayEnd);
+          return userLastActive.isAfter(todayStart) &&
+              userLastActive.isBefore(todayEnd);
         }).toList();
       } else if (_selectedFilter == 'This Month') {
         DateTime now = DateTime.now();
@@ -82,19 +84,20 @@ class _RankingPageState extends State<RankingPage> {
 
         filteredUsers = users.where((user) {
           if (user['last_active'] == null) return false;
-          
+
           DateTime userLastActive;
           try {
             userLastActive = DateTime.parse(user['last_active']);
           } catch (e) {
-            print("Error parsing last_active for user: ${user['username']} - $e");
+            print(
+                "Error parsing last_active for user: ${user['username']} - $e");
             return false;
           }
 
           // Check if the user was active between the start and end of the current month
-          return userLastActive.isAfter(monthStart) && 
-                 userLastActive.isBefore(monthEnd) &&
-                 user['botLiv'] > 0; // Only include users with bottles
+          return userLastActive.isAfter(monthStart) &&
+              userLastActive.isBefore(monthEnd) &&
+              user['botLiv'] > 0; // Only include users with bottles
         }).toList();
       } else if (_selectedFilter == 'This Year') {
         DateTime now = DateTime.now();
@@ -120,7 +123,6 @@ class _RankingPageState extends State<RankingPage> {
       });
     }
   }
-
 
   @override
   void didChangeDependencies() {
@@ -210,13 +212,22 @@ class _RankingPageState extends State<RankingPage> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.chevron_left,
+              color: Colors.white,
+              size: 32,
+            ),
             onPressed: () => GoBack(context),
           ),
           const Expanded(
             child: Text(
               'Ranking',
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'RobotoCondensed',
+              ),
               textAlign: TextAlign.center,
             ),
           ),

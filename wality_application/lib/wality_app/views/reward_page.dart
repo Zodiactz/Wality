@@ -136,62 +136,7 @@ class _RewardPageState extends State<RewardPage> {
           child: SafeArea(
               child: Column(
             children: [
-              // Header with back button and title
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                      onPressed: () => GoBack(context),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Rewards',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-              ),
-
-              // Dropdown styled like the ranking page
-              /*Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const ListTile(
-                    title: Text(
-                      'Available Rewards',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontFamily: 'RobotoCondensed',
-                      ),
-                    ),
-                    trailing: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),*/
+              _buildAppBar(context),
 
               // Rewards list with ranking page styling
               Expanded(
@@ -751,6 +696,37 @@ class _RewardPageState extends State<RewardPage> {
 
     return controller.stream; // Return the stream for subscription
   }
+}
+
+Widget _buildAppBar(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Row(
+      children: [
+        IconButton(
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Colors.white,
+            size: 32,
+          ),
+          onPressed: () => GoBack(context),
+        ),
+        const Expanded(
+          child: Text(
+            'Reward',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'RobotoCondensed',
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(width: 40),
+      ],
+    ),
+  );
 }
 
 

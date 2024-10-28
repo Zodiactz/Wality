@@ -261,7 +261,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     Icons.chevron_left,
                                     size: 32,
                                   ),
-                                  color: Colors.black,
+                                  color: Colors.white,
                                   onPressed: () {
                                     openChoosewayPage(context);
                                   },
@@ -285,11 +285,11 @@ class _SignUpPageState extends State<SignUpPage> {
                                   hintText: "Username",
                                   obscureText: false,
                                   focusNode: usernameFocusNode,
-                                  errorMessage: authenvm.usernameError,
-                                  onfieldSubmitted: (value) {
+                                  onFieldSubmitted: (value) {
                                     FocusScope.of(context)
                                         .requestFocus(emailFocusNode);
                                   },
+                                  borderColor: authenvm.usernameError != null ? Colors.red : Colors.grey, 
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -301,11 +301,11 @@ class _SignUpPageState extends State<SignUpPage> {
                                   hintText: "Email",
                                   obscureText: false,
                                   focusNode: emailFocusNode,
-                                  errorMessage: authenvm.emailError,
-                                  onfieldSubmitted: (value) {
+                                  onFieldSubmitted: (value) {
                                     FocusScope.of(context)
                                         .requestFocus(passwordFocusNode);
                                   },
+                                  borderColor: authenvm.emailError != null ? Colors.red : Colors.grey, 
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -326,11 +326,11 @@ class _SignUpPageState extends State<SignUpPage> {
                                       authenvm.togglePasswordVisibility1();
                                     },
                                   ),
-                                  errorMessage: authenvm.passwordError,
-                                  onfieldSubmitted: (value) {
+                                  onFieldSubmitted: (value) {
                                     FocusScope.of(context)
                                         .requestFocus(confirmPassFocusNote);
                                   },
+                                  borderColor: authenvm.passwordError != null ? Colors.red : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -351,7 +351,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       authenvm.togglePasswordVisibility2();
                                     },
                                   ),
-                                  errorMessage: authenvm.confirmPassErrs,
+                                  borderColor: authenvm.confirmPassErrs != null ? Colors.red : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 28),

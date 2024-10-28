@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import '../awesome_snack_bar.dart'; // Assuming the Snackbar utility is in this path
 
 class PopOverChangePicture extends StatelessWidget {
   final Function(String) onImageUploaded; // Callback for image upload URL
@@ -18,11 +20,14 @@ class PopOverChangePicture extends StatelessWidget {
       final File imageFile = File(image.path);
       onImageUploaded(imageFile.path); // Return the image file path to the parent
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No image selected')),
+      showAwesomeSnackBar(
+        context,
+        "No image",
+       'No image selected',
+        ContentType.warning,
       );
     }
-   GoBack(context);
+    GoBack(context);
   }
 
   @override

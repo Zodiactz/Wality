@@ -27,8 +27,25 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setUsernameError(String? error) {
+    usernameError = error;
+    notifyListeners();
+  }
+
   String? validateUsername(String? value) {
-    return (value == null || value.isEmpty) ? 'Username is required' : null;
+    if (value == null || value.isEmpty) {
+      return 'Username is required';
+    }
+    if (value.length < 3) {
+      return 'Username must be at least 3 characters long';
+    }
+    if (value.length > 30) {
+      return 'Username must be less than 30 characters';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
+      return 'Username can only contain letters, numbers, and underscores';
+    }
+    return null;
   }
 
   String? validateEmail(String? value) {
@@ -50,6 +67,16 @@ class AuthenticationViewModel extends ChangeNotifier {
     return null;
   }
 
+   void setPasswordError(String? error) {
+    passwordError = error;
+    notifyListeners();
+  }
+
+  void setConfirmPasswordError(String? error) {
+    confirmPassErrs = error;
+    notifyListeners();
+  }
+
   String? validatePassword(String? value) {
     return (value == null || value.isEmpty)
         ? 'Password is required'
@@ -59,21 +86,19 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
-  bool isPasswordValidate(String? value) {
-  return value != null &&
-      value.isNotEmpty &&
-      RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-          .hasMatch(value);
-}
-
-  String? validateConfirmPass(String? value, String? value2) {
-    if (value2 == null || value2.isEmpty) {
-      return 'Confirm passoword is required';
-    } else if (value2 != value) {
-      return 'Passwords does not match';
+   String? validateConfirmPass(String? password, String? confirmPassword) {
+    if (confirmPassword == null || confirmPassword.isEmpty) {
+      return 'Confirm password is required';
     }
+    
+    if (confirmPassword != password) {
+      return 'Passwords do not match';
+    }
+    
     return null;
   }
+
+  
 
   Future<bool> validateAllSignUp(String usernameVal, String emailVal,
       String passwordVal, String confirmPassEr) async {
@@ -82,7 +107,10 @@ class AuthenticationViewModel extends ChangeNotifier {
     passwordError = validatePassword(passwordVal);
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
-    if (usernameVal.isEmpty || emailVal.isEmpty || passwordVal.isEmpty) {
+    if (usernameVal.isEmpty ||
+        emailVal.isEmpty ||
+        passwordVal.isEmpty ||
+        confirmPassEr.isEmpty) {
       allError = 'Please enter all fields';
     } else if (passwordVal != confirmPassEr) {
       allError = "Passwords aren't match";
@@ -152,13 +180,21 @@ class AuthenticationViewModel extends ChangeNotifier {
       allError = null;
     }
 
-    _showValidationMessage = 
-        passwordError != null ||
-        confirmPassErrs != null ||
-        allError != null;
+    _showValidationMessage =
+        passwordError != null || confirmPassErrs != null || allError != null;
 
     notifyListeners();
 
     return !_showValidationMessage;
+  }
+   void clearErrors() {
+    usernameError = null;
+    emailError = null;
+    passwordError = null;
+    confirmEmailError = null;
+    confirmPassErrs = null;
+    allError = null;
+    _showValidationMessage = false;
+    notifyListeners();
   }
 }
