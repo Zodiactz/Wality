@@ -10,7 +10,7 @@ import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_acti
 
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
-import 'package:realm/realm.dart';
+import 'package:realm/realm.dart' as realm;
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 
 class ProfilePage extends StatefulWidget {
@@ -127,151 +127,175 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(width: 28),
                         Padding(
-                          padding: const EdgeInsets.only(top: 56),
+                          padding: const EdgeInsets.only(top: 64),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              FutureBuilder<String?>(
-                                future: usernameFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      flutter_async.ConnectionState.waiting) {
-                                    return const Text(
-                                      'Loading...',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return const Text(
-                                      'Error',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasData) {
-                                    return Text(
-                                      '${snapshot.data}',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else {
-                                    return const Text(
-                                      'Username not found',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  }
-                                },
+                              Flexible(
+                                child: FutureBuilder<String?>(
+                                  future: usernameFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        flutter_async.ConnectionState.waiting) {
+                                      return const Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Text(
+                                        'Error',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasData) {
+                                      return Text(
+                                        '${snapshot.data}',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else {
+                                      return const Text(
+                                        'Username not found',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
                               ),
-                              FutureBuilder<String?>(
-                                future: sIDFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      flutter_async.ConnectionState.waiting) {
-                                    return const Text(
-                                      'Loading...',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return const Text(
-                                      'Error',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasData) {
-                                    return Text(
-                                      'ID: ${snapshot.data}',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else {
-                                    return const Text(
-                                      'ID not found',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  }
-                                },
+                              Flexible(
+                                child: FutureBuilder<String?>(
+                                  future: sIDFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        flutter_async.ConnectionState.waiting) {
+                                      return const Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Text(
+                                        'Error',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasData) {
+                                      return Text(
+                                        'ID: ${snapshot.data}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else {
+                                      return const Text(
+                                        'ID not found',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
                               ),
-                              FutureBuilder<String?>(
-                                future: realNameFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      flutter_async.ConnectionState.waiting) {
-                                    return const Text(
-                                      'Loading...',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return const Text(
-                                      'Error',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else if (snapshot.hasData) {
-                                    return Text(
-                                      'Name: ${snapshot.data}',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  } else {
-                                    return const Text(
-                                      'Name not found',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed-Thin',
-                                      ),
-                                    );
-                                  }
-                                },
-                              ), /*
+                              Flexible(
+                                child: FutureBuilder<String?>(
+                                  future: realNameFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        flutter_async.ConnectionState.waiting) {
+                                      return const Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return const Text(
+                                        'Error',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    } else if (snapshot.hasData) {
+                                      String trimmedText = snapshot.data !=
+                                                  null &&
+                                              snapshot.data!.length > 50
+                                          ? snapshot.data!.substring(0, 47) +
+                                              '...'
+                                          : snapshot.data ?? '';
+
+                                      return SizedBox(
+                                        width:
+                                            200, // Adjust width to control wrapping
+                                        child: Text(
+                                          trimmedText,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'RobotoCondensed-Thin',
+                                          ),
+                                          softWrap: true,
+                                          maxLines:
+                                              2, // Restricts text to two lines
+                                          overflow: TextOverflow
+                                              .ellipsis, // Adds "..." if text is too long
+                                        ),
+                                      );
+                                    } else {
+                                      return const Text(
+                                        'Name not found',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'RobotoCondensed-Thin',
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+
+                              /*
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF342056),

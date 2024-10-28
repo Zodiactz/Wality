@@ -84,6 +84,7 @@ func main() {
 	app.Post("/updateQRValidStatus/:qr_id", updateQRValidStatus)
 	app.Delete("/deleteAllQR/:user_id", deleteAllQR)
 	app.Get("/getQRValidByQRId/:qr_id", getQRValidByQRId)
+	app.Get("/getRewardByCouponId/:coupon_id", getRewardByCouponId)
 
 	// New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -317,6 +318,19 @@ func getQRValidByQRId(c *fiber.Ctx) error {
 	err := collection.FindOne(context.Background(), bson.M{"qr_id": qr_id}).Decode(&result)
 	if err != nil {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "QR not found!"})
+	}
+	return c.Status(http.StatusOK).JSON(result)
+}
+
+//Get Reward by coupon_id
+func getRewardByCouponId(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("Reward")
+	coupon_id := c.Params("coupon_id")
+
+	var result bson.M
+	err := collection.FindOne(context.Background(), bson.M{"coupon_id": coupon_id}).Decode(&result)
+	if err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "Coupon not found!"})
 	}
 	return c.Status(http.StatusOK).JSON(result)
 }
