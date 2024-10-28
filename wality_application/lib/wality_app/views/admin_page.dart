@@ -10,6 +10,7 @@ import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:wality_application/wality_app/views/reward_page.dart';
+import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -52,6 +53,8 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _loadUsers() async {
+    final couponTest = await userService.fetchCouponCheck(currentUserId!);
+    print('this is coupon $couponTest');
     if (currentUserId == null) {
       LogOutToOutsite(context);
       return;
@@ -429,7 +432,7 @@ class _AdminPageState extends State<AdminPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: const Text(
-                      'COUPONS',
+                      'USED COUPONS',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -439,23 +442,123 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
                   // Coupons Content
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.amber[50],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Text(
-                        'Coupon list will be added here',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
+                    child: FutureBuilder<List<String>?>(
+                      future: _userService.fetchCouponCheck(userId),
+                      builder: (context, couponCheckSnapshot) {
+                        if (couponCheckSnapshot.connectionState == ConnectionState.waiting) {
+                      
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        
+                        if (couponCheckSnapshot.hasError || !couponCheckSnapshot.hasData) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.amber[50],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child:  Text(
+                              'No used coupons found $userId',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        }
+
+                        List<String> usedCoupons = couponCheckSnapshot.data!;
+                        if (usedCoupons.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.amber[50],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              'No coupons used yet',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: usedCoupons.length,
+                          itemBuilder: (context, index) {
+                            return FutureBuilder<Map<String, dynamic>?>(
+                              future: _userService.fetchRewardsByCouponId(usedCoupons[index]),
+                              builder: (context, couponSnapshot) {
+                                if (couponSnapshot.connectionState == ConnectionState.waiting) {
+                                  return const ListTile(
+                                    leading: CircularProgressIndicator(),
+                                    title: Text('Loading coupon details...'),
+                                  );
+                                }
+
+                                if (couponSnapshot.hasError || !couponSnapshot.hasData) {
+                                  return ListTile(
+                                    title: Text('Failed to load coupon ${usedCoupons[index]}'),
+                                    subtitle: const Text('Error loading details'),
+                                  );
+                                }
+
+                                final couponData = couponSnapshot.data!;
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.amber[100]!),
+                                  ),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: NetworkImage(couponData['img_couponLink'] ?? ''),
+                                      backgroundColor: Colors.grey[200],
+                                    ),
+                                    title: Text(
+                                      couponData['coupon_name'] ?? 'Unknown Coupon',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      couponData['b_desc'] ?? 'No description available',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    trailing: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        'Used',
+                                        style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -468,6 +571,7 @@ class _AdminPageState extends State<AdminPage> {
     },
   );
 }
+
 
 Widget _buildInfoRow(String label, String value) {
   return Row(

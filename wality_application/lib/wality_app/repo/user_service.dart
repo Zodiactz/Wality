@@ -72,18 +72,50 @@ class UserService {
     }
   }
 
-  Future<List<String>?> fetchCouponCheck(String userId) async {
-  final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+  Future<List<String>> fetchCouponCheck(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/getCoupons/$userId'),
+        headers: {"Content-Type": "application/json"},
+      );
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    List<String> couponCheck = List<String>.from(data['couponCheck']);
-    return couponCheck;
-  } else {
-    print('Failed to fetch coupons');
-    return null;
+      // Debug information
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      print('this is userId $userId');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        
+        // Check if couponCheck exists and is not null
+        if (data.containsKey('couponCheck')) {
+          // Handle both array and null cases
+          final couponCheck = data['couponCheck'];
+          if (couponCheck == null) {
+            return [];
+          }
+          
+          // Convert all items to String
+          if (couponCheck is List) {
+            return couponCheck.map((item) => item.toString()).toList();
+          }
+        }
+        
+        // Return empty list if no valid couponCheck data
+        return [];
+      } else if (response.statusCode == 404) {
+        // Handle case where user has no coupons
+        print('No coupons found for user: $userId');
+        return [];
+      } else {
+        print('Failed to fetch coupons: Status code ${response.statusCode}');
+        throw Exception('Failed to fetch coupons');
+      }
+    } catch (e) {
+      print('Error fetching coupons: $e');
+      throw Exception('Error fetching coupons: $e');
+    }
   }
-}
 
 
 
@@ -97,7 +129,7 @@ class UserService {
     }
   }
 
-      Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
+    Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
     final response =
         await http.get(Uri.parse('$baseUrl/getRewardByCouponId/$coupon_id'));
 
