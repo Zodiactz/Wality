@@ -271,6 +271,7 @@ class _AdminPageState extends State<AdminPage> {
   final int botLiv = user['botLiv'] ?? 0;
   final int dayBot = user['dayBot'] ?? 0;
   final int monthBot = user['monthBot'] ?? 0;
+  final int yearBot = user['yearBot'] ?? 0;
   final int eventBot = user['eventBot'] ?? 0;
 
   showModalBottomSheet(
@@ -313,7 +314,6 @@ class _AdminPageState extends State<AdminPage> {
                         radius: 48,
                         backgroundImage: _getProfileImage(user['profileImg_link']),
                       ),
-                  
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -326,77 +326,115 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                   const SizedBox(height: 32),
                   
-                  // Personal Information Section
+                  // Section Category Headers Style
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: const Text(
+                      'PERSONAL INFORMATION',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Personal Information Content
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildInfoRow('User ID', userId),
+                          const SizedBox(height: 12),
+                          _buildInfoRow('Real Name', realName),
+                          const SizedBox(height: 12),
+                          _buildInfoRow('Student ID', sID),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Bottle Statistics Header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: const Text(
+                      'BOTTLE STATISTICS',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Bottle Statistics Content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: GridView.count(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.5,
                       children: [
-                        const Text(
-                          'PERSONAL INFORMATION',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildInfoRow('User ID', userId),
-                              const SizedBox(height: 12),
-                              _buildInfoRow('Real Name', realName),
-                              const SizedBox(height: 12),
-                              _buildInfoRow('Student ID', sID),
-                            ],
-                          ),
-                        ),
+                        _buildStatCard('Total Bottles', botLiv, Colors.green),
+                        _buildStatCard('Daily Bottles', dayBot, Colors.blue),
+                        _buildStatCard('Monthly Bottles', monthBot, Colors.purple),
+                        _buildStatCard('Yearly Bottles', yearBot, Colors.red),
+                        _buildStatCard('Event Bottles', eventBot, Colors.orange),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   
-                  // Bottle Statistics Section
-                  Padding(
+                  // Coupons Header
+                  Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'BOTTLE STATISTICS',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        GridView.count(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 1.5,
-                          children: [
-                            _buildStatCard('Total Bottles', botLiv, Colors.green),
-                            _buildStatCard('Daily Bottles', dayBot, Colors.blue),
-                            _buildStatCard('Monthly Bottles', monthBot, Colors.purple),
-                            _buildStatCard('Event Bottles', eventBot, Colors.orange),
-                          ],
-                        ),
-                      ],
+                    child: const Text(
+                      'COUPONS',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ),
-                  // Add bottom padding to ensure content isn't cut off
+                  const SizedBox(height: 12),
+                  
+                  // Coupons Content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.amber[50],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        'Coupon list will be added here',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
