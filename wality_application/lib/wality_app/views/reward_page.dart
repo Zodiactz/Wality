@@ -708,7 +708,7 @@ class _RewardPageState extends State<RewardPage> {
       }
 
       try {
-        final couponData = await qrService.fetchRewardsByCouponId(qrId);
+        final couponData = await userService.fetchRewardsByCouponId(qrId);
         if (couponData == null) {
           // Coupon has been used
           isCouponUsed = true; // Set the flag

@@ -239,7 +239,7 @@ class _AdminPageState extends State<AdminPage> {
           final coupon_id = await qrService.fetchQRValidCouponId(qr_id);
           print("This is coupon id: $coupon_id");
           // Fetch coupon details using the fetched user ID
-          final couponData = await qrService.fetchRewardsByCouponId(coupon_id!);
+          final couponData = await _userService.fetchRewardsByCouponId(coupon_id!);
           print("This is coupon data: $couponData");
           
           // Ensure couponData is not null

@@ -17,6 +17,7 @@ class Users {
   final String realName;
   final String sID;
   final bool isAdmin;
+  final int eventMl; 
 
   Users({
     this.userId,
@@ -37,6 +38,7 @@ class Users {
     required this.realName,
     required this.sID,
     required this.isAdmin,
+    required this.eventMl,
   });
 
   // Convert a User instance to a map
@@ -60,6 +62,7 @@ class Users {
       'realName': realName,
       'sID': sID,
       'isAdmin': isAdmin,
+      'eventMl': eventMl,
     };
   }
 
@@ -87,6 +90,7 @@ class Users {
         yearBot: json['yearBot'],
         realName: json['realName'],
         sID: json['sID'],
-        isAdmin: json['isAdmin']);
+        isAdmin: json['isAdmin'],
+        eventMl: json['eventMl']);
   }
 }

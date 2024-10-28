@@ -95,15 +95,5 @@ class QRValidService {
     }
   }
 
-    Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl/getRewardByCouponId/$coupon_id'));
 
-    if (response.statusCode == 200) {
-      // Assuming your API returns a single reward object
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load reward data');
-    }
-  }
 }

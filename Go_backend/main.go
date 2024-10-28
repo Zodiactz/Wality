@@ -745,6 +745,8 @@ func updateUsername(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "username updated successfully!"})
 }
 
+
+
 func updateImage(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Users")
 	user_id := c.Params("user_id")
