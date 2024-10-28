@@ -294,6 +294,7 @@ class _AdminPageState extends State<AdminPage> {
     final String userId = user['user_id'];
     final String realName = user['realName'];
     final String sID = user['sID'];
+    final int totalMl = user['totalMl'] ?? 0;
     final int botLiv = user['botLiv'] ?? 0;
     final int dayBot = user['dayBot'] ?? 0;
     final int monthBot = user['monthBot'] ?? 0;
@@ -418,8 +419,9 @@ class _AdminPageState extends State<AdminPage> {
                         crossAxisSpacing: 12,
                         childAspectRatio: 1.5,
                         children: [
+                          _buildStatCard('Total Milliliter', totalMl, Colors.blue),
                           _buildStatCard('Total Bottles', botLiv, Colors.green),
-                          _buildStatCard('Daily Bottles', dayBot, Colors.blue),
+                          _buildStatCard('Daily Bottles', dayBot, Colors.pink),
                           _buildStatCard(
                               'Monthly Bottles', monthBot, Colors.purple),
                           _buildStatCard('Yearly Bottles', yearBot, Colors.red),
