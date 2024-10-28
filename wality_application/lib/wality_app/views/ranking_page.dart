@@ -50,6 +50,19 @@ class _RankingPageState extends State<RankingPage> {
     }
   }
 
+  String getBottleKey() {
+    switch (_selectedFilter) {
+      case 'Today':
+        return 'dayBot';
+      case 'This Month':
+        return 'monthBot';
+      case 'This Year':
+        return 'yearBot';
+      default:
+        return 'botLiv'; // Default to 'All Time'
+    }
+  }
+
   Future<void> _loadUsers() async {
     if (currentUserId == null) {
       LogOutToOutsite(context);
@@ -64,48 +77,13 @@ class _RankingPageState extends State<RankingPage> {
       final users = await _userService.fetchUsers();
       List<dynamic> filteredUsers;
 
+      // Adjusted filter logic based on simple values without date logic
       if (_selectedFilter == 'Today') {
-        filteredUsers = users.where((user) {
-          if (user['last_active'] == null) return false;
-
-          DateTime userLastActive = DateTime.parse(user['last_active']);
-          DateTime today = DateTime.now();
-          DateTime todayStart = DateTime(today.year, today.month, today.day);
-          DateTime todayEnd =
-              DateTime(today.year, today.month, today.day, 23, 59, 59);
-
-          return userLastActive.isAfter(todayStart) &&
-              userLastActive.isBefore(todayEnd);
-        }).toList();
+        filteredUsers = users.where((user) => user['dayBot'] > 0).toList();
       } else if (_selectedFilter == 'This Month') {
-        DateTime now = DateTime.now();
-        DateTime monthStart = DateTime(now.year, now.month, 1);
-        DateTime monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-
-        filteredUsers = users.where((user) {
-          if (user['last_active'] == null) return false;
-
-          DateTime userLastActive;
-          try {
-            userLastActive = DateTime.parse(user['last_active']);
-          } catch (e) {
-            print(
-                "Error parsing last_active for user: ${user['username']} - $e");
-            return false;
-          }
-
-          // Check if the user was active between the start and end of the current month
-          return userLastActive.isAfter(monthStart) &&
-              userLastActive.isBefore(monthEnd) &&
-              user['botLiv'] > 0; // Only include users with bottles
-        }).toList();
+        filteredUsers = users.where((user) => user['monthBot'] > 0).toList();
       } else if (_selectedFilter == 'This Year') {
-        DateTime now = DateTime.now();
-        filteredUsers = users.where((user) {
-          if (user['last_active'] == null) return false;
-          DateTime userLastActive = DateTime.parse(user['last_active']);
-          return userLastActive.year == now.year && user['botLiv'] > 0;
-        }).toList();
+        filteredUsers = users.where((user) => user['yearBot'] > 0).toList();
       } else {
         // All Time
         filteredUsers = users.where((user) => user['botLiv'] > 0).toList();
@@ -137,40 +115,8 @@ class _RankingPageState extends State<RankingPage> {
     }
   }
 
-  Future<void> _fetchUserImage(String userId) async {
-    final profileImgLink = await _userService.fetchUserImage(userId);
-    if (profileImgLink != null && profileImgLink.isNotEmpty) {
-      setState(() {
-        imgURL = profileImgLink;
-      });
-    }
-  }
-
-  ImageProvider _getProfileImage(String? profileImgLink) {
-    if (profileImgLink != null && profileImgLink.isNotEmpty) {
-      return NetworkImage(profileImgLink);
-    } else {
-      return const AssetImage('assets/images/cat.jpg');
-    }
-  }
-
-  Future<int?> fetchUserBotLiv(String userId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/userId/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['botLiv'];
-    } else {
-      print('Failed to fetch botLivt');
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    print("This is user Id: $currentUserId");
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -248,7 +194,7 @@ class _RankingPageState extends State<RankingPage> {
             setState(() {
               _selectedFilter = newValue;
             });
-            // You might want to implement filtering logic here
+            _loadUsers(); // Reload users with the new filter
           }
         },
       ),
@@ -266,12 +212,12 @@ class _RankingPageState extends State<RankingPage> {
         // Find the current user by matching the user ID
         final currentUser = _users.firstWhere(
             (user) => user['user_id'] == currentUserId,
-            orElse: () => {'botLiv': 0} // Default to an object with botLiv = 0
-            );
-        print("This is _BuildUserRankId: $currentUser");
+            orElse: () =>
+                {getBottleKey(): 0}); // Default to the chosen key with 0
 
-        // Check if botLiv is greater than 0 to determine rank display
-        final hasRank = currentUser['botLiv'] > 0;
+        // Use the correct key based on the selected filter
+        final bottleKey = getBottleKey();
+        final hasRank = currentUser[bottleKey] > 0;
         final userRank = hasRank
             ? _users.indexOf(currentUser) + 1
             : 0; // Adjusted for rank calculation
@@ -304,7 +250,7 @@ class _RankingPageState extends State<RankingPage> {
                         style:
                             const TextStyle(color: Colors.white, fontSize: 18)),
                     Text(
-                      hasRank ? '${currentUser['botLiv']} Bottles' : 'No rank',
+                      hasRank ? '${currentUser[bottleKey]} Bottles' : 'No rank',
                       style:
                           const TextStyle(color: Colors.white70, fontSize: 16),
                     ),
@@ -331,6 +277,8 @@ class _RankingPageState extends State<RankingPage> {
   }
 
   Widget _buildRankItem(int rank, dynamic user) {
+    final bottleKey =
+        getBottleKey(); // Use correct key based on the selected filter
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -347,7 +295,8 @@ class _RankingPageState extends State<RankingPage> {
           ),
           const SizedBox(width: 16),
           CircleAvatar(
-            backgroundImage: _getProfileImage(user['profileImg_link']),
+            backgroundImage:
+                _userService.getProfileImage(user['profileImg_link']),
             radius: 20,
           ),
           const SizedBox(width: 16),
@@ -358,7 +307,7 @@ class _RankingPageState extends State<RankingPage> {
             ),
           ),
           Text(
-            '${user['botLiv']} Bottles',
+            '${user[bottleKey]} Bottles',
             style: const TextStyle(color: Colors.white70, fontSize: 16),
           ),
         ],

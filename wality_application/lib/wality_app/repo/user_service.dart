@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -482,6 +483,14 @@ class UserService {
     } catch (e) {
       print("Error extracting image name: $e");
       return null;
+    }
+  }
+
+   ImageProvider getProfileImage(String? profileImgLink) {
+    if (profileImgLink != null && profileImgLink.isNotEmpty) {
+      return NetworkImage(profileImgLink);
+    } else {
+      return const AssetImage('assets/images/cat.jpg');
     }
   }
 }
