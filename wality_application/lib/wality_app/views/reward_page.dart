@@ -126,15 +126,15 @@ class _RewardPageState extends State<RewardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0083AB), Color(0xFF005678)],
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF0083AB), Color(0xFF005678)],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
+          child: SafeArea(
+              child: Column(
             children: [
               // Header with back button and title
               Padding(
@@ -258,31 +258,51 @@ class _RewardPageState extends State<RewardPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FutureBuilder<int?>(
-                          future: botAmount,
-                          builder: (context, snapshot) {
-                            return Text(
-                              '${snapshot.data ?? 0}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed',
-                              ),
-                            );
-                          },
-                        ),
-                        Text(
-                          ' / ${waterAmount ?? 0} ml',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoCondensed',
-                          ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FutureBuilder<int?>(
+                                  future: botAmount,
+                                  builder: (context, snapshot) {
+                                    return Text(
+                                      '${snapshot.data ?? 0}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 60,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'RobotoCondensed',
+                                        height:
+                                            0.9, // Adjust this to reduce spacing
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    );
+                                  },
+                                ),
+                                const SizedBox(
+                                    height:
+                                        4), // Add a small gap between the texts
+                                Text(
+                                  ' / ${waterAmount ?? 0} ML',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed',
+                                    height: 0.9, // Adjust this as needed
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            )
+                          ],
                         ),
                       ],
                     ),
+                    SizedBox(height: 8),
                     const Text(
                       'This event will end on 1/1/2025',
                       style: TextStyle(
@@ -293,11 +313,9 @@ class _RewardPageState extends State<RewardPage> {
                     ),
                   ],
                 ),
-              ),
+              )
             ],
-          ),
-        ),
-      ),
+          ))),
     );
   }
 
@@ -690,7 +708,7 @@ class _RewardPageState extends State<RewardPage> {
       }
 
       try {
-        final couponData = await qrService.fetchRewardsById(qrId);
+        final couponData = await userService.fetchRewardsByCouponId(qrId);
         if (couponData == null) {
           // Coupon has been used
           isCouponUsed = true; // Set the flag

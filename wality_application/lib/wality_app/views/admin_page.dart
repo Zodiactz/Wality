@@ -211,58 +211,81 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) async {
-      // Pause scanning while processing
-      controller.pauseCamera();
+  this.controller = controller;
+  controller.scannedDataStream.listen((scanData) async {
+    // Pause scanning while processing
+    controller.pauseCamera();
 
-      // Show dialog indicating scanning
-      _showDialogWithAutoDismiss(
-          'Scanning', 'Please wait while we process the QR code...');
+    // Show dialog indicating scanning
+    _showDialogWithAutoDismiss(
+      'Scanning', 'Please wait while we process the QR code...',
+    );
 
-      // Ensure the dialog is shown before proceeding
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        // Introduce a delay of 2 seconds
-        await Future.delayed(const Duration(seconds: 2));
+    // Ensure the dialog is shown before proceeding
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Close the dialog after the delay
+      GoBack(context);
 
-        // Close the dialog after the delay
-        GoBack(context);
+      // Get the QR code value
+      String? qr_id = scanData.code;
 
-        // Get the QR code value
-        String? qr_id = scanData.code;
-
-        // Fetch user ID and coupon data based on the QR code
-        final user_id = await qrService.fetchQRValidUserId(qr_id ?? '');
+      // Fetch user ID and coupon data based on the QR code
+      if (qr_id != null && qr_id.isNotEmpty) {
+        final user_id = await qrService.fetchQRValidUserId(qr_id);
+        
         if (user_id != null) {
+          final coupon_id = await qrService.fetchQRValidCouponId(qr_id);
+          print("This is coupon id: $coupon_id");
           // Fetch coupon details using the fetched user ID
-          final couponData = await qrService.fetchRewardsById(qr_id ?? '');
-          usernameFuture = await _userService.fetchUsername(user_id);
-
-          // Check if coupon data is available
-          if (couponData!.isNotEmpty) {
+          final couponData = await _userService.fetchRewardsByCouponId(coupon_id!);
+          print("This is coupon data: $couponData");
+          
+          // Ensure couponData is not null
+          if (couponData != null && couponData.isNotEmpty) {
             // Extract coupon details
-            String couponName = couponData['coupon_name'];
-            String bD = couponData['b_desc'];
-            int bReq = couponData['bot_req'];
-            String imgCoupon = couponData['img_couponLink'];
-            String fD = couponData['f_desc'];
-            String impD = couponData['imp_desc'];
-            String cId = couponData['coupon_id'];
-
+            String couponName = couponData['coupon_name'] ?? 'Unknown';
+            String bD = couponData['b_desc'] ?? '';
+            int bReq = couponData['bot_req'] ?? 0;
+            String imgCoupon = couponData['img_couponLink'] ?? '';
+            String fD = couponData['f_desc'] ?? '';
+            String impD = couponData['imp_desc'] ?? '';
+            String cId = couponData['coupon_id'] ?? '';
+            
+            // Fetch username based on user ID
+            usernameFuture = await _userService.fetchUsername(user_id);
+            
             // Show the coupon popup with the retrieved data
-            _showCouponPopup(context, couponName, bD, bReq, imgCoupon, fD, impD,
-                cId, usernameFuture ?? '', user_id);
+            _showCouponPopup(
+              context, 
+              couponName, 
+              bD, 
+              bReq, 
+              imgCoupon, 
+              fD, 
+              impD, 
+              cId, 
+              usernameFuture ?? '', 
+              user_id,
+            );
           } else {
             _showDialog(
-                'Unavailable', 'No coupon details found for this QR code.');
+              'Unavailable', 'No coupon details found for this QR code.',
+            );
           }
         } else {
-          _showDialog('Unavailable',
-              'This QR code is unavailable. Please try another.');
+          _showDialog(
+            'Unavailable', 'This QR code is unavailable. Please try another.',
+          );
         }
-      });
+      } else {
+        _showDialog('Invalid', 'QR code is empty or invalid.');
+      }
     });
-  }
+  });
+}
+
 
   void _showUserDetails(dynamic user) {
   final String userId = user['_id'];

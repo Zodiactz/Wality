@@ -72,6 +72,20 @@ class UserService {
     }
   }
 
+  Future<List<String>?> fetchCouponCheck(String userId) async {
+  final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    List<String> couponCheck = List<String>.from(data['couponCheck']);
+    return couponCheck;
+  } else {
+    print('Failed to fetch coupons');
+    return null;
+  }
+}
+
+
 
   Future<List<dynamic>> fetchUsers() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
@@ -80,6 +94,18 @@ class UserService {
       return json.decode(response.body);
     } else {
       throw Exception('Failed to load users');
+    }
+  }
+
+      Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/getRewardByCouponId/$coupon_id'));
+
+    if (response.statusCode == 200) {
+      // Assuming your API returns a single reward object
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load reward data');
     }
   }
 
