@@ -98,7 +98,7 @@ class UserService {
     }
   }
 
-      Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
+    Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
     final response =
         await http.get(Uri.parse('$baseUrl/getRewardByCouponId/$coupon_id'));
 
