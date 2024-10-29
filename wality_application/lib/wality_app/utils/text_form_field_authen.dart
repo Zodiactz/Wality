@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class TextFormFieldAuthen extends StatefulWidget {
@@ -34,8 +33,9 @@ class TextFormFieldAuthen extends StatefulWidget {
 
 class _TextFormFieldAuthenState extends State<TextFormFieldAuthen> {
   String? errorText;
-  Color? currentBorderColor;
+  Color currentBorderColor = Colors.grey;
   Timer? _errorTimer;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -43,50 +43,71 @@ class _TextFormFieldAuthenState extends State<TextFormFieldAuthen> {
     errorText = widget.errorMessage;
     widget.controller.addListener(_onTextChanged);
     currentBorderColor = widget.borderColor;
+    
+    // Set up focus listener to reset border color when focus is lost
+    widget.focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!widget.focusNode.hasFocus && !_isDisposed) {
+      setState(() {
+        currentBorderColor = Colors.grey;
+      });
+    }
   }
 
   @override
   void didUpdateWidget(TextFormFieldAuthen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // If the border color changes to red (error state)
     if (widget.borderColor == Colors.red && oldWidget.borderColor != Colors.red) {
-      // Cancel any existing timer
       _errorTimer?.cancel();
-      
-      // Set the border color to red
+
       setState(() {
         currentBorderColor = Colors.red;
       });
 
       // Start a new timer to reset the border color after 3 seconds
       _errorTimer = Timer(const Duration(seconds: 3), () {
-        if (mounted) {
+        if (mounted && !_isDisposed) {
           setState(() {
             currentBorderColor = Colors.grey;
           });
         }
       });
-    } else if (widget.borderColor != Colors.red) {
-      // For non-error states, update the border color normally
-      currentBorderColor = widget.borderColor;
+    } else if (widget.borderColor != oldWidget.borderColor) {
+      setState(() {
+        currentBorderColor = widget.borderColor;
+      });
     }
   }
-  
 
   void _onTextChanged() {
     if (errorText != null && widget.controller.text.isNotEmpty) {
       setState(() {
         errorText = null;
+        currentBorderColor = Colors.grey;
       });
     }
   }
-  
+
+  void _resetBorderColor() {
+    if (!_isDisposed && mounted) {
+      setState(() {
+        currentBorderColor = Colors.grey;
+        errorText = null;
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _isDisposed = true;
     widget.controller.removeListener(_onTextChanged);
+    widget.focusNode.removeListener(_onFocusChange);
     _errorTimer?.cancel();
+    _resetBorderColor();
     super.dispose();
   }
 
@@ -96,7 +117,10 @@ class _TextFormFieldAuthenState extends State<TextFormFieldAuthen> {
       controller: widget.controller,
       obscureText: widget.obscureText,
       focusNode: widget.focusNode,
-      onFieldSubmitted: widget.onFieldSubmitted,
+      onFieldSubmitted: (value) {
+        widget.onFieldSubmitted?.call(value);
+        _resetBorderColor();
+      },
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: widget.hintText,
@@ -108,19 +132,19 @@ class _TextFormFieldAuthenState extends State<TextFormFieldAuthen> {
         suffixIcon: widget.suffixIcon,
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+          borderSide: BorderSide(color: currentBorderColor, width: 2.0),
         ),
-        focusedErrorBorder: OutlineInputBorder(  // Added this
+        focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.red, width: 2.0),
+          borderSide: BorderSide(color: currentBorderColor, width: 2.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: widget.borderColor, width: 1.0),
+          borderSide: BorderSide(color: currentBorderColor, width: 1.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: widget.borderColor, width: 1.0),
+          borderSide: BorderSide(color: currentBorderColor, width: 1.0),
         ),
       ),
     );

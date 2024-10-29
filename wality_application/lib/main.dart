@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: LogoPage()/*MainPage()*/,
+      home: LogoPage(), /*MainPage(),*/
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -71,7 +71,6 @@ class MyApp extends StatelessWidget {
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),
-        '/adminpage': (context) => const AdminPage(),
         '/mainpage': (context) => MainPage(),
       },
       onGenerateRoute: (RouteSettings settings) {

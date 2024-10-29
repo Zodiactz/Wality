@@ -42,66 +42,78 @@ class _SignUpPageState extends State<SignUpPage> {
   //       .join();
   // }
 
-  void showErrorSnackBar(AuthenticationViewModel authenvm) {
-    authenvm.validateAllSignUp(
-      usernameController.text,
-      emailController.text,
-      passwordController.text,
-      passwordController2.text,
-    );
+  Future<void> _handleSignUpUpdate(AuthenticationViewModel authvm) async {
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final pass = passwordController.text.trim();
+    final confirmPass = passwordController2.text.trim();
 
-    if (authenvm.allError != null) {
+    authvm.validateAllSignUp(username, email, pass, confirmPass);
+
+    if (authvm.allErrorSignUp != null) {
+      authvm.setAllSignUpError(authvm.allErrorSignUp);
       showAwesomeSnackBar(
         context,
         "Error",
-        authenvm.allError!,
+        authvm.allErrorSignUp!,
         ContentType.failure,
       );
-    } else if (authenvm.usernameError != null) {
+      return;
+    }
+
+    if (authvm.usernameError != null) {
+      authvm.setUsernameError(authvm.usernameError);
       showAwesomeSnackBar(
         context,
         "Username Error",
-        authenvm.usernameError!,
+        authvm.usernameError!,
         ContentType.failure,
       );
-    } else if (authenvm.emailError != null) {
+      return;
+    }
+
+    if (authvm.emailError != null) {
+      authvm.setEmailError(authvm.emailError);
       showAwesomeSnackBar(
         context,
         "Email Error",
-        authenvm.emailError!,
+        authvm.emailError!,
         ContentType.failure,
       );
-    } else if (authenvm.passwordError != null) {
+      return;
+    }
+
+    if (authvm.passwordError != null) {
+      authvm.setPasswordError(authvm.passwordError);
       showAwesomeSnackBar(
         context,
         "Password Error",
-        authenvm.passwordError!,
+        authvm.passwordError!,
         ContentType.failure,
       );
-    } else if (authenvm.confirmEmailError != null) {
+      return;
+    }
+
+    if (authvm.confirmEmailError != null) {
+      authvm.setConfirmPasswordError(authvm.confirmEmailError);
       showAwesomeSnackBar(
         context,
-        "Password Error",
-        authenvm.confirmEmailError!,
+        "ConfirmPassword Error",
+        authvm.confirmEmailError!,
         ContentType.failure,
       );
-    } else {
-      showAwesomeSnackBar(
-        context,
-        "Sign-up Failed",
-        "Invalid email or password. Please try again.",
-        ContentType.failure,
-      );
+      return;
     }
   }
 
   void signUp(AuthenticationViewModel authenvm) async {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
-      bool isValidForSignUp = await authenvm.validateAllSignUp(
-          usernameController.text,
-          emailController.text,
-          passwordController.text,
-          passwordController2.text);
+      await _handleSignUpUpdate(authenvm);
+      bool isValidForSignUp = authenvm.allErrorSignUp == null &&
+          authenvm.usernameError == null &&
+          authenvm.emailError == null &&
+          authenvm.passwordError == null &&
+          authenvm.confirmEmailError == null;
 
       if (isValidForSignUp) {
         setState(() {
@@ -171,7 +183,6 @@ class _SignUpPageState extends State<SignUpPage> {
         }
       } else {
         // Call the function to show the error snackbar when validation fails
-        showErrorSnackBar(authenvm);
       }
     } else {
       showAwesomeSnackBar(
@@ -289,7 +300,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     FocusScope.of(context)
                                         .requestFocus(emailFocusNode);
                                   },
-                                  borderColor: authenvm.usernameError != null ? Colors.red : Colors.grey, 
+                                  borderColor: authenvm.usernameError != null
+                                      ? Colors.red
+                                      : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -305,7 +318,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     FocusScope.of(context)
                                         .requestFocus(passwordFocusNode);
                                   },
-                                  borderColor: authenvm.emailError != null ? Colors.red : Colors.grey, 
+                                  borderColor: authenvm.emailError != null
+                                      ? Colors.red
+                                      : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -330,7 +345,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     FocusScope.of(context)
                                         .requestFocus(confirmPassFocusNote);
                                   },
-                                  borderColor: authenvm.passwordError != null ? Colors.red : Colors.grey,
+                                  borderColor: authenvm.passwordError != null
+                                      ? Colors.red
+                                      : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -351,7 +368,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       authenvm.togglePasswordVisibility2();
                                     },
                                   ),
-                                  borderColor: authenvm.confirmPassErrs != null ? Colors.red : Colors.grey,
+                                  borderColor: authenvm.confirmPassErrs != null
+                                      ? Colors.red
+                                      : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 28),

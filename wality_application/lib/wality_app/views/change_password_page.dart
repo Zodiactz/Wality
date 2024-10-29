@@ -37,6 +37,26 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     usernameFuture = _userService.fetchUsername(userId!);
   }
 
+  @override
+  @override
+void dispose() {
+  // Clear error states
+  Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
+  
+  // Dispose controllers
+  passwordController.dispose();
+  confirmPassController.dispose();
+  emailController.dispose();
+  usernameController.dispose();
+  
+  // Dispose focus nodes
+  passwordFocusNode.dispose();
+  confirmPassFocusNode.dispose();
+  usernameFocusNode.dispose();
+  
+  super.dispose();
+}
+
   void _showDialog(String title, String message) {
     showDialog(
       context: context,
@@ -49,7 +69,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               child: const Text('OK'),
               onPressed: () {
                 GoBack(context);
-                // Resume scanning after dialog is dismissed
               },
             ),
           ],

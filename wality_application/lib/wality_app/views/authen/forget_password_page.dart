@@ -27,14 +27,9 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
     void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllForgetPassword(
         emailController.text,
-        confirmEmailController.text,
       );
 
-      if (authenvm.allError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.allError!)),
-        );
-      } else if (authenvm.emailError != null) {
+      if (authenvm.emailError != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(authenvm.emailError!)),
         );
@@ -49,7 +44,6 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
       if (_formKey.currentState != null && _formKey.currentState!.validate()) {
         bool isValidForConfirmEmail = await authenvm.validateAllForgetPassword(
           emailController.text,
-          confirmEmailController.text,
         );
 
         if (isValidForConfirmEmail) {

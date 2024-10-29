@@ -1034,16 +1034,7 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Warning message
-                      const Text(
-                        'Coupon will generate QR code for scanning',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
+                      
 
                       // Buttons
                       Row(

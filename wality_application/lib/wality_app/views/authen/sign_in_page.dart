@@ -25,38 +25,49 @@ class _SignInPageState extends State<SignInPage> {
   final FocusNode passwordFocusNode = FocusNode();
   final App app = App(AppConfiguration('wality-1-djgtexn'));
 
-  void showErrorSnackBar(AuthenticationViewModel authenvm) {
-    authenvm.validateAllSignIn(emailController.text, passwordController.text);
+  Future<void> _handleSignInUpdate(AuthenticationViewModel authvm) async {
+    final email = emailController.text.trim();
+    final pass = passwordController.text.trim();
 
-    if (authenvm.allError != null) {
+    // Perform the validation
+    authvm.validateAllSignIn(email, pass);
+
+    if (authvm.allErrorSignIn != null) {
+      authvm.setAllSignInError(authvm.allErrorSignIn);
       showAwesomeSnackBar(
         context,
         "Error",
-        authenvm.allError!,
+        authvm.allErrorSignIn!,
         ContentType.failure,
       );
-    } else if (authenvm.emailError != null) {
+      return;
+    }
+
+    // Check email error first
+    if (authvm.emailError != null) {
+      authvm.setEmailError(authvm.emailError);
       showAwesomeSnackBar(
         context,
         "Email Error",
-        authenvm.emailError!,
+        authvm.emailError!,
         ContentType.failure,
       );
-    } else if (authenvm.passwordError != null) {
+      return;
+    }
+
+    // Then check password error
+    if (authvm.passwordError != null) {
+      authvm.setPasswordError(authvm.passwordError);
       showAwesomeSnackBar(
         context,
         "Password Error",
-        "Please enter your password",
+        authvm.passwordError!,
         ContentType.failure,
       );
-    } else {
-      showAwesomeSnackBar(
-        context,
-        "Sign-in Failed",
-        "Invalid email or password.",
-        ContentType.failure,
-      );
+      return;
     }
+
+    
   }
 
   void signIn() async {
@@ -72,7 +83,7 @@ class _SignInPageState extends State<SignInPage> {
       await app.logIn(emailPwCredentials);
       openHomePage(context);
     } on Exception {
-      showErrorSnackBar(context.read<AuthenticationViewModel>());
+      _handleSignInUpdate(context.read<AuthenticationViewModel>());
     } finally {
       if (mounted) {
         setState(() {
@@ -94,7 +105,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthenticationViewModel>(
-      builder: (context, authenvm, child) {
+      builder: (context, authvm, child) {
         return LoadingOverlay(
           isLoading: isLoading,
           child: Scaffold(
@@ -106,7 +117,7 @@ class _SignInPageState extends State<SignInPage> {
                 }
               },
               child: SingleChildScrollView(
-                physics: authenvm.isScrollable
+                physics: authvm.isScrollable
                     ? const AlwaysScrollableScrollPhysics()
                     : const NeverScrollableScrollPhysics(),
                 reverse: true,
@@ -197,7 +208,7 @@ class _SignInPageState extends State<SignInPage> {
                                       FocusScope.of(context)
                                           .requestFocus(passwordFocusNode);
                                     },
-                                    borderColor: authenvm.emailError != null
+                                    borderColor: authvm.emailError != null
                                         ? Colors.red
                                         : Colors.grey,
                                   ),
@@ -209,18 +220,18 @@ class _SignInPageState extends State<SignInPage> {
                                   child: TextFormFieldAuthen(
                                     controller: passwordController,
                                     hintText: "Password",
-                                    obscureText: !authenvm.passwordVisible1,
+                                    obscureText: !authvm.passwordVisible1,
                                     focusNode: passwordFocusNode,
                                     suffixIcon: IconButton(
-                                      icon: Icon(authenvm.passwordVisible1
+                                      icon: Icon(authvm.passwordVisible1
                                           ? Icons.visibility
                                           : Icons.visibility_off),
                                       color: Colors.grey,
                                       onPressed: () {
-                                        authenvm.togglePasswordVisibility1();
+                                        authvm.togglePasswordVisibility1();
                                       },
                                     ),
-                                    borderColor: authenvm.passwordError != null
+                                    borderColor: authvm.passwordError != null
                                         ? Colors.red
                                         : Colors.grey,
                                   ),

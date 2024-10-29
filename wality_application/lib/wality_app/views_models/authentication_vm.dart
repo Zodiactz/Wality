@@ -6,7 +6,9 @@ class AuthenticationViewModel extends ChangeNotifier {
   String? passwordError;
   String? confirmEmailError;
   String? confirmPassErrs;
-  String? allError;
+  String? allErrorSignIn;
+  String? allErrorSignUp;
+  String? allErrorChangePass;
   final bool _isScrollable = false;
   bool _passwordVisible1 = false;
   bool _passwordVisible2 = false;
@@ -29,7 +31,12 @@ class AuthenticationViewModel extends ChangeNotifier {
 
   void setUsernameError(String? error) {
     usernameError = error;
+
     notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      usernameError = null;
+      notifyListeners();
+    });
   }
 
   String? validateUsername(String? value) {
@@ -57,6 +64,15 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
+  void setEmailError(String? error) {
+    emailError = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      emailError = null;
+      notifyListeners();
+    });
+  }
+
   String? validateConfirmEmail(String? email, String? confirmEmail) {
     if (confirmEmail == null || confirmEmail.isEmpty) {
       return 'Confirm Email is required';
@@ -67,14 +83,22 @@ class AuthenticationViewModel extends ChangeNotifier {
     return null;
   }
 
-   void setPasswordError(String? error) {
+  void setPasswordError(String? error) {
     passwordError = error;
     notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      passwordError = null;
+      notifyListeners();
+    });
   }
 
   void setConfirmPasswordError(String? error) {
     confirmPassErrs = error;
     notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      confirmPassErrs = null;
+      notifyListeners();
+    });
   }
 
   String? validatePassword(String? value) {
@@ -86,21 +110,19 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
-   String? validateConfirmPass(String? password, String? confirmPassword) {
+  String? validateConfirmPass(String? password, String? confirmPassword) {
     if (confirmPassword == null || confirmPassword.isEmpty) {
       return 'Confirm password is required';
     }
-    
+
     if (confirmPassword != password) {
       return 'Passwords do not match';
     }
-    
+
     return null;
   }
 
-  
-
-  Future<bool> validateAllSignUp(String usernameVal, String emailVal,
+  void validateAllSignUp(String usernameVal, String emailVal,
       String passwordVal, String confirmPassEr) async {
     usernameError = validateUsername(usernameVal);
     emailError = validateEmail(emailVal);
@@ -111,56 +133,68 @@ class AuthenticationViewModel extends ChangeNotifier {
         emailVal.isEmpty ||
         passwordVal.isEmpty ||
         confirmPassEr.isEmpty) {
-      allError = 'Please enter all fields';
+      allErrorSignUp = 'Please enter all fields';
     } else if (passwordVal != confirmPassEr) {
-      allError = "Passwords aren't match";
+      allErrorSignUp = "Passwords aren't match";
     } else {
-      allError = null;
+      allErrorSignUp = null;
     }
 
     _showValidationMessage = usernameError != null ||
         emailError != null ||
         passwordError != null ||
         confirmPassErrs != null ||
-        allError != null;
+        allErrorSignUp != null;
 
     notifyListeners();
-
-    return !_showValidationMessage;
   }
 
-  Future<bool> validateAllSignIn(String emailVal, String passwordVal) async {
+  void setAllSignUpError(String? error) {
+    allErrorSignUp = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorSignUp = null;
+      notifyListeners();
+    });
+  }
+
+  void validateAllSignIn(String emailVal, String passwordVal) {
     emailError = validateEmail(emailVal);
     passwordError = validatePassword(passwordVal);
 
-    if (emailVal.isEmpty && passwordVal.isEmpty) {
-      allError = 'Please enter all fields';
+    if (emailVal.isEmpty || passwordVal.isEmpty) {
+      // Changed condition to check both
+      allErrorSignIn = 'Please enter all fields';
     } else {
-      allError = null;
+      allErrorSignIn = null;
     }
 
     _showValidationMessage =
-        emailError != null || passwordError != null || allError != null;
+        emailError != null || passwordError != null || allErrorSignIn != null;
 
     notifyListeners();
-
-    return !_showValidationMessage;
   }
 
-  Future<bool> validateAllForgetPassword(
-      String emailVal, String confirmEmailVal) async {
-    emailError = validateEmail(emailVal);
-    confirmEmailError = validateConfirmEmail(emailVal, confirmEmailVal);
+  void setAllSignInError(String? error) {
+    allErrorSignIn = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorSignIn = null;
+      _showValidationMessage = false;
+      notifyListeners();
+    });
+  }
 
-    if (emailVal.isEmpty && confirmEmailVal.isEmpty) {
-      allError = 'Email and Confirm Email is required';
-    } else if (confirmEmailError != null) {
-      allError = confirmEmailError;
+  Future<bool> validateAllForgetPassword(String emailVal) async {
+    emailError = validateEmail(emailVal);
+
+    if (emailVal.isEmpty) {
+      allErrorSignIn = 'Email and Confirm Email is required';
     } else {
-      allError = null;
+      allErrorSignIn = null;
     }
 
-    _showValidationMessage = emailError != null || allError != null;
+    _showValidationMessage = emailError != null || allErrorSignIn != null;
 
     notifyListeners();
 
@@ -173,27 +207,31 @@ class AuthenticationViewModel extends ChangeNotifier {
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
     if (passwordVal.isEmpty) {
-      allError = 'Please enter all fields';
+      allErrorChangePass = 'Please enter all fields';
     } else if (passwordVal != confirmPassEr) {
-      allError = "Passwords aren't match";
+      allErrorChangePass = "Passwords aren't match";
     } else {
-      allError = null;
+      allErrorChangePass = null;
     }
 
-    _showValidationMessage =
-        passwordError != null || confirmPassErrs != null || allError != null;
+    _showValidationMessage = passwordError != null ||
+        confirmPassErrs != null ||
+        allErrorChangePass != null;
 
     notifyListeners();
 
     return !_showValidationMessage;
   }
-   void clearErrors() {
+
+  void clearErrors() {
     usernameError = null;
     emailError = null;
     passwordError = null;
     confirmEmailError = null;
     confirmPassErrs = null;
-    allError = null;
+    allErrorSignIn = null;
+    allErrorSignUp = null;
+    allErrorChangePass = null;
     _showValidationMessage = false;
     notifyListeners();
   }
