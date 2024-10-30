@@ -74,7 +74,7 @@ class _SignInPageState extends State<SignInPage> {
 
     // If we reach here, all validations passed
     // You can proceed with sign in logic here
-}
+  }
 
   void signIn() async {
     setState(() {
@@ -101,7 +101,6 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
-
     emailController.dispose();
     passwordController.dispose();
     emailFocusNode.dispose();

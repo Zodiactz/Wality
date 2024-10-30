@@ -262,6 +262,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             animationvm.gifBytes!,
                                             width: screenWidth * 0.2,
                                             height: screenWidth * 0.2,
+                                            fit: BoxFit.contain,
                                           ),
                                           const Text(
                                             "Bottles",
@@ -304,6 +305,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             animationvm.gifBytes2!,
                                             width: screenWidth * 0.2,
                                             height: screenWidth * 0.2,
+                                            fit: BoxFit.contain,
                                           ),
                                           const Text(
                                             "Lives",
