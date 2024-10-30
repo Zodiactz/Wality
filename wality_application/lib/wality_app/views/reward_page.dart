@@ -470,6 +470,7 @@ class _RewardPageState extends State<RewardPage> {
                                   GoBack(context);
                                   _showCouponPopupQR(
                                       context, qr_id, couponName);
+                                  await fetchUserCoupons();
                                   print(
                                       "///////////cid=$cId//////$hasEnoughBottles");
                                 } else {
@@ -588,10 +589,11 @@ class _RewardPageState extends State<RewardPage> {
                                 if (!couponIsActive && !qrCodeExpire) {
                                   couponIsActive = true; // Mark as used
                                   WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
+                                      .addPostFrameCallback((_) async {
                                     setState(() {}); // Update UI
                                     _showDialogSuccess('Coupon Used!',
                                         'Coupon used successfully!');
+                                    await fetchUserCoupons();
                                     GoBack(context); // Close dialog after use
                                   });
                                 }
