@@ -1,7 +1,6 @@
 // ignore_for_file: implementation_imports
 
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
@@ -22,46 +21,94 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
   final RealmService _realmService = RealmService();
+  bool _mounted = true;
 
-  int? bottleAmount; // Variable to store the fetched bottle amount
+  int? bottleAmount;
   int? waterAmount;
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
 
-    // Fetch the user ID safely
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
+  }
+
+  Future<void> _initializeData() async {
+    if (!mounted) return;
+
     final userId = _realmService.getCurrentUserId();
 
     // Add a post frame callback to show the dialog after the first frame is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
       if (userId == null) {
-        // Show a popup and navigate to login page
         _showLoginPopup(context);
       } else {
-        // Proceed with fetching the username if userId is not null
-        usernameFuture = _userService.fetchUsername(userId);
+        // Initialize all data fetching
+        try {
+          usernameFuture = _userService.fetchUsername(userId);
 
-        // Fetch the bottle amount and update state
-        _userService.fetchBottleAmount(userId).then((amount) {
-          setState(() {
-            bottleAmount = amount;
-          });
-        });
-        _userService.fetchWaterAmount(userId).then((amount) {
-          setState(() {
-            waterAmount = amount;
-          });
-        });
+          // Fetch bottle and water amounts concurrently
+          final Future<int?> bottleFuture =
+              _userService.fetchBottleAmount(userId);
+          final Future<int?> waterFuture =
+              _userService.fetchWaterAmount(userId);
+
+          // Wait for both futures to complete
+          final results = await Future.wait([bottleFuture, waterFuture]);
+
+          if (_mounted) {
+            setState(() {
+              bottleAmount = results[0];
+              waterAmount = results[1];
+            });
+          }
+        } catch (e) {
+          if (_mounted) {
+            debugPrint('Error initializing data: $e');
+            // Handle error appropriately
+          }
+        }
       }
     });
   }
 
+  Future<void> refreshData() async {
+    if (!mounted) return;
+
+    final userId = _realmService.getCurrentUserId();
+    if (userId == null) return;
+
+    try {
+      final newBottleAmount = await _userService.fetchBottleAmount(userId);
+      final newWaterAmount = await _userService.fetchWaterAmount(userId);
+
+      if (_mounted) {
+        setState(() {
+          bottleAmount = newBottleAmount;
+          waterAmount = newWaterAmount;
+        });
+      }
+    } catch (e) {
+      if (_mounted) {
+        debugPrint('Error refreshing data: $e');
+        // Handle error appropriately
+      }
+    }
+  }
+
   void _showLoginPopup(BuildContext context) {
+    if (!mounted) return;
+
     showDialog(
       context: context,
-      barrierDismissible:
-          false, // Prevent closing the dialog without pressing OK
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Login Required'),
@@ -71,9 +118,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                // Close the dialog and navigate to login page
-                Navigator.of(context).pop(); // Close the dialog
-                LogOutToOutsite(context); // Navigate to login page
+                Navigator.of(context).pop();
+                LogOutToOutsite(context);
               },
             ),
           ],
@@ -91,248 +137,252 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       create: (context) => AnimationViewModel(this),
       child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
         builder: (context, animationvm, watervm, child) {
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: screenHeight * 0.07),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF0083AB), Color(0xFF003545)],
-                        stops: [0.0, 1],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(55),
-                        bottomRight: Radius.circular(55),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: screenHeight * 0.01),
-                    Padding(
-                      padding: EdgeInsets.only(left: screenWidth * 0.05),
-                      // FutureBuilder widget to display the username
-                      child: FutureBuilder<String?>(
-                        future: usernameFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              flutter_async.ConnectionState.waiting) {
-                            return const Text(
-                              'Loading...',
-                              style: TextStyle(
-                                fontSize: 36,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return const Text(
-                              'Error',
-                              style: TextStyle(
-                                fontSize: 36,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else if (snapshot.hasData) {
-                            return Text(
-                              'Hello, ${snapshot.data}!',
-                              style: const TextStyle(
-                                fontSize: 36,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          } else {
-                            return const Text(
-                              'Username not found',
-                              style: TextStyle(
-                                fontSize: 36,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed-Thin',
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight * 0.01),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Circle
-                                  Container(
-                                    width: screenWidth * 0.7,
-                                    height: screenWidth * 0.7,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          blurRadius: 10,
-                                          offset: const Offset(5, 5),
-                                        ),
-                                      ],
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: screenWidth * 0.03,
-                                      ),
-                                    ),
-                                  ),
-                                  ClipOval(
-                                    child: SizedBox(
-                                      width: screenWidth * 0.65,
-                                      height: screenWidth * 0.65,
-                                      child: AnimatedBuilder(
-                                        animation: animationvm
-                                            .waveAnimationController!,
-                                        builder: (context, child) {
-                                          return CustomPaint(
-                                            painter: WavePainter(
-                                              animationvm
-                                                  .waveAnimationController!
-                                                  .value,
-                                              waterAmount?.toDouble() ??
-                                                  0, // Pass the actual water amount
-                                              watervm.water.maxMl
-                                                  .toDouble(), // Pass the maximum water amount
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      '${waterAmount ?? 0}/${watervm.water.maxMl}ml',
-                                      style: TextStyle(
-                                        fontSize: screenWidth * 0.06,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.01),
-                            const Text(
-                              'You saved',
-                              style: TextStyle(
-                                fontSize: 35,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed',
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(bottom: screenHeight * 0.08),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // Bottle
-                                  if (animationvm.gifBytes2 != null)
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          right: screenWidth * 0.1),
-                                      child: Column(
-                                        children: [
-                                          Image.memory(
-                                            animationvm.gifBytes!,
-                                            width: screenWidth * 0.2,
-                                            height: screenWidth * 0.2,
-                                            fit: BoxFit.contain,
-                                          ),
-                                          const Text(
-                                            "Bottles",
-                                            style: TextStyle(
-                                              fontSize: 35,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  else
-                                    const CircularProgressIndicator(),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        bottom: screenHeight * 0.05,
-                                        right: screenWidth * 0.05),
-                                    child: Text(
-                                      bottleAmount != null
-                                          ? '$bottleAmount'
-                                          : '?',
-                                      style: TextStyle(
-                                        fontSize: screenWidth * 0.2,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
-                                      ),
-                                    ),
-                                  ),
-                                  // Turtle
-                                  if (animationvm.gifBytes != null)
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: screenWidth * 0.1),
-                                      child: Column(
-                                        children: [
-                                          Image.memory(
-                                            animationvm.gifBytes2!,
-                                            width: screenWidth * 0.2,
-                                            height: screenWidth * 0.2,
-                                            fit: BoxFit.contain,
-                                          ),
-                                          const Text(
-                                            "Lives",
-                                            style: TextStyle(
-                                              fontSize: 35,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  else
-                                    const CircularProgressIndicator(),
-                                ],
-                              ),
-                            ),
-                          ],
+          return RefreshIndicator(
+              onRefresh: refreshData,
+              child: Stack(
+                children: [
+                  // Your existing Positioned.fill widget
+                  Positioned.fill(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: screenHeight * 0.07),
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF0083AB), Color(0xFF003545)],
+                            stops: [0.0, 1],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(55),
+                            bottomRight: Radius.circular(55),
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ],
-          );
+                  ),
+                  SafeArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: screenHeight * 0.01),
+                        Padding(
+                          padding: EdgeInsets.only(left: screenWidth * 0.05),
+                          // FutureBuilder widget to display the username
+                          child: FutureBuilder<String?>(
+                            future: usernameFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  flutter_async.ConnectionState.waiting) {
+                                return const Text(
+                                  'Loading...',
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                  'Error',
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  'Hello, ${snapshot.data}!',
+                                  style: const TextStyle(
+                                    fontSize: 36,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                  'Username not found',
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed-Thin',
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: screenHeight * 0.01),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Circle
+                                      Container(
+                                        width: screenWidth * 0.7,
+                                        height: screenWidth * 0.7,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.3),
+                                              blurRadius: 10,
+                                              offset: const Offset(5, 5),
+                                            ),
+                                          ],
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: screenWidth * 0.03,
+                                          ),
+                                        ),
+                                      ),
+                                      ClipOval(
+                                        child: SizedBox(
+                                          width: screenWidth * 0.65,
+                                          height: screenWidth * 0.65,
+                                          child: AnimatedBuilder(
+                                            animation: animationvm
+                                                .waveAnimationController!,
+                                            builder: (context, child) {
+                                              return CustomPaint(
+                                                painter: WavePainter(
+                                                  animationvm
+                                                      .waveAnimationController!
+                                                      .value,
+                                                  waterAmount?.toDouble() ??
+                                                      0, // Pass the actual water amount
+                                                  watervm.water.maxMl
+                                                      .toDouble(), // Pass the maximum water amount
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Text(
+                                          '${waterAmount ?? 0}/${watervm.water.maxMl}ml',
+                                          style: TextStyle(
+                                            fontSize: screenWidth * 0.06,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'RobotoCondensed',
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: screenHeight * 0.01),
+                                const Text(
+                                  'You saved',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: screenHeight * 0.08),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Bottle
+                                      if (animationvm.gifBytes2 != null)
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              right: screenWidth * 0.1),
+                                          child: Column(
+                                            children: [
+                                              Image.memory(
+                                                animationvm.gifBytes!,
+                                                width: screenWidth * 0.2,
+                                                height: screenWidth * 0.2,
+                                                fit: BoxFit.contain,
+                                              ),
+                                              const Text(
+                                                "Bottles",
+                                                style: TextStyle(
+                                                  fontSize: 35,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'RobotoCondensed',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        const CircularProgressIndicator(),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            bottom: screenHeight * 0.05,
+                                            right: screenWidth * 0.05),
+                                        child: Text(
+                                          bottleAmount != null
+                                              ? '$bottleAmount'
+                                              : '?',
+                                          style: TextStyle(
+                                            fontSize: screenWidth * 0.2,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'RobotoCondensed',
+                                          ),
+                                        ),
+                                      ),
+                                      // Turtle
+                                      if (animationvm.gifBytes != null)
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left: screenWidth * 0.1),
+                                          child: Column(
+                                            children: [
+                                              Image.memory(
+                                                animationvm.gifBytes2!,
+                                                width: screenWidth * 0.2,
+                                                height: screenWidth * 0.2,
+                                                fit: BoxFit.contain,
+                                              ),
+                                              const Text(
+                                                "Lives",
+                                                style: TextStyle(
+                                                  fontSize: 35,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'RobotoCondensed',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        const CircularProgressIndicator(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ));
         },
       ),
     );

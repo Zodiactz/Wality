@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
@@ -11,7 +10,7 @@ import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dar
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart'; // Import the package
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class ChangePicAndUsernamePage extends StatefulWidget {
   const ChangePicAndUsernamePage({super.key});
@@ -26,6 +25,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
   final UserService _userService = UserService();
   String imgURL = "";
   final RealmService _realmService = RealmService();
+  bool _mounted = true;
 
   @override
   void initState() {
@@ -35,27 +35,36 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
 
   @override
   void dispose() {
-  // Clear error states
-  usernameController.dispose();
-  
-  super.dispose();
-}
+    _mounted = false;
+    usernameController.dispose();
+    super.dispose();
+  }
 
   Future<void> _fetchCurrentUsername() async {
+    if (!mounted) return;
+
     final userId = _realmService.getCurrentUserId();
     if (userId != null) {
       final currentUsername = await _userService.fetchUsername(userId);
-      usernameController.text = currentUsername ?? '';
+      if (_mounted) {
+        setState(() {
+          usernameController.text = currentUsername ?? '';
+        });
+      }
     }
   }
 
   void _updateImageURL(String path) {
-    setState(() {
-      imgURL = path;
-    });
+    if (_mounted) {
+      setState(() {
+        imgURL = path;
+      });
+    }
   }
 
   Future<void> _handleProfileUpdate(AuthenticationViewModel authvm) async {
+    if (!mounted) return;
+
     final userId = _realmService.getCurrentUserId();
     final newUsername = usernameController.text;
 
@@ -66,13 +75,15 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
     // Validate username
     final usernameError = authvm.validateUsername(newUsername);
     if (usernameError != null) {
-      authvm.setUsernameError(usernameError);
-      showAwesomeSnackBar(
-        context,
-        "Error",
-        usernameError,
-        ContentType.failure,
-      );
+      if (_mounted) {
+        authvm.setUsernameError(usernameError);
+        showAwesomeSnackBar(
+          context,
+          "Error",
+          usernameError,
+          ContentType.failure,
+        );
+      }
       return;
     }
 
@@ -86,12 +97,14 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
             throw Exception('Image file does not exist.');
           }
         } catch (e) {
-          showAwesomeSnackBar(
-            context,
-            'Error',
-            e.toString(),
-            ContentType.failure,
-          );
+          if (_mounted) {
+            showAwesomeSnackBar(
+              context,
+              'Error',
+              e.toString(),
+              ContentType.failure,
+            );
+          }
           return;
         }
       }
@@ -99,6 +112,8 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
       try {
         final result = await _userService.updateUserProfile(
             userId, imageFile, newUsername);
+
+        if (!_mounted) return;
 
         if (result == null || result.contains('successfully')) {
           openProfilePage(context);
@@ -112,13 +127,15 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
           );
         }
       } catch (e) {
-        authvm.setUsernameError('An error occurred while updating profile');
-        showAwesomeSnackBar(
-          context,
-          "Error",
-          "An error occurred while updating profile",
-          ContentType.failure,
-        );
+        if (_mounted) {
+          authvm.setUsernameError('An error occurred while updating profile');
+          showAwesomeSnackBar(
+            context,
+            "Error",
+            "An error occurred while updating profile",
+            ContentType.failure,
+          );
+        }
       }
     }
   }

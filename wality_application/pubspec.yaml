@@ -54,7 +54,7 @@ dependencies:
   http: ^1.2.1
   get: ^4.6.6
   fl_chart: ^0.69.0
-  realm: ^20.0.0
+  realm: ^3.4.1
   popover: ^0.3.0+1
   cached_network_image: ^3.4.1
   awesome_snackbar_content: ^0.1.4
@@ -62,8 +62,11 @@ dependencies:
   uni_links: ^0.5.1
   qr_flutter: ^4.1.0
   app_links: ^6.3.2
+  camera_android_camerax: ^0.6.8+2
 
-  
+dependency_overrides:
+  camera_android_camerax: 0.6.7
+  camera: 0.11.0  
 
 dev_dependencies:
   flutter_test:

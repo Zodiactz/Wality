@@ -189,18 +189,18 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: "26ff41045772153f222ffffecba711a206f670f5834d40ebf5eed3811692f167"
+      sha256: cf8ed1789aa244392cfc49d13e97879700476ba641c92500e01f630e109c0f6c
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.0+2"
+    version: "0.11.0"
   camera_android_camerax:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: camera_android_camerax
-      sha256: "011be2ab0e5b3e3aa8094413fa890f8c5c5afd7cfdaef353a992047d4dab5780"
+      sha256: "594b40a5ea0e144fdfe49e4036abe4ec9bd578b2ce3aabdb0668a02db376a1e8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.8+2"
+    version: "0.6.7"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -977,34 +977,34 @@ packages:
     dependency: "direct main"
     description:
       name: realm
-      sha256: f6d6f592b17067451b4af3e55c5e54b97181090bbfb3f7ac769e360ef43b1082
+      sha256: f1bb19bfb7a498a17fafa0f5743f450093dc754024c1ef7e1370ce76162f19fe
       url: "https://pub.dev"
     source: hosted
-    version: "20.0.0"
+    version: "3.4.1"
   realm_common:
     dependency: transitive
     description:
       name: realm_common
-      sha256: "2695723e6b928921c18b0b6bdab9b913b9ae6479f82bb339df435a99e2f821d2"
+      sha256: "5c0106cdd33c0e538694c48a9f6ae35d28df84ad9192ff191b71e8b8f004f0d8"
       url: "https://pub.dev"
     source: hosted
-    version: "20.0.0"
+    version: "3.4.1"
   realm_dart:
     dependency: transitive
     description:
       name: realm_dart
-      sha256: ed43c59783e2913caae7ac165b383571f416bceeefeff3363d90b742a0a50009
+      sha256: "1ee7bb6c0b41352d9c5b5c9102748250a681478fcc4c8aa87f13bd040b63d9ee"
       url: "https://pub.dev"
     source: hosted
-    version: "20.0.0"
+    version: "3.4.1"
   realm_generator:
     dependency: transitive
     description:
       name: realm_generator
-      sha256: f0bf7ba7a5adc356be995ba130ea33af1c44c1e0fd8e13485a6d93a98850e50c
+      sha256: e50e0c8fbafe5b719ebe69808419293615dd779e940aa7d2e0a3ff67c009e4a2
       url: "https://pub.dev"
     source: hosted
-    version: "20.0.0"
+    version: "3.4.1"
   rxdart:
     dependency: transitive
     description:
