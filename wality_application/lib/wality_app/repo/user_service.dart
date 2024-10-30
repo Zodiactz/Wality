@@ -164,6 +164,19 @@ class UserService {
     }
   }
 
+  Future<bool?> fetchUserAdmin(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['isAdmin'];
+      }
+    } catch (e) {
+      print('Error fetching isAdmin: $e');
+    }
+    return null;
+  }
+
   Future<int?> fetchUserEventBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));

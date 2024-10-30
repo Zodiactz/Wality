@@ -25,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String?> userImage = Future.value(null);
   Future<String?> uidFuture = Future.value(null);
   Future<String?> realNameFuture = Future.value(null);
+  Future<bool?> isAdminFuture = Future.value(null);
   Future<String?> sIDFuture = Future.value(null);
   String imgURL = "";
 
@@ -44,6 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
       sIDFuture = _userService.fetchSID(userId);
       realNameFuture = _userService.fetchRealName(userId);
+      isAdminFuture = _userService.fetchUserAdmin(userId);
     }
   }
 
@@ -384,23 +386,43 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(
                           height: 12,
                         ),
+                        FutureBuilder<bool?>(
+                          future: isAdminFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData &&
+                                snapshot.data == true) {
+                              return Column(
+                                children: [
+                                  profilevm.buildDivider(),
+                                  const SizedBox(height: 12),
+                                ],
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                        FutureBuilder<bool?>(
+                          future: isAdminFuture,
+                          builder: (context, snapshot) {
+                            if  (snapshot.hasData &&
+                                snapshot.data == true) {
+                              return profilevm.buildProfileOption(
+                                context,
+                                icon: Icons.admin_panel_settings,
+                                title: 'Admin',
+                                onTap: () => openAdminPage(context),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
                         profilevm.buildDivider(),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        profilevm.buildProfileOption(
-                          context,
-                          icon: Icons.admin_panel_settings,
-                          title: 'Admin',
-                          onTap: () => openAdminPage(context),
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        profilevm.buildDivider(),
-                        const SizedBox(
-                          height: 12,
-                        ),
+                        const SizedBox(height: 12),
                         profilevm.buildProfileOption(
                           context,
                           icon: Icons.settings,
