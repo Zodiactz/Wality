@@ -29,6 +29,11 @@ class _SignInPageState extends State<SignInPage> {
     final email = emailController.text.trim();
     final pass = passwordController.text.trim();
 
+    // Clear any previous errors
+    authvm.setAllSignInError(null);
+    authvm.setEmailError(null);
+    authvm.setPasswordError(null);
+
     // Perform the validation
     authvm.validateAllSignIn(email, pass);
 
@@ -67,8 +72,9 @@ class _SignInPageState extends State<SignInPage> {
       return;
     }
 
-    
-  }
+    // If we reach here, all validations passed
+    // You can proceed with sign in logic here
+}
 
   void signIn() async {
     setState(() {
@@ -95,6 +101,8 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
+    Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
+
     emailController.dispose();
     passwordController.dispose();
     emailFocusNode.dispose();

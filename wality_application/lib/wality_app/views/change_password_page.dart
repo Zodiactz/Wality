@@ -85,6 +85,11 @@ void dispose() {
     final cPass = confirmPassController.text.trim();
     final userEmail = currentUser!.profile.email ?? '';
 
+    
+    // Clear any previous errors
+    authvm.setPasswordError(null);
+    authvm.setConfirmPasswordError(null);
+
     final PassError = authvm.validatePassword(Pass);
     final cPassError = authvm.validateConfirmPass(cPass , Pass);
     if (PassError != null) {

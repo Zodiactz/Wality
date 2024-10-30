@@ -48,7 +48,16 @@ class _SignUpPageState extends State<SignUpPage> {
     final pass = passwordController.text.trim();
     final confirmPass = passwordController2.text.trim();
 
+    // Clear any previous errors
+    authvm.setAllSignUpError(null);
+    authvm.setUsernameError(null);
+    authvm.setEmailError(null);
+    authvm.setPasswordError(null);
+    authvm.setConfirmPasswordError(null);
+
     authvm.validateAllSignUp(username, email, pass, confirmPass);
+
+
 
     if (authvm.allErrorSignUp != null) {
       authvm.setAllSignUpError(authvm.allErrorSignUp);
@@ -192,6 +201,21 @@ class _SignUpPageState extends State<SignUpPage> {
         ContentType.failure,
       );
     }
+  }
+
+   @override
+  void dispose() {
+    Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
+
+    emailController.dispose();
+    passwordController.dispose();
+    usernameController.dispose();
+    passwordController2.dispose();
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
+    usernameFocusNode.dispose();
+    confirmPassFocusNote.dispose();
+    super.dispose();
   }
 
   @override

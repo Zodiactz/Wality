@@ -32,6 +32,14 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
     _fetchCurrentUsername();
   }
 
+  void dispose() {
+  // Clear error states
+  Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
+  usernameController.dispose();
+  
+  super.dispose();
+}
+
   Future<void> _fetchCurrentUsername() async {
     final userId = _realmService.getCurrentUserId();
     if (userId != null) {
@@ -52,6 +60,7 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
 
     // Clear previous errors
     authvm.clearErrors();
+    authvm.setUsernameError(null);
 
     // Validate username
     final usernameError = authvm.validateUsername(newUsername);
