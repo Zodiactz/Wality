@@ -46,14 +46,11 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        print('Email updated successfully');
       } else {
-        print('Failed to update email: ${response.statusCode}');
-        throw Exception('Failed to update email');
+        throw Exception('Failed to update email: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
-      throw Exception('Error updating email');
+      throw Exception('Error updating email: $e');
     }
     return null;
   }

@@ -1,7 +1,6 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
-import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views/profile_page.dart';
-import 'package:wality_application/wality_app/views/home_page.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
   final String currentPage;

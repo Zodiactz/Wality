@@ -1,3 +1,5 @@
+// ignore_for_file: implementation_imports, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CustomFab extends StatefulWidget {
-  const CustomFab({Key? key}) : super(key: key);
+  const CustomFab({super.key});
 
   @override
   _CustomFabState createState() => _CustomFabState();
@@ -329,7 +331,6 @@ class _CustomFabState extends State<CustomFab> {
                               !_isCouponBottleDescriptionRequired &&
                               !_isCouponBotRequirementRequired &&
                               !_isCouponDescriptionRequired) {
-                            // TODO: Implement coupon creation logic
                             _clearFields();
                             GoBack(context); // Close the bottom sheet
                           }
@@ -705,12 +706,12 @@ class _CustomFabState extends State<CustomFab> {
     return FloatingActionButton(
       onPressed: () => _showFabOptions(context),
       backgroundColor: const Color.fromARGB(255, 47, 145, 162),
+      shape: const CircleBorder(),
       child: const Icon(
         Icons.add,
         color: Colors.white,
         size: 24,
       ),
-      shape: const CircleBorder(),
     );
   }
 }

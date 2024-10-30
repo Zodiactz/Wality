@@ -47,7 +47,6 @@ class WaterService {
       final response = await http.post(uri, headers: headers, body: body);
       return response.statusCode == 200;
     } catch (e) {
-      print('Error: $e');
       return false;
     }
   }
@@ -61,7 +60,6 @@ class WaterService {
       final response = await http.post(uri, headers: headers, body: body);
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating water status: $e');
       return false;
     }
   }
@@ -74,7 +72,7 @@ class WaterService {
         return data['quantity'];
       }
     } catch (e) {
-      print('Error fetching waterId: $e');
+      throw Exception('Error fetching waterId: $e');
     }
     return null;
   }

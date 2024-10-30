@@ -14,12 +14,10 @@ import 'package:wality_application/wality_app/views/authen/sign_up_page.dart';
 import 'package:wality_application/wality_app/views/home_page.dart';
 import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/profile_page.dart';
-import 'package:wality_application/wality_app/views/change_email_page.dart';
 import 'package:wality_application/wality_app/views/authen/sign_in_page.dart';
 import 'package:wality_application/wality_app/views/ranking_page.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
-import 'package:wality_application/wality_app/views/authen/resetpass_page.dart'; // Import your Reset Password Page
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
 import 'package:wality_application/wality_app/views_models/change_info_vm.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
@@ -71,7 +69,7 @@ class MyApp extends StatelessWidget {
         '/qrscanner': (context) => const QrScannerPage(),
         '/changePicAndUsernamePage': (context) =>
             const ChangePicAndUsernamePage(),
-        '/mainpage': (context) => MainPage(),
+        '/mainpage': (context) => const MainPage(),
       },
       onGenerateRoute: (RouteSettings settings) {
         // Check if the route is the reset password path

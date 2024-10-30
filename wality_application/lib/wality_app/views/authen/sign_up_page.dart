@@ -1,11 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
-import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';

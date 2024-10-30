@@ -1,11 +1,10 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, depend_on_referenced_packages
 
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:wality_application/wality_app/utils/constant.dart';
 

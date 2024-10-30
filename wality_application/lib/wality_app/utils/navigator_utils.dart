@@ -132,7 +132,7 @@ void GoBack(BuildContext context) async {
 
 void ConfirmAtWaterChecking(BuildContext context) async {
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => MainPage()),
+      MaterialPageRoute(builder: (context) => const MainPage()),
       (Route<dynamic> route) => false);
 }
 

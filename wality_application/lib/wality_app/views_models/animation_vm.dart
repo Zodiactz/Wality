@@ -32,7 +32,7 @@ class AnimationViewModel extends ChangeNotifier {
       gifBytes2 = data.buffer.asUint8List();
       notifyListeners();
     } catch (e) {
-      print('Error loading GIF: $e');
+      throw Exception('Error loading GIF: $e');
     }
   }
 
@@ -42,7 +42,7 @@ class AnimationViewModel extends ChangeNotifier {
       gifBytes = data2.buffer.asUint8List();
       notifyListeners();
     } catch (e) {
-      print('Error loading GIF: $e');
+      throw Exception('Error loading GIF: $e');
     }
   }
 

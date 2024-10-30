@@ -1,4 +1,6 @@
 // profile_page.dart
+// ignore_for_file: implementation_imports
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
@@ -81,7 +83,7 @@ void dispose() {
     authvm.clearErrors();
     EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
     final currentUser = app.currentUser;
-    final Pass = passwordController.text.trim();
+    final pass = passwordController.text.trim();
     final cPass = confirmPassController.text.trim();
     final userEmail = currentUser!.profile.email ?? '';
 
@@ -90,14 +92,14 @@ void dispose() {
     authvm.setPasswordError(null);
     authvm.setConfirmPasswordError(null);
 
-    final PassError = authvm.validatePassword(Pass);
-    final cPassError = authvm.validateConfirmPass(cPass , Pass);
-    if (PassError != null) {
-      authvm.setPasswordError(PassError);
+    final passError = authvm.validatePassword(pass);
+    final cPassError = authvm.validateConfirmPass(cPass , pass);
+    if (passError != null) {
+      authvm.setPasswordError(passError);
       showAwesomeSnackBar(
         context,
         "Error",
-        PassError,
+        passError,
         ContentType.failure,
       );
       return;
@@ -112,8 +114,8 @@ void dispose() {
       );
       return;
     }
-    if (PassError != null && cPassError != null) {
-      final combinedError = '$PassError\n$cPassError';
+    if (passError != null && cPassError != null) {
+      final combinedError = '$passError\n$cPassError';
       showAwesomeSnackBar(
       context,
       "Error",
@@ -124,16 +126,15 @@ void dispose() {
     }
 
     
-    if (Pass.isNotEmpty && cPass.isNotEmpty) {
-      if (Pass == cPass) {
+    if (pass.isNotEmpty && cPass.isNotEmpty) {
+      if (pass == cPass) {
         final credentials = Credentials.emailPassword(
           userEmail,
-          Pass,
+          pass,
         );
 
         try {
           await app.logIn(credentials);
-          print('Password verification successful');
           await app.emailPasswordAuthProvider.resetPassword(userEmail);
           try {
             await authProvider.resetPassword(userEmail);
@@ -148,7 +149,6 @@ void dispose() {
             );
           }
         } catch (e) {
-          print('Password verification failed: $e');
           showAwesomeSnackBar(
             context,
             'Error',
@@ -205,9 +205,9 @@ void dispose() {
                           },
                         ),
                       ),
-                      Align(
+                      const Align(
                         alignment: Alignment.center,
-                        child: const Text(
+                        child: Text(
                           'Change Password',
                           style: TextStyle(
                             fontSize: 24,
@@ -220,9 +220,9 @@ void dispose() {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text(
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
                     'Please enter your current password',
                     style: TextStyle(
                       fontSize: 20,
@@ -253,9 +253,9 @@ void dispose() {
                   ),
                 ),
                 const SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text(
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
                     'Please confirm your password',
                     style: TextStyle(
                       fontSize: 20,

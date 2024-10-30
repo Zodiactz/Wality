@@ -9,7 +9,7 @@ import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
-import 'package:wality_application/wality_app/repo/water_service.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:wality_application/wality_app/utils/fab.dart';
 

@@ -33,7 +33,7 @@ class WaterCheckingViewModel extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking image: $e');
+      throw Exception('Error picking image: $e');
     }
   }
 
