@@ -101,7 +101,6 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
-    Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
 
     emailController.dispose();
     passwordController.dispose();
