@@ -57,7 +57,7 @@ class _RewardPageState extends State<RewardPage> {
     super.initState();
     fetchUserCoupons();
     botAmount = userService.fetchUserEventBot(userId!);
-    _userService.fetchWaterAmount(userId).then((amount) {
+    _userService.fetchUserEventMl(userId).then((amount) {
       setState(() {
         waterAmount = amount;
       });

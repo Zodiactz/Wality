@@ -45,7 +45,7 @@ class UserService {
     }
   }
 
-   Future<String?> fetchRealName(String userId) async {
+  Future<String?> fetchRealName(String userId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/userId/$userId'),
     );
@@ -74,19 +74,17 @@ class UserService {
   }
 
   Future<List<String>?> fetchCouponCheck(String userId) async {
-  final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+    final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    List<String> couponCheck = List<String>.from(data['couponCheck']);
-    return couponCheck;
-  } else {
-    print('Failed to fetch coupons');
-    return null;
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      List<String> couponCheck = List<String>.from(data['couponCheck']);
+      return couponCheck;
+    } else {
+      print('Failed to fetch coupons');
+      return null;
+    }
   }
-}
-
-
 
   Future<List<dynamic>> fetchUsers() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
@@ -98,7 +96,7 @@ class UserService {
     }
   }
 
-    Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
+  Future<Map<String, dynamic>?> fetchRewardsByCouponId(String coupon_id) async {
     final response =
         await http.get(Uri.parse('$baseUrl/getRewardByCouponId/$coupon_id'));
 
@@ -242,6 +240,18 @@ class UserService {
       print('Error fetching totalMl: $e');
     }
     return null;
+  }
+
+  Future<int?> fetchUserEventMl(String userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['eventMl'];
+    } else {
+      print('Failed to fetch eventMl');
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> fetchUserData(String userId) async {
@@ -486,7 +496,7 @@ class UserService {
     }
   }
 
-   ImageProvider getProfileImage(String? profileImgLink) {
+  ImageProvider getProfileImage(String? profileImgLink) {
     if (profileImgLink != null && profileImgLink.isNotEmpty) {
       return NetworkImage(profileImgLink);
     } else {

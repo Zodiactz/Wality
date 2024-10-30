@@ -18,12 +18,22 @@ class WaterService {
     setState(); // Update the state in the UI
   }
 
-  Future<bool> updateUserWater(String userId, int currentMl, int botLiv,
-      int totalMl, int limit, int eBot, int dBot, int mBot, int yBot) async {
+  Future<bool> updateUserWater(
+      String userId,
+      int currentMl,
+      int eventMl,
+      int botLiv,
+      int totalMl,
+      int limit,
+      int eBot,
+      int dBot,
+      int mBot,
+      int yBot) async {
     final uri = Uri.parse('$baseUrl/updateUserWater/$userId');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currentMl': currentMl,
+      'eventMl': eventMl,
       'botLiv': botLiv,
       'totalMl': totalMl,
       'fillingLimit': limit,
@@ -68,6 +78,4 @@ class WaterService {
     }
     return null;
   }
-  
-  
 }

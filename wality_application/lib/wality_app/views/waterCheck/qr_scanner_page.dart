@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -42,7 +43,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
   Future<int?>? dBot;
   Future<int?>? mBot;
   Future<int?>? yBot;
-
+  Future<int?>? eMl;
 
   String formatDateToECMA(DateTime date) {
     // Format to "yyyy-MM-ddTHH:mm:ss.SSS"
@@ -153,6 +154,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       dBot = userService.fetchUserEventBot(currentUserId!);
       mBot = userService.fetchUserEventBot(currentUserId!);
       yBot = userService.fetchUserEventBot(currentUserId!);
+      eMl = userService.fetchUserEventBot(currentUserId!);
     } else {
       print('User ID is null, cannot fetch data.');
     }
@@ -243,6 +245,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
             final totalMl = (await totalWater ?? 0) + waterAmount;
             final limit = (await fillingLimit ?? 0) + waterAmount;
             var eventBot = (await eBot ?? 0);
+            var eventMl = (await eMl ?? 0) + waterAmount;
             var dayBot = (await dBot ?? 0);
             var monthBot = (await mBot ?? 0);
             var yearBot = (await yBot ?? 0);
@@ -255,11 +258,21 @@ class _QrScannerPageState extends State<QrScannerPage> {
               yearBot += currentMl ~/ 550;
               botLiv += currentMl ~/ 550;
               currentMl = currentMl % 550;
+              eventMl = eventMl % 550;
             }
 
             // Update user water details
             if (await waterService.updateUserWater(
-                currentUserId!, currentMl, botLiv, totalMl, limit, eventBot, dayBot, monthBot, yearBot)) {
+                currentUserId!,
+                currentMl,
+                eventMl,
+                botLiv,
+                totalMl,
+                limit,
+                eventBot,
+                dayBot,
+                monthBot,
+                yearBot)) {
               waterService.updateWaterStatus(scanData.code ?? '', "active");
 
               // Update filling time if the time difference is more than 1 hour or is null
