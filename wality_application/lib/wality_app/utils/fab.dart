@@ -1,8 +1,12 @@
-// ignore_for_file: implementation_imports, library_private_types_in_public_api
+// ignore_for_file: implementation_imports, library_private_types_in_public_api, use_build_context_synchronously, non_constant_identifier_names
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:wality_application/wality_app/repo/reward_service.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
+import 'package:wality_application/wality_app/utils/change_pic/CouponCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
@@ -18,7 +22,7 @@ class CustomFab extends StatefulWidget {
 
 class _CustomFabState extends State<CustomFab> {
   final TextEditingController _couponNameController = TextEditingController();
-  final TextEditingController _couponBottleDescriptionController =
+  final TextEditingController _couponBriefDescriptionController =
       TextEditingController();
   final TextEditingController _couponImportanceDescriptionController =
       TextEditingController();
@@ -26,10 +30,9 @@ class _CustomFabState extends State<CustomFab> {
       TextEditingController();
   final TextEditingController _couponDescriptionController =
       TextEditingController();
-  File? _couponImage;
 
   bool _isCouponNameRequired = false;
-  bool _isCouponBottleDescriptionRequired = false;
+  bool _isCouponBriefDescriptionRequired = false;
   bool _isCouponBotRequirementRequired = false;
   bool _isCouponDescriptionRequired = false;
 
@@ -37,6 +40,16 @@ class _CustomFabState extends State<CustomFab> {
   bool isLoading = true;
   Future<int?>? botAmount;
   int? waterAmount;
+  String? imgURL = "";
+  final RewardService rewardService = RewardService();
+  List<dynamic> rewards = [];
+
+  void _updateImageURL(String path) {
+    setState(() {
+      imgURL = path;
+      print('This is imgURL: $imgURL');
+    });
+  }
 
   void _showFabOptions(BuildContext context) {
     showModalBottomSheet(
@@ -134,43 +147,40 @@ class _CustomFabState extends State<CustomFab> {
 
                     // Coupon Image
                     Center(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final pickedImage = await ImagePicker()
-                              .pickImage(source: ImageSource.gallery);
-                          if (pickedImage != null) {
-                            setState(() {
-                              _couponImage = File(pickedImage.path);
-                            });
-                          }
-                        },
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF342056),
-                              width: 2,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                CouponCircle(onImageUploaded: _updateImageURL);
+                              },
+                              child: CouponCircle(
+                                  onImageUploaded: _updateImageURL)),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                CouponCircle(onImageUploaded: _updateImageURL);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent.withOpacity(0.8),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
                             ),
-                            image: _couponImage != null
-                                ? DecorationImage(
-                                    image: FileImage(_couponImage!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
                           ),
-                          child: _couponImage == null
-                              ? Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.grey[600],
-                                  size: 40,
-                                )
-                              : null,
-                        ),
+                        ],
                       ),
                     ),
+
                     const SizedBox(height: 24),
 
                     // Coupon Name
@@ -203,7 +213,7 @@ class _CustomFabState extends State<CustomFab> {
 
                     // Bottle Description
                     const Text(
-                      'Bottle Description',
+                      'Brief Coupon Description',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -212,17 +222,17 @@ class _CustomFabState extends State<CustomFab> {
                     ),
                     const SizedBox(height: 8),
                     TextField(
-                      controller: _couponBottleDescriptionController,
+                      controller: _couponBriefDescriptionController,
                       decoration: InputDecoration(
-                        hintText: 'Enter bottle description',
+                        hintText: 'Enter brief coupon description',
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        errorText: _isCouponBottleDescriptionRequired
-                            ? 'Please enter a bottle description'
+                        errorText: _isCouponBriefDescriptionRequired
+                            ? 'Please enter a brief coupon description'
                             : null,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
@@ -267,6 +277,10 @@ class _CustomFabState extends State<CustomFab> {
                     TextField(
                       controller: _couponBotRequirementController,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // Only allows digits
+                      ],
                       decoration: InputDecoration(
                         hintText: 'Enter bottle requirement',
                         filled: true,
@@ -315,12 +329,23 @@ class _CustomFabState extends State<CustomFab> {
                     // Create Coupon Button
                     Center(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final coupon_name = _couponNameController.text.trim();
+                          final bot_req =
+                              _couponBotRequirementController.text.trim();
+                          final b_desc =
+                              _couponBriefDescriptionController.text.trim();
+                          final f_desc =
+                              _couponDescriptionController.text.trim();
+                          final imp_desc =
+                              _couponImportanceDescriptionController.text
+                                  .trim();
+                          final imageFile = File(imgURL ?? '');
                           setState(() {
                             _isCouponNameRequired =
                                 _couponNameController.text.isEmpty;
-                            _isCouponBottleDescriptionRequired =
-                                _couponBottleDescriptionController.text.isEmpty;
+                            _isCouponBriefDescriptionRequired =
+                                _couponBriefDescriptionController.text.isEmpty;
                             _isCouponBotRequirementRequired =
                                 _couponBotRequirementController.text.isEmpty;
                             _isCouponDescriptionRequired =
@@ -328,11 +353,41 @@ class _CustomFabState extends State<CustomFab> {
                           });
 
                           if (!_isCouponNameRequired &&
-                              !_isCouponBottleDescriptionRequired &&
+                              !_isCouponBriefDescriptionRequired &&
                               !_isCouponBotRequirementRequired &&
                               !_isCouponDescriptionRequired) {
-                            _clearFields();
-                            GoBack(context); // Close the bottom sheet
+                            final int? botReq = int.tryParse(
+                                bot_req); // Attempt to parse to int
+                            try {
+                              await rewardService.createCoupon(
+                                  coupon_name,
+                                  botReq ?? 0,
+                                  b_desc,
+                                  f_desc,
+                                  imp_desc,
+                                  imageFile);
+
+                              // Clear fields and close the bottom sheet
+                              _clearFields();
+                              GoBack(context); // Close the bottom sheet
+
+                              // Optionally show success feedback (e.g., SnackBar)
+                              showAwesomeSnackBar(
+                                context,
+                                "Success",
+                                "Coupon created successfully!",
+                                ContentType.success,
+                              );
+                            } catch (e) {
+                              // Handle exceptions from the service
+                              // Optionally show error feedback (e.g., SnackBar)
+                              showAwesomeSnackBar(
+                                context,
+                                "Error",
+                                "Failed to create coupon. Please try again.",
+                                ContentType.failure,
+                              );
+                            } // Close the bottom sheet
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -422,7 +477,8 @@ class _CustomFabState extends State<CustomFab> {
                   // Coupon List
                   Expanded(
                     child: FutureBuilder<List<dynamic>>(
-                      future: fetchRewards(),
+                      future: rewardService
+                          .fetchRewards(), // Make sure to fetch updated rewards
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             flutter_async.ConnectionState.waiting) {
@@ -433,18 +489,23 @@ class _CustomFabState extends State<CustomFab> {
                           return Center(
                               child: Text('Error: ${snapshot.error}',
                                   style: const TextStyle(color: Colors.grey)));
-                        } else if (!snapshot.hasData ||
+                        } else if (snapshot.data == null ||
                             snapshot.data!.isEmpty) {
                           return const Center(
                               child: Text('No coupons available',
                                   style: TextStyle(color: Colors.grey)));
                         }
 
+                        // Sort coupons if data is valid
+                        final sortedCoupon = snapshot.data!
+                          ..sort(
+                              (a, b) => a['bot_req'].compareTo(b['bot_req']));
+
                         return ListView.builder(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) {
-                            final coupon = snapshot.data![index];
+                            final coupon = sortedCoupon[index];
                             return _buildRewardItem(
                               context,
                               coupon['coupon_id'],
@@ -467,16 +528,6 @@ class _CustomFabState extends State<CustomFab> {
         );
       },
     );
-  }
-
-  Future<List<dynamic>> fetchRewards() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8080/getAllCoupons'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load rewards');
-    }
   }
 
   Widget _buildRewardItem(
@@ -570,14 +621,15 @@ class _CustomFabState extends State<CustomFab> {
   }
 
   Future<void> _showCouponPopup(
-      BuildContext context,
-      String couponName,
-      String bD,
-      int bReq,
-      String imgCoupon,
-      String fD,
-      String impD,
-      String cId) async {
+    BuildContext context,
+    String couponName,
+    String bD,
+    int bReq,
+    String imgCoupon,
+    String fD,
+    String impD,
+    String cId,
+  ) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -655,26 +707,51 @@ class _CustomFabState extends State<CustomFab> {
                       ),
                       const SizedBox(height: 20),
 
-                      const SizedBox(height: 20),
-
                       // Buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
-                            onPressed: () async {},
+                            onPressed: () async {
+                              try {
+                                await rewardService.deleteCoupon(
+                                    cId, imgCoupon);
+                                Navigator.of(context).pop(); // Close the dialog
+
+                                // Refresh the coupon list and update state
+                                await refreshCouponList();
+
+                                // Show the SnackBar after the dialog is closed
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Success! Coupon Deleted!"),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } catch (e) {
+                                Navigator.of(context).pop(); // Close the dialog
+                                print("This is error: $e");
+
+                                // Show error SnackBar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text("Failed to delete coupon: $e"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
                             child: const Text('Delete Coupon'),
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              GoBack(context);
+                              Navigator.of(context).pop(); // Exit dialog
                             },
                             child: const Text('Exit'),
                           ),
                         ],
                       ),
-
-                      // Buttons
                     ],
                   ),
                 ),
@@ -686,16 +763,27 @@ class _CustomFabState extends State<CustomFab> {
     );
   }
 
+  Future<void> refreshCouponList() async {
+    // Fetch the updated list of coupons
+    final List<dynamic> updatedRewards = await rewardService.fetchRewards();
+
+    // Update the state to reflect the new rewards
+    setState(() {
+      // Assuming you have a member variable to hold the rewards
+      this.rewards = updatedRewards; // Assign to a member variable
+    });
+  }
+
   void _clearFields() {
     _couponNameController.clear();
-    _couponBottleDescriptionController.clear();
+    _couponBriefDescriptionController.clear();
     _couponImportanceDescriptionController.clear();
     _couponBotRequirementController.clear();
     _couponDescriptionController.clear();
     setState(() {
-      _couponImage = null;
+      imgURL = null;
       _isCouponNameRequired = false;
-      _isCouponBottleDescriptionRequired = false;
+      _isCouponBriefDescriptionRequired = false;
       _isCouponBotRequirementRequired = false;
       _isCouponDescriptionRequired = false;
     });
@@ -708,7 +796,7 @@ class _CustomFabState extends State<CustomFab> {
       backgroundColor: const Color.fromARGB(255, 47, 145, 162),
       shape: const CircleBorder(),
       child: const Icon(
-        Icons.add,
+        Icons.wallet_giftcard,
         color: Colors.white,
         size: 24,
       ),

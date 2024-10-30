@@ -85,6 +85,7 @@ func main() {
 	app.Delete("/deleteAllQR/:user_id", deleteAllQR)
 	app.Get("/getQRValidByQRId/:qr_id", getQRValidByQRId)
 	app.Get("/getRewardByCouponId/:coupon_id", getRewardByCouponId)
+	app.Delete("/deleteCoupon/:coupon_id", deleteCoupon)
 
 	// New route for image upload
 	app.Post("/uploadImage", uploadImage)
@@ -706,6 +707,29 @@ func getCouponsFromUser(c *fiber.Ctx) error {
 	// Return the couponCheck array
 	return c.Status(http.StatusOK).JSON(fiber.Map{"couponCheck": user.CouponCheck})
 }
+
+// deleteAllofThatUserQRValid
+func deleteCoupon(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("Reward")
+
+	// Get the username from the URL parameter
+	coupon_id := c.Params("coupon_id")
+
+	// Define the filter to match users with the specified username
+	filter := bson.M{"coupon_id": coupon_id}
+
+	result, err := collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if result.DeletedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "No Coupon with coupon_id '" + coupon_id + "' found to delete!"})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon with coupon_id '" + coupon_id + "' deleted successfully!"})
+}
+
 func updateUsername(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Users")
 	user_id := c.Params("user_id")
@@ -930,51 +954,6 @@ func getAllUsers(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(rewards)
 }
 
-func transferData(c *fiber.Ctx) error {
-	collection := client.Database("Wality_DB").Collection("Users")
-	user_id := c.Params("user_id")
-
-	// Define a struct for the update payload
-	var updatePayload Users // Use the Users struct for the update payload
-
-	// Parse the request body into the struct
-	if err := c.BodyParser(&updatePayload); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	// Debug: Log the user_id and updatePayload
-	fmt.Printf("Updating user with ID: %s\n", user_id)
-	fmt.Printf("Update payload: %+v\n", updatePayload)
-
-	// Define the filter and update
-	filter := bson.M{"user_id": user_id}
-	update := bson.M{
-		"$set": bson.M{
-			"user_id":          updatePayload.UserId,
-			"currentMl":        updatePayload.CurrentMl,
-			"botLiv":           updatePayload.BotLiv,
-			"totalMl":          updatePayload.TotalMl,
-			"fillingLimit":     updatePayload.FillingLimit,
-			"eventBot":         updatePayload.EventBot,
-			"startFillingTime": updatePayload.StartFillingTime, // Store as time.Time
-			"profileImg_link":  updatePayload.ProfileImgLink,
-		},
-	}
-
-	// Perform the update operation
-	result, err := collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	// Check if a document was matched and updated
-	if result.MatchedCount == 0 {
-		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
-	}
-
-	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "User updated successfully!"})
-}
-
 func updateUserIdByEmail(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Users")
 	email := c.Params("email")
@@ -1015,19 +994,6 @@ func updateUserIdByEmail(c *fiber.Ctx) error {
 }
 
 
-type Users struct {
-	UserId           string     `json:"user_id"`
-	Uid              string     `json:"uid"`
-	UserName         string     `json:"username"`
-	Email            string     `json:"email"`
-	CurrentMl        int        `json:"currentMl"`
-	TotalMl          int        `json:"totalMl"`
-	BotLiv           int        `json:"botLiv"`
-	ProfileImgLink   string     `json:"profileImg_link"`
-	StartFillingTime *time.Time `json:"startFillingTime"` // Use pointer for nullable field
-	FillingLimit     int        `json:"fillingLimit"`
-	CouponCheck      []string   `json:"couponCheck"`
-	EventBot         int        `json:"eventBot"`
-}
+
 
 

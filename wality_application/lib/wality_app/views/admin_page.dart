@@ -463,86 +463,105 @@ class _AdminPageState extends State<AdminPage> {
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: usedCoupons.length,
                             itemBuilder: (context, index) {
-                              return FutureBuilder<Map<String, dynamic>?>(
-                                future: _userService
-                                    .fetchRewardsByCouponId(usedCoupons[index]),
-                                builder: (context, couponSnapshot) {
-                                  if (couponSnapshot.connectionState ==
+                              return FutureBuilder<List<Map<String, dynamic>?>>(
+                                future: Future.wait(usedCoupons.map(
+                                    (couponId) => _userService
+                                        .fetchRewardsByCouponId(couponId))),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return const ListTile(
-                                      leading: CircularProgressIndicator(),
-                                      title: Text('Loading coupon details...'),
-                                    );
+                                    return const Center(
+                                        child: CircularProgressIndicator());
                                   }
 
-                                  if (couponSnapshot.hasError ||
-                                      !couponSnapshot.hasData) {
-                                    return ListTile(
-                                      title:
-                                          Text('Coupon ${usedCoupons[index]}'),
-                                      subtitle:
-                                          const Text('Unable to load details'),
-                                    );
+                                  if (snapshot.hasError ||
+                                      !snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const Center(
+                                        child: Text(
+                                            'Unable to load used coupons'));
                                   }
 
-                                  final couponData = couponSnapshot.data!;
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _showCouponPopupForAdmin(
-                                          context,
-                                          couponData['coupon_name'] ?? '',
-                                          couponData['b_desc'] ?? '',
-                                          couponData['bot_req'] ?? 0,
-                                          couponData['img_couponLink'] ?? '',
-                                          couponData['f_desc'] ?? '',
-                                          couponData['imp_desc'] ?? '',
-                                          couponData['conpon_id'] ??
-                                              ''); // Call your function here
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.amber[50],
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                            color: Colors.amber[100]!),
-                                      ),
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              couponData['img_couponLink'] ??
-                                                  ''),
-                                          backgroundColor: Colors.grey[200],
-                                        ),
-                                        title: Text(
-                                          couponData['coupon_name'] ??
-                                              'Unknown Coupon',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        subtitle: Text(
-                                          couponData['b_desc'] ??
-                                              'No description available',
-                                          style: TextStyle(
-                                              color: Colors.grey[600]),
-                                        ),
-                                        trailing: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
+                                  // Filter out any null results and sort by `bot_req`
+                                  final sortedCoupons = snapshot.data!
+                                      .whereType<Map<String, dynamic>>()
+                                      .toList()
+                                    ..sort((a, b) => (a['bot_req'] ?? 0)
+                                        .compareTo(b['bot_req'] ?? 0));
+
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: sortedCoupons.length,
+                                    itemBuilder: (context, index) {
+                                      final couponData = sortedCoupons[index];
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          _showCouponPopupForAdmin(
+                                            context,
+                                            couponData['coupon_name'] ?? '',
+                                            couponData['b_desc'] ?? '',
+                                            couponData['bot_req'] ?? 0,
+                                            couponData['img_couponLink'] ?? '',
+                                            couponData['f_desc'] ?? '',
+                                            couponData['imp_desc'] ?? '',
+                                            couponData['coupon_id'] ?? '',
+                                          );
+                                        },
+                                        child: Container(
+                                          margin:
+                                              const EdgeInsets.only(bottom: 8),
                                           decoration: BoxDecoration(
-                                            color: Colors.green[100],
+                                            color: Colors.amber[50],
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                                color: Colors.amber[100]!),
                                           ),
-                                          child: const Text(
-                                            'Used',
-                                            style: TextStyle(
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.bold),
+                                          child: ListTile(
+                                            leading: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  couponData[
+                                                          'img_couponLink'] ??
+                                                      ''),
+                                              backgroundColor: Colors.grey[200],
+                                            ),
+                                            title: Text(
+                                              couponData['coupon_name'] ??
+                                                  'Unknown Coupon',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            subtitle: Text(
+                                              couponData['b_desc'] ??
+                                                  'No description available',
+                                              style: TextStyle(
+                                                  color: Colors.grey[600]),
+                                            ),
+                                            trailing: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green[100],
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: const Text(
+                                                'Used',
+                                                style: TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                    },
                                   );
                                 },
                               );

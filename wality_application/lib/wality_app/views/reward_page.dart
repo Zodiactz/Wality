@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wality_application/wality_app/repo/qrValid_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:wality_application/wality_app/repo/reward_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:realm/realm.dart';
 import 'dart:convert';
@@ -26,6 +27,7 @@ class RewardPage extends StatefulWidget {
 
 class _RewardPageState extends State<RewardPage> {
   final UserService _userService = UserService();
+  final RewardService _rewardService = RewardService();
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
@@ -93,14 +95,7 @@ class _RewardPageState extends State<RewardPage> {
     }
   }
 
-  Future<List<dynamic>> fetchRewards() async {
-    final response = await http.get(Uri.parse('$baseUrl/getAllCoupons'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load rewards');
-    }
-  }
+  
 
   void _showDialogSuccess(String title, String message) {
     showDialog(
@@ -127,22 +122,22 @@ class _RewardPageState extends State<RewardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF0083AB), Color(0xFF005678)],
-            ),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0083AB), Color(0xFF005678)],
           ),
-          child: SafeArea(
-              child: Column(
+        ),
+        child: SafeArea(
+          child: Column(
             children: [
               _buildAppBar(context),
 
               // Rewards list with ranking page styling
               Expanded(
                 child: FutureBuilder<List<dynamic>>(
-                  future: fetchRewards(),
+                  future: _rewardService.fetchRewards(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
                         flutter_async.ConnectionState.waiting) {
@@ -159,11 +154,15 @@ class _RewardPageState extends State<RewardPage> {
                               style: TextStyle(color: Colors.white)));
                     }
 
+                    // Sort rewards based on `bot_req` in ascending order
+                    final sortedRewards = snapshot.data!
+                      ..sort((a, b) => a['bot_req'].compareTo(b['bot_req']));
+
                     return ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: snapshot.data!.length,
+                      itemCount: sortedRewards.length,
                       itemBuilder: (context, index) {
-                        final reward = snapshot.data![index];
+                        final reward = sortedRewards[index];
                         return _buildRewardItem(
                           context,
                           reward['coupon_id'],
@@ -261,7 +260,9 @@ class _RewardPageState extends State<RewardPage> {
                 ),
               )
             ],
-          ))),
+          ),
+        ),
+      ),
     );
   }
 
@@ -472,14 +473,11 @@ class _RewardPageState extends State<RewardPage> {
                                   _showCouponPopupQR(
                                       context, qr_id, couponName);
                                   await fetchUserCoupons();
-        
                                 } else {
                                   // Handle the case where qr_id is null (optional)
-                 
                                 }
                               } else {
                                 // Optionally handle the case where there aren't enough bottles
-                     
                               }
                             },
                             style: ElevatedButton.styleFrom(
