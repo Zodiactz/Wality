@@ -16,10 +16,14 @@ class CustomFab extends StatefulWidget {
 
 class _CustomFabState extends State<CustomFab> {
   final TextEditingController _couponNameController = TextEditingController();
-  final TextEditingController _couponBottleDescriptionController = TextEditingController();
-  final TextEditingController _couponImportanceDescriptionController = TextEditingController();
-  final TextEditingController _couponBotRequirementController = TextEditingController();
-  final TextEditingController _couponDescriptionController = TextEditingController();
+  final TextEditingController _couponBottleDescriptionController =
+      TextEditingController();
+  final TextEditingController _couponImportanceDescriptionController =
+      TextEditingController();
+  final TextEditingController _couponBotRequirementController =
+      TextEditingController();
+  final TextEditingController _couponDescriptionController =
+      TextEditingController();
   File? _couponImage;
 
   bool _isCouponNameRequired = false;
@@ -187,7 +191,9 @@ class _CustomFabState extends State<CustomFab> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        errorText: _isCouponNameRequired ? 'Please enter a coupon name' : null,
+                        errorText: _isCouponNameRequired
+                            ? 'Please enter a coupon name'
+                            : null,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -213,7 +219,9 @@ class _CustomFabState extends State<CustomFab> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        errorText: _isCouponBottleDescriptionRequired ? 'Please enter a bottle description' : null,
+                        errorText: _isCouponBottleDescriptionRequired
+                            ? 'Please enter a bottle description'
+                            : null,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -265,7 +273,9 @@ class _CustomFabState extends State<CustomFab> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        errorText: _isCouponBotRequirementRequired ? 'Please enter a bottle requirement' : null,
+                        errorText: _isCouponBotRequirementRequired
+                            ? 'Please enter a bottle requirement'
+                            : null,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -292,7 +302,9 @@ class _CustomFabState extends State<CustomFab> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        errorText: _isCouponDescriptionRequired ? 'Please enter a coupon description' : null,
+                        errorText: _isCouponDescriptionRequired
+                            ? 'Please enter a coupon description'
+                            : null,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -303,10 +315,14 @@ class _CustomFabState extends State<CustomFab> {
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _isCouponNameRequired = _couponNameController.text.isEmpty;
-                            _isCouponBottleDescriptionRequired = _couponBottleDescriptionController.text.isEmpty;
-                            _isCouponBotRequirementRequired = _couponBotRequirementController.text.isEmpty;
-                            _isCouponDescriptionRequired = _couponDescriptionController.text.isEmpty;
+                            _isCouponNameRequired =
+                                _couponNameController.text.isEmpty;
+                            _isCouponBottleDescriptionRequired =
+                                _couponBottleDescriptionController.text.isEmpty;
+                            _isCouponBotRequirementRequired =
+                                _couponBotRequirementController.text.isEmpty;
+                            _isCouponDescriptionRequired =
+                                _couponDescriptionController.text.isEmpty;
                           });
 
                           if (!_isCouponNameRequired &&
@@ -345,7 +361,7 @@ class _CustomFabState extends State<CustomFab> {
     );
   }
 
- void _showCouponList(BuildContext context) {
+  void _showCouponList(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomSheetHeight = screenHeight * 0.9; // 90% of the screen height
 
@@ -407,14 +423,17 @@ class _CustomFabState extends State<CustomFab> {
                     child: FutureBuilder<List<dynamic>>(
                       future: fetchRewards(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            flutter_async.ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator(color: Colors.grey));
+                              child: CircularProgressIndicator(
+                                  color: Colors.grey));
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}',
                                   style: const TextStyle(color: Colors.grey)));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
                           return const Center(
                               child: Text('No coupons available',
                                   style: TextStyle(color: Colors.grey)));
@@ -450,7 +469,8 @@ class _CustomFabState extends State<CustomFab> {
   }
 
   Future<List<dynamic>> fetchRewards() async {
-    final response = await http.get(Uri.parse('http://localhost:8080/getAllCoupons'));
+    final response =
+        await http.get(Uri.parse('http://localhost:8080/getAllCoupons'));
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -548,7 +568,7 @@ class _CustomFabState extends State<CustomFab> {
     );
   }
 
- Future<void> _showCouponPopup(
+  Future<void> _showCouponPopup(
       BuildContext context,
       String couponName,
       String bD,
@@ -557,7 +577,6 @@ class _CustomFabState extends State<CustomFab> {
       String fD,
       String impD,
       String cId) async {
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -635,7 +654,7 @@ class _CustomFabState extends State<CustomFab> {
                       ),
                       const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Buttons
                       Row(
@@ -655,7 +674,6 @@ class _CustomFabState extends State<CustomFab> {
                       ),
 
                       // Buttons
-                     
                     ],
                   ),
                 ),
