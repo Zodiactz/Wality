@@ -35,12 +35,11 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
 
   @override
   void dispose() {
-    // Clear error states
-    Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
-    usernameController.dispose();
-
-    super.dispose();
-  }
+  // Clear error states
+  usernameController.dispose();
+  
+  super.dispose();
+}
 
   Future<void> _fetchCurrentUsername() async {
     final userId = _realmService.getCurrentUserId();
