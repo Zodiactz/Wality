@@ -90,8 +90,11 @@ class _RankingPageState extends State<RankingPage> {
       }
 
       setState(() {
+        final bottleKey =
+            getBottleKey(); // Get the correct key based on the filter
         _users = filteredUsers
-          ..sort((a, b) => b['botLiv'].compareTo(a['botLiv']));
+          ..sort((a, b) => b[bottleKey].compareTo(a[bottleKey]));
+
         _isLoading = false;
       });
     } catch (e) {
