@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -9,8 +11,6 @@ import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:wality_application/wality_app/views/reward_page.dart';
-import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/utils/fab.dart';
 
 class AdminPage extends StatefulWidget {
@@ -23,7 +23,6 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   final UserService _userService = UserService();
   final RealmService _realmService = RealmService();
-  final WaterService _waterService = WaterService();
   List<dynamic> _users = [];
   List<dynamic> _filteredUsers = [];
   bool _isLoading = true;
@@ -71,9 +70,9 @@ class _AdminPageState extends State<AdminPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading users: $e');
       setState(() {
         _isLoading = false;
+        throw Exception(e);
       });
     }
   }
@@ -168,27 +167,6 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  void _showDialogContinue(String title, String message, int sentCurrentWaterGo,
-      int sentCurrentBottleGo, int sentWaterAmountGo) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                GoBack(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _startQRScanner() {
     setState(() {
       _isScanning = true;
@@ -207,7 +185,7 @@ class _AdminPageState extends State<AdminPage> {
       GoBack(context);
     } else {
       // Handle the error
-      print('Failed to use coupon');
+      throw Exception('Failed to use coupon');
     }
   }
 
@@ -239,11 +217,9 @@ class _AdminPageState extends State<AdminPage> {
 
           if (user_id != null) {
             final coupon_id = await qrService.fetchQRValidCouponId(qr_id);
-            print("This is coupon id: $coupon_id");
             // Fetch coupon details using the fetched user ID
             final couponData =
                 await _userService.fetchRewardsByCouponId(coupon_id!);
-            print("This is coupon data: $couponData");
 
             // Ensure couponData is not null
             if (couponData != null && couponData.isNotEmpty) {
@@ -708,11 +684,11 @@ class _AdminPageState extends State<AdminPage> {
                         child: Text(
                           'Admin',
                           style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
-                        ),
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed',
+                          ),
                         ),
                       ),
                     ),
@@ -812,8 +788,7 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
       ),
-      floatingActionButton: CustomFab(
-      ),
+      floatingActionButton: const CustomFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -1038,8 +1013,6 @@ class _AdminPageState extends State<AdminPage> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
-
-                      
 
                       // Buttons
                       Row(

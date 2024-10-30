@@ -1,16 +1,11 @@
 // profile_page.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_bottom_navbar.dart';
-import 'package:wality_application/wality_app/utils/nav_bar/custom_floating_action_button.dart';
 
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/profile_vm.dart';
-import 'package:realm/realm.dart' as realm;
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 
 class ProfilePage extends StatefulWidget {
@@ -106,9 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 right: 0,
                                 child: GestureDetector(
                                   onTap: () {
-                                    onTap:
-                                    () => OpenChangePictureAndUsernamePage(
-                                        context);
+                                    OpenChangePictureAndUsernamePage(context);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
@@ -260,8 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       String trimmedText = snapshot.data !=
                                                   null &&
                                               snapshot.data!.length > 50
-                                          ? snapshot.data!.substring(0, 47) +
-                                              '...'
+                                          ? '${snapshot.data!.substring(0, 47)}...'
                                           : snapshot.data ?? '';
 
                                       return SizedBox(
@@ -389,8 +381,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         FutureBuilder<bool?>(
                           future: isAdminFuture,
                           builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.data == true) {
+                            if (snapshot.hasData && snapshot.data == true) {
                               return Column(
                                 children: [
                                   profilevm.buildDivider(),
@@ -405,8 +396,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         FutureBuilder<bool?>(
                           future: isAdminFuture,
                           builder: (context, snapshot) {
-                            if  (snapshot.hasData &&
-                                snapshot.data == true) {
+                            if (snapshot.hasData && snapshot.data == true) {
                               return profilevm.buildProfileOption(
                                 context,
                                 icon: Icons.admin_panel_settings,

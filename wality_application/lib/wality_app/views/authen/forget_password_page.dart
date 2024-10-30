@@ -8,6 +8,7 @@ class ForgetpasswordPage extends StatefulWidget {
   const ForgetpasswordPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ForgetpasswordPageState createState() => _ForgetpasswordPageState();
 }
 
@@ -21,8 +22,6 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    String? emailError;
-    String? confirmEmailError;
 
     void showErrorSnackBar(AuthenticationViewModel authenvm) {
       authenvm.validateAllForgetPassword(
@@ -47,6 +46,7 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
         );
 
         if (isValidForConfirmEmail) {
+          // ignore: use_build_context_synchronously
           openChoosewayPageFromLogoPage(context);
         } else {
           showErrorSnackBar(authenvm);

@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
@@ -15,7 +17,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['username'];
     } else {
-      print('Failed to fetch username');
       return null;
     }
   }
@@ -26,7 +27,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['email'];
     } else {
-      print('Failed to fetch email');
       return null;
     }
   }
@@ -40,7 +40,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['uid'];
     } else {
-      print('Failed to fetch uid');
       return null;
     }
   }
@@ -54,7 +53,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['realName'];
     } else {
-      print('Failed to fetch uid');
       return null;
     }
   }
@@ -68,7 +66,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['sID'];
     } else {
-      print('Failed to fetch id');
       return null;
     }
   }
@@ -81,7 +78,6 @@ class UserService {
       List<String> couponCheck = List<String>.from(data['couponCheck']);
       return couponCheck;
     } else {
-      print('Failed to fetch coupons');
       return null;
     }
   }
@@ -117,7 +113,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['profileImg_link'];
     } else {
-      print('Failed to fetch profileImg_link');
       return null;
     }
   }
@@ -134,11 +129,9 @@ class UserService {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         return jsonResponse['profileImg_link'];
       } else {
-        print('Failed to load image');
         return null;
       }
     } catch (e) {
-      print('Error: $e');
       return null;
     }
   }
@@ -157,10 +150,9 @@ class UserService {
     final body = jsonEncode({'startFillingTime': formattedTime});
 
     try {
-      final result = await http.post(uri, headers: headers, body: body);
-      print("This is update time ${result.body}");
+      await http.post(uri, headers: headers, body: body);
     } catch (e) {
-      print('Error during HTTP request: $e');
+      throw Exception('Failed to load FillingTime');
     }
   }
 
@@ -172,7 +164,7 @@ class UserService {
         return data['isAdmin'];
       }
     } catch (e) {
-      print('Error fetching isAdmin: $e');
+      throw Exception('Failed to load UserAdmin');
     }
     return null;
   }
@@ -185,7 +177,7 @@ class UserService {
         return data['eventBot'];
       }
     } catch (e) {
-      print('Error fetching eventBot: $e');
+      throw Exception('Failed to load EventBot');
     }
     return null;
   }
@@ -198,7 +190,7 @@ class UserService {
         return DateTime.parse(data['startFillingTime']);
       }
     } catch (e) {
-      print('Error fetching startFillingTime: $e');
+      throw Exception('Failed to load StartTime');
     }
     return null;
   }
@@ -211,7 +203,7 @@ class UserService {
         return data['fillingLimit'];
       }
     } catch (e) {
-      print('Error fetching fillingLimit: $e');
+      throw Exception('Failed to load FillingLimit');
     }
     return null;
   }
@@ -224,7 +216,7 @@ class UserService {
         return data['currentMl'];
       }
     } catch (e) {
-      print('Error fetching currentMl: $e');
+      throw Exception('Failed to load WaterAmount');
     }
     return null;
   }
@@ -237,7 +229,7 @@ class UserService {
         return data['botLiv'];
       }
     } catch (e) {
-      print('Error fetching botLiv: $e');
+      throw Exception('Failed to load BottleAmount');
     }
     return null;
   }
@@ -250,7 +242,7 @@ class UserService {
         return data['totalMl'];
       }
     } catch (e) {
-      print('Error fetching totalMl: $e');
+      throw Exception('Failed to load TotalWater');
     }
     return null;
   }
@@ -262,7 +254,6 @@ class UserService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['eventMl'];
     } else {
-      print('Failed to fetch eventMl');
       return null;
     }
   }
@@ -278,11 +269,9 @@ class UserService {
         final Map<String, dynamic> userData = jsonDecode(response.body);
         return userData;
       } else {
-        print('Failed to fetch user data: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Error fetching user data: $e');
       return null;
     }
   }
@@ -319,14 +308,12 @@ class UserService {
         String uploadedURL = jsonResponse['imageURL'];
 
         // Save or return the uploaded URL
-        print(uploadedURL);
+
         return uploadedURL;
       } else {
-        print('Failed to upload image. Status Code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Error uploading image: $e');
       return null;
     }
   }
@@ -346,20 +333,16 @@ class UserService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-        print("UserId update details ${response.body} from $email to user_id");
+
         return data['status'] ??
             'UserId updated successfully'; // Adjusted to match 'status' field
       } else if (response.statusCode == 404) {
         return 'User not found!'; // Added handling for 404 case
       } else {
-        print(
-            'Failed to update username: ${response.statusCode} - ${response.reasonPhrase}');
-        print('Response body: ${response.body}');
         return jsonDecode(response.body)['error'] ??
             'Unknown error occurred'; // Extract the error message if available
       }
     } catch (e) {
-      print('Error updating username: $e');
       return 'Error updating username: $e';
     }
   }
@@ -368,7 +351,6 @@ class UserService {
       String userId, File? imageFile, String username) async {
     try {
       String? uploadedImageUrl;
-      print("this is updateimage: $uploadedImageUrl");
 
       // Only upload the image if an imageFile is provided
       if (imageFile != null) {
@@ -411,7 +393,6 @@ class UserService {
       if (usernameResponse.statusCode == 200) {
         return 'User profile updated successfully';
       } else if (usernameResponse.statusCode == 404) {
-        print('userID: $userId, error: ${usernameResponse.body}');
         return 'User not found when updating username!';
       } else {
         return jsonDecode(usernameResponse.body)['error'] ??
@@ -431,18 +412,20 @@ class UserService {
       if (response.statusCode == 200) {
         // Successfully deleted the user
         final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'User deleted successfully!'
+        // e.g., 'User deleted successfully!'
+        throw Exception('$data');
       } else if (response.statusCode == 404) {
         // User not found
         final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'User not found!'
+        // e.g., 'User not found!'
+        throw Exception('$data');
       } else {
         // Other error
         final data = jsonDecode(response.body);
-        print('Error: ${data['error']}');
+        throw Exception('$data');
       }
     } catch (e) {
-      print('Failed to delete user: $e');
+      throw Exception('$e');
     }
   }
 
@@ -455,18 +438,20 @@ class UserService {
       if (response.statusCode == 200) {
         // Successfully deleted the user
         final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'User deleted successfully!'
+        // e.g., 'User deleted successfully!'
+        throw Exception('$data');
       } else if (response.statusCode == 404) {
         // User not found
         final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'User not found!'
+        // e.g., 'User not found!'
+        throw Exception('$data');
       } else {
         // Other error
         final data = jsonDecode(response.body);
-        print('Error: ${data['error']}');
+        throw Exception('$data');
       }
     } catch (e) {
-      print('Failed to delete user: $e');
+      throw Exception('Failed to delete user email');
     }
   }
 
@@ -479,10 +464,8 @@ class UserService {
 
     // Check the status code to determine if the request was successful
     if (response.statusCode == 200) {
-      print("Image deleted successfully.");
       return true;
     } else {
-      print("Failed to delete image: ${response.statusCode}, ${response.body}");
       return false;
     }
   }
@@ -504,7 +487,6 @@ class UserService {
       // Optionally decode the URL-encoded image name
       return Uri.decodeComponent(imageName);
     } catch (e) {
-      print("Error extracting image name: $e");
       return null;
     }
   }
@@ -516,4 +498,5 @@ class UserService {
       return const AssetImage('assets/images/cat.jpg');
     }
   }
+  
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,14 +35,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   final AuthService _authService = AuthService();
   bool isLoading = false;
-
-  // String generateUid(int length) {
-  //   const chars =
-  //       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  //   final random = Random();
-  //   return List.generate(length, (index) => chars[random.nextInt(chars.length)])
-  //       .join();
-  // }
 
   Future<void> _handleSignUpUpdate(AuthenticationViewModel authvm) async {
     final username = usernameController.text.trim();

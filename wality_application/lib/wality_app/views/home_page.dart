@@ -1,12 +1,12 @@
+// ignore_for_file: implementation_imports
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
-import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/utils/wave.dart';
 import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
@@ -21,7 +21,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<String?>? usernameFuture;
   final UserService _userService = UserService();
-  final WaterService _waterService = WaterService();
   final RealmService _realmService = RealmService();
 
   int? bottleAmount; // Variable to store the fetched bottle amount

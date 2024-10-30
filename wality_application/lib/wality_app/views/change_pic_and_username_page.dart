@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,7 +11,6 @@ import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dar
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
-import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart'; // Import the package
 
 class ChangePicAndUsernamePage extends StatefulWidget {
@@ -32,13 +33,14 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
     _fetchCurrentUsername();
   }
 
+  @override
   void dispose() {
-  // Clear error states
-  Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
-  usernameController.dispose();
-  
-  super.dispose();
-}
+    // Clear error states
+    Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
+    usernameController.dispose();
+
+    super.dispose();
+  }
 
   Future<void> _fetchCurrentUsername() async {
     final userId = _realmService.getCurrentUserId();
@@ -242,7 +244,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
                       borderColor: authvm.usernameError != null
                           ? Colors.red
                           : Colors.grey,
-                  
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(

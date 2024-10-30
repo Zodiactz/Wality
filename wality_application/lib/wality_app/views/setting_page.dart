@@ -1,62 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
-import 'package:wality_application/main.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views/authen/logo_page.dart';
-import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
-import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:wality_application/wality_app/views_models/setting_vm.dart';
-import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 
 class SettingPage extends StatelessWidget {
   SettingPage({super.key});
   final App app = App(AppConfiguration('wality-1-djgtexn'));
   final authService = AuthService();
 
-  void logoutFromApp(BuildContext context) async {
-    try {
-      final currentUserId = app.currentUser?.id;
-      print("Logging out user: $currentUserId");
-
-      await app.currentUser?.logOut(); // Log the user out
-      await authService.deleteCacheDir(); // Delete cached data
-      await authService.deleteAppDir(); // Delete app data
-
-      // Clear WaterSaveViewModel data
-      final waterSaveVM =
-          Provider.of<WaterSaveViewModel>(context, listen: false);
-      waterSaveVM
-          .resetData(); // Reset water data to ensure old values are cleared
-      print("Water data reset for user: $currentUserId");
-
-      // Restart app or navigate to login
-      restartApp(context); // Navigate to a new instance of your app
-    } catch (e) {
-      print("Error during logout: $e");
-    }
-  }
-
-  void restartApp(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider(
-                create: (_) =>
-                    WaterSaveViewModel(), // New instance of WaterSaveViewModel
-                child: LogoPage(), // Login screen
-              )),
-      (Route<dynamic> route) => false, // Remove all previous routes
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController confirmPassController = TextEditingController();
-    final FocusNode passwordFocusNode = FocusNode();
-    final FocusNode confirmPassFocusNode = FocusNode();
 
     return Scaffold(
         body: Consumer<SettingViewModel>(builder: (context, settingvm, child) {
@@ -111,7 +68,7 @@ class SettingPage extends StatelessWidget {
                             context,
                             icon: Icons.logout,
                             title: 'Log out',
-                            onTap: () => logoutFromApp(context),
+                            onTap: () => LogOutToOutsite(context),
                           ),
                           const SizedBox(
                             height: 12,

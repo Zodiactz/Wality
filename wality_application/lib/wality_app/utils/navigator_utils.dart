@@ -1,11 +1,18 @@
+// ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:wality_application/wality_app/views/home_page.dart';
+import 'package:realm/realm.dart';
+import 'package:wality_application/wality_app/repo/auth_service.dart';
+import 'package:wality_application/wality_app/views/authen/logo_page.dart';
 import 'package:wality_application/wality_app/views/main_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/ntu_checking_page.dart';
-import 'package:wality_application/wality_app/views_models/profile_vm.dart';
+import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
+
+final App app = App(AppConfiguration('wality-1-djgtexn'));
+final authService = AuthService();
 
 void openChoosewayPageFromLogoPage(BuildContext context) async {
   Future.delayed(const Duration(seconds: 5), () {
@@ -34,7 +41,8 @@ void openHomePage(BuildContext context) async {
 }
 
 void openProfilePage(BuildContext context) {
-  Navigator.pushReplacementNamed(context, '/mainpage', arguments: {'initialPage': 'profile'});
+  Navigator.pushReplacementNamed(context, '/mainpage',
+      arguments: {'initialPage': 'profile'});
 }
 
 void openSettingPage(BuildContext context) async {
@@ -78,7 +86,6 @@ void openQRcodePage(BuildContext context) async {
   await Navigator.pushNamed(context, '/qrscanner');
 }
 
-
 void openChangeMail(BuildContext context) async {
   Navigator.pushNamed(context, '/changeMail');
 }
@@ -88,9 +95,35 @@ void openChangePass(BuildContext context) async {
 }
 
 void LogOutToOutsite(BuildContext context) async {
-  final profilevm = Provider.of<ProfileViewModel>(context, listen: false);
-  //await profilevm.signOut();
-  Navigator.of(context).pushReplacementNamed('/logopage');
+  try {
+    await app.currentUser?.logOut(); // Log the user out
+    await authService.deleteCacheDir(); // Delete cached data
+    await authService.deleteAppDir(); // Delete app data
+
+    // Clear WaterSaveViewModel data
+    final waterSaveVM =
+        Provider.of<WaterSaveViewModel>(context, listen: false);
+    waterSaveVM
+        .resetData(); // Reset water data to ensure old values are cleared
+
+    // Restart app or navigate to login
+    restartApp(context); // Navigate to a new instance of your app
+  } catch (e) {
+    throw Exception(e);
+  }
+}
+
+void restartApp(BuildContext context) {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider(
+              create: (_) =>
+                  WaterSaveViewModel(), // New instance of WaterSaveViewModel
+              child: const LogoPage(), // Login screen
+            )),
+    (Route<dynamic> route) => false, // Remove all previous routes
+  );
 }
 
 void GoBack(BuildContext context) async {
@@ -99,7 +132,7 @@ void GoBack(BuildContext context) async {
 
 void ConfirmAtWaterChecking(BuildContext context) async {
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) =>  MainPage()),
+      MaterialPageRoute(builder: (context) => MainPage()),
       (Route<dynamic> route) => false);
 }
 

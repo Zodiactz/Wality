@@ -1,9 +1,7 @@
-import 'dart:io';
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:math';
-import 'package:mime/mime.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:wality_application/wality_app/utils/constant.dart';
 
@@ -16,7 +14,6 @@ class QRValidService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['user_id'];
     } else {
-      print('Failed to fetch QR id');
       return null;
     }
   }
@@ -29,7 +26,6 @@ class QRValidService {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['coupon_id'];
     } else {
-      print('Failed to fetch QR id');
       return null;
     }
   }
@@ -59,7 +55,6 @@ class QRValidService {
 
       if (response.statusCode == 200) {
         // Success: Return the response body if needed
-        print("success! QR created: ${response.body}");
         return qr_id;
       } else {
         // Failure: Return error message
@@ -79,19 +74,17 @@ class QRValidService {
 
       if (response.statusCode == 200) {
         // Successfully deleted the user
-        final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'QR deleted successfully!'
+    
+        // e.g., 'QR deleted successfully!'
       } else if (response.statusCode == 404) {
         // User not found
-        final data = jsonDecode(response.body);
-        print(data['status']); // e.g., 'QR not found!'
+      
+        // e.g., 'QR not found!'
       } else {
         // Other error
-        final data = jsonDecode(response.body);
-        print('Error: ${data['error']}');
       }
     } catch (e) {
-      print('Failed to delete QR: $e');
+      throw Exception('Failed to load reward data');
     }
   }
 

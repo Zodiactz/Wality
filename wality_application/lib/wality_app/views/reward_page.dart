@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, non_constant_identifier_names
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/repo/user_service.dart';
-import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -47,7 +48,7 @@ class _RewardPageState extends State<RewardPage> {
       GoBack(context);
     } else {
       // Handle the error
-      print('Failed to use coupon');
+      throw Exception("Failed to use coupon");
     }
   }
 
@@ -88,7 +89,7 @@ class _RewardPageState extends State<RewardPage> {
       setState(() {
         isLoading = false;
       });
-      print("Failed to load coupons: ${response.body}");
+      throw Exception("Failed to load coupons: ${response.body}");
     }
   }
 
@@ -247,7 +248,7 @@ class _RewardPageState extends State<RewardPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     const Text(
                       'This event will end on 1/1/2025',
                       style: TextStyle(
@@ -471,15 +472,14 @@ class _RewardPageState extends State<RewardPage> {
                                   _showCouponPopupQR(
                                       context, qr_id, couponName);
                                   await fetchUserCoupons();
-                                  print(
-                                      "///////////cid=$cId//////$hasEnoughBottles");
+        
                                 } else {
                                   // Handle the case where qr_id is null (optional)
-                                  print('Failed to generate QR code.');
+                 
                                 }
                               } else {
                                 // Optionally handle the case where there aren't enough bottles
-                                print('Not enough bottles to use the coupon.');
+                     
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -581,7 +581,7 @@ class _RewardPageState extends State<RewardPage> {
                                     setState(() {}); // Update UI
                                   });
                                 }
-                                print('Coupon has expired'); // Debug log
+
                                 return const Text('QR Code has expired.');
                               } else if (!snapshot.hasData ||
                                   snapshot.data == null) {
@@ -597,12 +597,11 @@ class _RewardPageState extends State<RewardPage> {
                                     GoBack(context); // Close dialog after use
                                   });
                                 }
-                                print('Coupon used successfully'); // Debug log
+
                                 return const Text('Coupon used successfully.');
                               } else {
                                 // Handle valid coupon
-                                print(
-                                    'Coupon is still valid: $couponName'); // Debug log
+
                                 return Text(
                                   'Coupon is still valid: $couponName',
                                   style: const TextStyle(fontSize: 16),

@@ -1,8 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:wality_application/wality_app/utils/custom_dropdown.dart';
-import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
@@ -98,9 +97,9 @@ class _RankingPageState extends State<RankingPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading users: $e');
       setState(() {
         _isLoading = false;
+        throw Exception("Error loading users: $e");
       });
     }
   }

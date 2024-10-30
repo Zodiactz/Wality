@@ -1,16 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:realm/realm.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/water_service.dart';
-import 'package:wality_application/wality_app/utils/constant.dart';
+
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views/waterCheck/water_checking.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
@@ -156,7 +157,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       yBot = userService.fetchUserEventBot(currentUserId!);
       eMl = userService.fetchUserEventBot(currentUserId!);
     } else {
-      print('User ID is null, cannot fetch data.');
+      throw Exception("User ID is null, cannot fetch data.");
     }
   }
 
@@ -225,10 +226,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
           if (startTime != null) {
             difference = now.difference(startTime);
           }
-          print("user_id: $currentUserId");
-          print("This is difference: $difference");
-          print("limitTest: $limitTest");
-          print("WaterAmount: $waterAmount");
 
           if ((limitTest + waterAmount <= 2000 &&
                   (difference != null && difference.inHours < 1)) ||
@@ -276,8 +273,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
               waterService.updateWaterStatus(scanData.code ?? '', "active");
 
               // Update filling time if the time difference is more than 1 hour or is null
-              if (difference == null ||
-                  (difference != null && difference.inHours >= 1)) {
+              if (difference == null || (difference.inHours >= 1)) {
                 await userService.updateUserFillingTime(currentUserId!);
               }
               //test commit

@@ -1,14 +1,9 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/auth_service.dart';
-import 'dart:convert';
-import 'package:wality_application/wality_app/utils/custom_dropdown.dart';
-import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:realm/realm.dart';
-import 'package:wality_application/wality_app/repo/realm_service.dart';
-import 'package:wality_application/wality_app/repo/user_service.dart';
-import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/views/setting_page.dart';
@@ -18,8 +13,7 @@ class ResetPasswordPage extends StatefulWidget {
   final String token;
   final String tokenId;
   const ResetPasswordPage(
-      {Key? key, required this.token, required this.tokenId})
-      : super(key: key);
+      {super.key, required this.token, required this.tokenId});
 
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
@@ -47,7 +41,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                settingService.logoutFromApp(context);
+                LogOutToOutsite(context);
                 // Resume scanning after dialog is dismissed
               },
             ),
@@ -117,7 +111,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 30, left: 15, right: 15),
+                  padding: const EdgeInsets.only(top: 30, left: 15, right: 15),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +124,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         SizedBox(
                           width: 360,
                           height: 50,
