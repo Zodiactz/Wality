@@ -34,7 +34,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
 
   void dispose() {
   // Clear error states
-  Provider.of<AuthenticationViewModel>(context, listen: false).clearErrors();
   usernameController.dispose();
   
   super.dispose();
