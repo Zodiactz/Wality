@@ -11,6 +11,7 @@ import 'package:wality_application/wality_app/repo/water_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:wality_application/wality_app/views/reward_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
+import 'package:wality_application/wality_app/utils/fab.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -419,7 +420,8 @@ class _AdminPageState extends State<AdminPage> {
                         crossAxisSpacing: 12,
                         childAspectRatio: 1.5,
                         children: [
-                          _buildStatCard('Total Milliliter', totalMl, Colors.blue),
+                          _buildStatCard(
+                              'Total Milliliter', totalMl, Colors.blue),
                           _buildStatCard('Total Bottles', botLiv, Colors.green),
                           _buildStatCard('Daily Bottles', dayBot, Colors.pink),
                           _buildStatCard(
@@ -810,6 +812,9 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
       ),
+      floatingActionButton: CustomFab(
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
