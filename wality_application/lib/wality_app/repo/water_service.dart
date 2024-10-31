@@ -47,7 +47,7 @@ class WaterService {
       final response = await http.post(uri, headers: headers, body: body);
       return response.statusCode == 200;
     } catch (e) {
-      return false;
+      throw Exception(e);
     }
   }
 

@@ -458,6 +458,11 @@ func updateUserWater(c *fiber.Ctx) error {
 		TotalMl      int `json:"totalMl"`
 		FillingLimit int `json:"fillingLimit"`
 		EventBot     int `json:"eventBot"`
+		DayBot       int `json:"dayBot"`
+		MonthBot     int `json:"monthBot"`
+		YearBot      int `json:"yearBot"`
+		EventMl      int `json:"eventMl"`
+
 	}
 
 	// Parse the request body into the struct
@@ -478,6 +483,10 @@ func updateUserWater(c *fiber.Ctx) error {
 			"totalMl":      updatePayload.TotalMl,
 			"fillingLimit": updatePayload.FillingLimit,
 			"eventBot":     updatePayload.EventBot,
+			"dayBot":     updatePayload.DayBot,
+			"monthBot":     updatePayload.MonthBot,
+			"yearBot":     updatePayload.YearBot,
+			"eventMl":     updatePayload.EventMl,
 		},
 	}
 
