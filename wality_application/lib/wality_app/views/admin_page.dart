@@ -136,7 +136,7 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                GoBack(context);
+                openAdminPage(context);
                 // Resume scanning after dialog is dismissed
                 controller?.resumeCamera();
               },
@@ -158,7 +158,7 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                GoBack(context);
+                openAdminPage(context);
                 // Resume scanning after dialog is dismissed
                 openAdminPage(context);
               },
@@ -184,7 +184,7 @@ class _AdminPageState extends State<AdminPage> {
 
     if (response.statusCode == 200) {
       // Close the pop-up
-      GoBack(context);
+      openAdminPage(context);
     } else {
       // Handle the error
       throw Exception('Failed to use coupon');
@@ -208,7 +208,7 @@ class _AdminPageState extends State<AdminPage> {
         await Future.delayed(const Duration(seconds: 2));
 
         // Close the dialog after the delay
-        GoBack(context);
+        openAdminPage(context);
 
         // Get the QR code value
         String? qr_id = scanData.code;
@@ -769,7 +769,7 @@ class _AdminPageState extends State<AdminPage> {
                         color: Colors.white,
                         size: 32,
                       ),
-                      onPressed: () => GoBack(context),
+                      onPressed: () => openAdminPage(context),
                     ),
                     const Expanded(
                       child: Center(
@@ -1015,7 +1015,7 @@ class _AdminPageState extends State<AdminPage> {
                             onPressed: () async {
                               useCoupon(cId, user_id);
                               await qrService.deleteALLQRofThisUser(user_id);
-                              GoBack(context);
+                              openAdminPage(context);
                               _showDialogAndGoToAdmin(
                                   'Success!', 'This coupon is activated');
                             },
@@ -1025,7 +1025,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              GoBack(context);
+                              openAdminPage(context);
+                              ;
                             },
                             child: const Text('Exit'),
                           ),
@@ -1134,7 +1135,8 @@ class _AdminPageState extends State<AdminPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              GoBack(context);
+                              openAdminPage(context);
+                              ;
                             },
                             child: const Text('Exit'),
                           ),

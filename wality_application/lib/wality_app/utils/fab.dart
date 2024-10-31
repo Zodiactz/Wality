@@ -392,7 +392,7 @@ class _CustomFabState extends State<CustomFab> {
                                         imageFile);
 
                                     _clearFields();
-                                    GoBack(context);
+                                    openAdminPage(context);
 
                                     showAwesomeSnackBar(
                                       context,
