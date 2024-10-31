@@ -152,10 +152,10 @@ class _QrScannerPageState extends State<QrScannerPage> {
       fillingLimit = userService.fetchUserFillingLimit(currentUserId!);
       startHour = userService.fetchUserStartTime(currentUserId!);
       eBot = userService.fetchUserEventBot(currentUserId!);
-      dBot = userService.fetchUserEventBot(currentUserId!);
-      mBot = userService.fetchUserEventBot(currentUserId!);
-      yBot = userService.fetchUserEventBot(currentUserId!);
-      eMl = userService.fetchUserEventBot(currentUserId!);
+      dBot = userService.fetchUserDayBot(currentUserId!);
+      mBot = userService.fetchUserMonthBot(currentUserId!);
+      yBot = userService.fetchUserYearBot(currentUserId!);
+      eMl = userService.fetchUserEventMl(currentUserId!);
     } else {
       throw Exception("User ID is null, cannot fetch data.");
     }

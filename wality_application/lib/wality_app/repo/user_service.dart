@@ -180,6 +180,43 @@ class UserService {
     }
     return null;
   }
+  Future<int?> fetchUserDayBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['dayBot'];
+      }
+    } catch (e) {
+      throw Exception('Failed to load DayBot');
+    }
+    return null;
+  }
+  Future<int?> fetchUserMonthBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['monthBot'];
+      }
+    } catch (e) {
+      throw Exception('Failed to load MonthBot');
+    }
+    return null;
+  }
+  Future<int?> fetchUserYearBot(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['yearBot'];
+      }
+    } catch (e) {
+      throw Exception('Failed to load YearBot');
+    }
+    return null;
+  }
+
 
   Future<DateTime?> fetchUserStartTime(String userId) async {
     try {
