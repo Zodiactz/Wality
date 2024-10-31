@@ -332,7 +332,7 @@ class _AdminPageState extends State<AdminPage> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.close),
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => GoBack(context),
                               ),
                               Text(
                                 'User Details',
@@ -769,7 +769,7 @@ class _AdminPageState extends State<AdminPage> {
                         color: Colors.white,
                         size: 32,
                       ),
-                      onPressed: () => openAdminPage(context),
+                      onPressed: () => openProfilePage(context),
                     ),
                     const Expanded(
                       child: Center(
