@@ -85,14 +85,16 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
-  void _filterUsers(String query) {
+   void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
         _filteredUsers = List.from(_users);
       } else {
         _filteredUsers = _users.where((user) {
           final username = (user['username'] ?? '').toString().toLowerCase();
-          return username.contains(query.toLowerCase());
+          final realname = (user['realName'] ?? '').toString().toLowerCase();
+          return username.contains(query.toLowerCase()) || 
+                 realname.contains(query.toLowerCase());
         }).toList();
       }
       _sortUsers(_filteredUsers);
@@ -779,11 +781,13 @@ class _AdminPageState extends State<AdminPage> {
                             ),
                           )
                         : ListView.builder(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
                             itemCount: _filteredUsers.length,
                             itemBuilder: (context, index) {
                               final user = _filteredUsers[index];
+                              final hasRealName = user['realName'] != null && 
+                                                user['realName'].toString().trim().isNotEmpty;
+                              
                               return GestureDetector(
                                 onTap: () => _showUserDetails(user),
                                 child: Container(
@@ -802,12 +806,26 @@ class _AdminPageState extends State<AdminPage> {
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
-                                        child: Text(
-                                          user['username'] ?? 'Unknown User',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
+                                        child: RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: user['username'] ?? 'Unknown User',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              if (hasRealName) TextSpan(
+                                                text: ' [${user['realName']}]',
+                                                style: TextStyle(
+                                                  color: Colors.white.withOpacity(0.7),
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
