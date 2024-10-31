@@ -1,5 +1,3 @@
-// ignore_for_file: implementation_imports, library_private_types_in_public_api, use_build_context_synchronously, non_constant_identifier_names
-
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +11,8 @@ import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:wality_application/wality_app/views_models/coupon_vm.dart';
+
 class CustomFab extends StatefulWidget {
   const CustomFab({super.key});
 
@@ -21,33 +21,89 @@ class CustomFab extends StatefulWidget {
 }
 
 class _CustomFabState extends State<CustomFab> {
-  final TextEditingController _couponNameController = TextEditingController();
-  final TextEditingController _couponBriefDescriptionController =
-      TextEditingController();
-  final TextEditingController _couponImportanceDescriptionController =
-      TextEditingController();
-  final TextEditingController _couponBotRequirementController =
-      TextEditingController();
-  final TextEditingController _couponDescriptionController =
-      TextEditingController();
+   final TextEditingController _couponNameController = TextEditingController();
+  final TextEditingController _couponBriefDescriptionController = TextEditingController();
+  final TextEditingController _couponImportanceDescriptionController = TextEditingController();
+  final TextEditingController _couponBotRequirementController = TextEditingController();
+  final TextEditingController _couponDescriptionController = TextEditingController();
 
-  bool _isCouponNameRequired = false;
-  bool _isCouponBriefDescriptionRequired = false;
-  bool _isCouponBotRequirementRequired = false;
-  bool _isCouponDescriptionRequired = false;
+  final _formKey = GlobalKey<FormState>();
+  
+  final CouponViewModel _couponViewModel = CouponViewModel(); // Instantiate ViewModel
 
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
   int? waterAmount;
-  String? imgURL = "";
+  String? imgURL;
   final RewardService rewardService = RewardService();
   List<dynamic> rewards = [];
 
+  @override
+  void initState() {
+    super.initState();
+    // Add listeners for real-time validation
+    _couponNameController.addListener(() {
+      _couponViewModel.setcouponNameError(
+          _couponViewModel.validateCouponName(_couponNameController.text));
+    });
+    _couponBriefDescriptionController.addListener(() {
+      _couponViewModel.setBriefDescriptionError(
+          _couponViewModel.validateBriefDescription(_couponBriefDescriptionController.text));
+    });
+    _couponImportanceDescriptionController.addListener(() {
+      _couponViewModel.setImportanceDescriptionError(
+          _couponViewModel.validateImportanceDescription(_couponImportanceDescriptionController.text));
+    });
+    _couponBotRequirementController.addListener(() {
+      _couponViewModel.setBotRequirementError(
+          _couponViewModel.validateBotRequirement(_couponBotRequirementController.text));
+    });
+    _couponDescriptionController.addListener(() {
+      _couponViewModel.setDescriptionError(
+          _couponViewModel.validateDescription(_couponDescriptionController.text));
+    });
+  }
+
+
+  bool _isFormValid() {
+    return _couponViewModel.validateAllCouponFields(
+      name: _couponNameController.text,
+      briefDescription: _couponBriefDescriptionController.text,
+      importanceDescription: _couponImportanceDescriptionController.text,
+      botRequirement: _couponBotRequirementController.text,
+      description: _couponDescriptionController.text,
+    );
+  }
+  @override
+  void dispose() {
+    _couponNameController.dispose();
+    _couponBriefDescriptionController.dispose();
+    _couponImportanceDescriptionController.dispose();
+    _couponBotRequirementController.dispose();
+    _couponDescriptionController.dispose();
+    super.dispose();
+  }
+
+  // Submit method to validate and show errors
+  void _submitCoupon() {
+    final isValid = _couponViewModel.validateAllCouponFields(
+      name: _couponNameController.text,
+      briefDescription: _couponBriefDescriptionController.text,
+      importanceDescription: _couponImportanceDescriptionController.text,
+      botRequirement: _couponBotRequirementController.text,
+      description: _couponDescriptionController.text,
+    );
+
+    if (isValid) {
+      // Proceed with coupon submission logic
+    } else {
+      setState(() {}); // Update UI to show validation errors
+    }
+  }
   void _updateImageURL(String path) {
     setState(() {
       imgURL = path;
-      print('This is imgURL: $imgURL');
     });
   }
 
@@ -93,7 +149,7 @@ class _CustomFabState extends State<CustomFab> {
 
   void _showFullScreenBottomSheet(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final bottomSheetHeight = screenHeight * 0.9; // 90% of the screen height
+    final bottomSheetHeight = screenHeight * 0.9;
 
     showModalBottomSheet(
       context: context,
@@ -117,297 +173,238 @@ class _CustomFabState extends State<CustomFab> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Pull Bar
-                    Center(
-                      child: Container(
-                        width: 48,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(3),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 48,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(3),
+                          ),
                         ),
                       ),
-                    ),
-
-                    // Title
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Create Coupon',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Create Coupon',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // Coupon Image
-                    Center(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          GestureDetector(
+                      // Image Upload Section
+                      Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            GestureDetector(
                               onTap: () {
                                 CouponCircle(onImageUploaded: _updateImageURL);
                               },
-                              child: CouponCircle(
-                                  onImageUploaded: _updateImageURL)),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () {
-                                CouponCircle(onImageUploaded: _updateImageURL);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.blueAccent.withOpacity(0.8),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
+                              child: CouponCircle(onImageUploaded: _updateImageURL)
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Coupon Name Field
+                      const Text(
+                        'Coupon Name',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _couponNameController,
+                        decoration: InputDecoration(
+                          hintText: 'Enter coupon name',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorText: _couponViewModel.couponNameError,
+                          errorStyle: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Brief Description Field
+                      const Text(
+                        'Brief Coupon Description',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _couponBriefDescriptionController,
+                        decoration: InputDecoration(
+                          hintText: 'Enter brief coupon description',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorText: _couponViewModel.couponBriefDescriptionError,
+                          errorStyle: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Importance Description Field
+                      const Text(
+                        'Importance Description',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _couponImportanceDescriptionController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter importance description (optional)',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Bottle Requirement Field
+                      const Text(
+                        'Bottle Requirement',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _couponBotRequirementController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: InputDecoration(
+                          hintText: 'Enter bottle requirement',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorText: _couponViewModel.couponBotRequirementError,
+                          errorStyle: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Coupon Description Field
+                      const Text(
+                        'Coupon Description',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _couponDescriptionController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter coupon description',
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorText: _couponViewModel.couponDescriptionError,
+                          errorStyle: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Submit Button
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _isFormValid()
+                              ? () async {
+                                  try {
+                                    final coupon_name = _couponNameController.text.trim();
+                                    final bot_req = _couponBotRequirementController.text.trim();
+                                    final b_desc = _couponBriefDescriptionController.text.trim();
+                                    final f_desc = _couponDescriptionController.text.trim();
+                                    final imp_desc = _couponImportanceDescriptionController.text.trim();
+                                    final imageFile = File(imgURL ?? '');
+
+                                    final int? botReq = int.tryParse(bot_req);
+                                    await rewardService.createCoupon(
+                                        coupon_name, botReq ?? 0, b_desc, f_desc, imp_desc, imageFile);
+
+                                    _clearFields();
+                                    GoBack(context);
+
+                                    showAwesomeSnackBar(
+                                      context,
+                                      "Success",
+                                      "Coupon created successfully!",
+                                      ContentType.success,
+                                    );
+                                  } catch (e) {
+                                    showAwesomeSnackBar(
+                                      context,
+                                      "Error",
+                                      "Failed to create coupon. Please try again.",
+                                      ContentType.failure,
+                                    );
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isFormValid() 
+                                ? const Color(0xFF342056)
+                                : Colors.grey,
+                            minimumSize: const Size(200, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Coupon Name
-                    const Text(
-                      'Coupon Name',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _couponNameController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter coupon name',
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        errorText: _isCouponNameRequired
-                            ? 'Please enter a coupon name'
-                            : null,
-                        errorStyle: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Bottle Description
-                    const Text(
-                      'Brief Coupon Description',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _couponBriefDescriptionController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter brief coupon description',
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        errorText: _isCouponBriefDescriptionRequired
-                            ? 'Please enter a brief coupon description'
-                            : null,
-                        errorStyle: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Importance Description
-                    const Text(
-                      'Importance Description',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _couponImportanceDescriptionController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Enter importance description (optional)',
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Bottle Requirement
-                    const Text(
-                      'Bottle Requirement',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _couponBotRequirementController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // Only allows digits
-                      ],
-                      decoration: InputDecoration(
-                        hintText: 'Enter bottle requirement',
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        errorText: _isCouponBotRequirementRequired
-                            ? 'Please enter a bottle requirement'
-                            : null,
-                        errorStyle: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Coupon Description
-                    const Text(
-                      'Coupon Description',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF342056),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _couponDescriptionController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Enter coupon description',
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        errorText: _isCouponDescriptionRequired
-                            ? 'Please enter a coupon description'
-                            : null,
-                        errorStyle: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Create Coupon Button
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final coupon_name = _couponNameController.text.trim();
-                          final bot_req =
-                              _couponBotRequirementController.text.trim();
-                          final b_desc =
-                              _couponBriefDescriptionController.text.trim();
-                          final f_desc =
-                              _couponDescriptionController.text.trim();
-                          final imp_desc =
-                              _couponImportanceDescriptionController.text
-                                  .trim();
-                          final imageFile = File(imgURL ?? '');
-                          setState(() {
-                            _isCouponNameRequired =
-                                _couponNameController.text.isEmpty;
-                            _isCouponBriefDescriptionRequired =
-                                _couponBriefDescriptionController.text.isEmpty;
-                            _isCouponBotRequirementRequired =
-                                _couponBotRequirementController.text.isEmpty;
-                            _isCouponDescriptionRequired =
-                                _couponDescriptionController.text.isEmpty;
-                          });
-
-                          if (!_isCouponNameRequired &&
-                              !_isCouponBriefDescriptionRequired &&
-                              !_isCouponBotRequirementRequired &&
-                              !_isCouponDescriptionRequired) {
-                            final int? botReq = int.tryParse(
-                                bot_req); // Attempt to parse to int
-                            try {
-                              await rewardService.createCoupon(
-                                  coupon_name,
-                                  botReq ?? 0,
-                                  b_desc,
-                                  f_desc,
-                                  imp_desc,
-                                  imageFile);
-
-                              // Clear fields and close the bottom sheet
-                              _clearFields();
-                              GoBack(context); // Close the bottom sheet
-
-                              // Optionally show success feedback (e.g., SnackBar)
-                              showAwesomeSnackBar(
-                                context,
-                                "Success",
-                                "Coupon created successfully!",
-                                ContentType.success,
-                              );
-                            } catch (e) {
-                              // Handle exceptions from the service
-                              // Optionally show error feedback (e.g., SnackBar)
-                              showAwesomeSnackBar(
-                                context,
-                                "Error",
-                                "Failed to create coupon. Please try again.",
-                                ContentType.failure,
-                              );
-                            } // Close the bottom sheet
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF342056),
-                          minimumSize: const Size(200, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Create Coupon',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          child: const Text(
+                            'Create Coupon',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -416,6 +413,7 @@ class _CustomFabState extends State<CustomFab> {
       },
     );
   }
+
 
   void _showCouponList(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -782,17 +780,15 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.clear();
     setState(() {
       imgURL = null;
-      _isCouponNameRequired = false;
-      _isCouponBriefDescriptionRequired = false;
-      _isCouponBotRequirementRequired = false;
-      _isCouponDescriptionRequired = false;
+     
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showFabOptions(context),
+      onPressed: () =>  _showFabOptions(context),
       backgroundColor: const Color.fromARGB(255, 47, 145, 162),
       shape: const CircleBorder(),
       child: const Icon(

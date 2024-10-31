@@ -459,9 +459,8 @@ class _AdminPageState extends State<AdminPage> {
                           }
 
                           return FutureBuilder<List<Map<String, dynamic>?>>(
-                            future: Future.wait(usedCoupons.map(
-                                (couponId) => _userService
-                                    .fetchRewardsByCouponId(couponId))),
+                            future: Future.wait(usedCoupons.map((couponId) =>
+                                _userService.fetchRewardsByCouponId(couponId))),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -557,8 +556,8 @@ class _AdminPageState extends State<AdminPage> {
                                         subtitle: Text(
                                           couponData['b_desc'] ??
                                               'No description available',
-                                          style:
-                                              TextStyle(color: Colors.grey[600]),
+                                          style: TextStyle(
+                                              color: Colors.grey[600]),
                                         ),
                                         trailing: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -585,7 +584,6 @@ class _AdminPageState extends State<AdminPage> {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 24),
                   ],
                 ),
