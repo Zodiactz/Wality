@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class CouponViewModel extends ChangeNotifier {
-  // Error fields
   String? couponNameError;
   String? couponBriefDescriptionError;
   String? couponImportanceDescriptionError;

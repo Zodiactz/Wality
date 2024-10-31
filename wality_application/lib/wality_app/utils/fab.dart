@@ -21,15 +21,20 @@ class CustomFab extends StatefulWidget {
 }
 
 class _CustomFabState extends State<CustomFab> {
-   final TextEditingController _couponNameController = TextEditingController();
-  final TextEditingController _couponBriefDescriptionController = TextEditingController();
-  final TextEditingController _couponImportanceDescriptionController = TextEditingController();
-  final TextEditingController _couponBotRequirementController = TextEditingController();
-  final TextEditingController _couponDescriptionController = TextEditingController();
+  final TextEditingController _couponNameController = TextEditingController();
+  final TextEditingController _couponBriefDescriptionController =
+      TextEditingController();
+  final TextEditingController _couponImportanceDescriptionController =
+      TextEditingController();
+  final TextEditingController _couponBotRequirementController =
+      TextEditingController();
+  final TextEditingController _couponDescriptionController =
+      TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  
-  final CouponViewModel _couponViewModel = CouponViewModel(); // Instantiate ViewModel
+
+  final CouponViewModel _couponViewModel =
+      CouponViewModel(); // Instantiate ViewModel
 
   List<String> couponCheck = [];
   bool isLoading = true;
@@ -48,23 +53,23 @@ class _CustomFabState extends State<CustomFab> {
           _couponViewModel.validateCouponName(_couponNameController.text));
     });
     _couponBriefDescriptionController.addListener(() {
-      _couponViewModel.setBriefDescriptionError(
-          _couponViewModel.validateBriefDescription(_couponBriefDescriptionController.text));
+      _couponViewModel.setBriefDescriptionError(_couponViewModel
+          .validateBriefDescription(_couponBriefDescriptionController.text));
     });
     _couponImportanceDescriptionController.addListener(() {
       _couponViewModel.setImportanceDescriptionError(
-          _couponViewModel.validateImportanceDescription(_couponImportanceDescriptionController.text));
+          _couponViewModel.validateImportanceDescription(
+              _couponImportanceDescriptionController.text));
     });
     _couponBotRequirementController.addListener(() {
-      _couponViewModel.setBotRequirementError(
-          _couponViewModel.validateBotRequirement(_couponBotRequirementController.text));
+      _couponViewModel.setBotRequirementError(_couponViewModel
+          .validateBotRequirement(_couponBotRequirementController.text));
     });
     _couponDescriptionController.addListener(() {
-      _couponViewModel.setDescriptionError(
-          _couponViewModel.validateDescription(_couponDescriptionController.text));
+      _couponViewModel.setDescriptionError(_couponViewModel
+          .validateDescription(_couponDescriptionController.text));
     });
   }
-
 
   bool _isFormValid() {
     return _couponViewModel.validateAllCouponFields(
@@ -75,6 +80,7 @@ class _CustomFabState extends State<CustomFab> {
       description: _couponDescriptionController.text,
     );
   }
+
   @override
   void dispose() {
     _couponNameController.dispose();
@@ -101,6 +107,7 @@ class _CustomFabState extends State<CustomFab> {
       setState(() {}); // Update UI to show validation errors
     }
   }
+
   void _updateImageURL(String path) {
     setState(() {
       imgURL = path;
@@ -206,11 +213,12 @@ class _CustomFabState extends State<CustomFab> {
                           alignment: Alignment.center,
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                CouponCircle(onImageUploaded: _updateImageURL);
-                              },
-                              child: CouponCircle(onImageUploaded: _updateImageURL)
-                            ),
+                                onTap: () {
+                                  CouponCircle(
+                                      onImageUploaded: _updateImageURL);
+                                },
+                                child: CouponCircle(
+                                    onImageUploaded: _updateImageURL)),
                           ],
                         ),
                       ),
@@ -262,7 +270,8 @@ class _CustomFabState extends State<CustomFab> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          errorText: _couponViewModel.couponBriefDescriptionError,
+                          errorText:
+                              _couponViewModel.couponBriefDescriptionError,
                           errorStyle: const TextStyle(color: Colors.red),
                         ),
                       ),
@@ -306,7 +315,9 @@ class _CustomFabState extends State<CustomFab> {
                       TextFormField(
                         controller: _couponBotRequirementController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         decoration: InputDecoration(
                           hintText: 'Enter bottle requirement',
                           filled: true,
@@ -354,16 +365,31 @@ class _CustomFabState extends State<CustomFab> {
                           onPressed: _isFormValid()
                               ? () async {
                                   try {
-                                    final coupon_name = _couponNameController.text.trim();
-                                    final bot_req = _couponBotRequirementController.text.trim();
-                                    final b_desc = _couponBriefDescriptionController.text.trim();
-                                    final f_desc = _couponDescriptionController.text.trim();
-                                    final imp_desc = _couponImportanceDescriptionController.text.trim();
+                                    final coupon_name =
+                                        _couponNameController.text.trim();
+                                    final bot_req =
+                                        _couponBotRequirementController.text
+                                            .trim();
+                                    final b_desc =
+                                        _couponBriefDescriptionController.text
+                                            .trim();
+                                    final f_desc = _couponDescriptionController
+                                        .text
+                                        .trim();
+                                    final imp_desc =
+                                        _couponImportanceDescriptionController
+                                            .text
+                                            .trim();
                                     final imageFile = File(imgURL ?? '');
 
                                     final int? botReq = int.tryParse(bot_req);
                                     await rewardService.createCoupon(
-                                        coupon_name, botReq ?? 0, b_desc, f_desc, imp_desc, imageFile);
+                                        coupon_name,
+                                        botReq ?? 0,
+                                        b_desc,
+                                        f_desc,
+                                        imp_desc,
+                                        imageFile);
 
                                     _clearFields();
                                     GoBack(context);
@@ -385,7 +411,7 @@ class _CustomFabState extends State<CustomFab> {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isFormValid() 
+                            backgroundColor: _isFormValid()
                                 ? const Color(0xFF342056)
                                 : Colors.grey,
                             minimumSize: const Size(200, 50),
@@ -413,7 +439,6 @@ class _CustomFabState extends State<CustomFab> {
       },
     );
   }
-
 
   void _showCouponList(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -474,12 +499,12 @@ class _CustomFabState extends State<CustomFab> {
 
                   // Coupon List
                   Expanded(
-                    child: FutureBuilder<List<dynamic>>(
-                      future: rewardService
-                          .fetchRewards(), // Make sure to fetch updated rewards
+                    child: StreamBuilder<List<dynamic>>(
+                      stream: Stream.fromFuture(
+                          rewardService.fetchRewards()), // Use the stream here
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
-                            flutter_async.ConnectionState.waiting) {
+                            ConnectionState.waiting) {
                           return const Center(
                               child: CircularProgressIndicator(
                                   color: Colors.grey));
@@ -501,7 +526,7 @@ class _CustomFabState extends State<CustomFab> {
 
                         return ListView.builder(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          itemCount: snapshot.data!.length,
+                          itemCount: sortedCoupon.length,
                           itemBuilder: (context, index) {
                             final coupon = sortedCoupon[index];
                             return _buildRewardItem(
@@ -529,85 +554,86 @@ class _CustomFabState extends State<CustomFab> {
   }
 
   Widget _buildRewardItem(
-  BuildContext context,
-  String cId,
-  String couponName,
-  String bD,
-  int bReq,
-  String imgCoupon,
-  String fD,
-  String impD,
-) {
-  return GestureDetector(
-    onTap: () => _showCouponPopup(
-        context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
-    child: Stack(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(imgCoupon),
-              radius: 25,
+    BuildContext context,
+    String cId,
+    String couponName,
+    String bD,
+    int bReq,
+    String imgCoupon,
+    String fD,
+    String impD,
+  ) {
+    return GestureDetector(
+      onTap: () => _showCouponPopup(
+          context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            title: Text(
-              couponName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'RobotoCondensed',
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(imgCoupon),
+                radius: 25,
               ),
-            ),
-            subtitle: Text(
-              bD,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontFamily: 'RobotoCondensed',
+              title: Text(
+                couponName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'RobotoCondensed',
+                ),
               ),
-            ),
-            trailing: SizedBox(
-              width: 50, // Set a fixed width
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '$bReq',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'RobotoCondensed',
+              subtitle: Text(
+                bD,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontFamily: 'RobotoCondensed',
+                ),
+              ),
+              trailing: SizedBox(
+                width: 50, // Set a fixed width
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$bReq',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'RobotoCondensed',
+                      ),
                     ),
-                  ),
-                  Flexible( // Use Flexible to allow the text to fit
-                    child: Transform.translate(
-                      offset: const Offset(0, -4), // Adjust the position of the text
-                      child: const Text(
-                        'Bottles',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12, // Adjust font size if needed
-                          fontFamily: 'RobotoCondensed',
+                    Flexible(
+                      // Use Flexible to allow the text to fit
+                      child: Transform.translate(
+                        offset: const Offset(
+                            0, -4), // Adjust the position of the text
+                        child: const Text(
+                          'Bottles',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12, // Adjust font size if needed
+                            fontFamily: 'RobotoCondensed',
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Future<void> _showCouponPopup(
     BuildContext context,
@@ -702,32 +728,43 @@ class _CustomFabState extends State<CustomFab> {
                         children: [
                           ElevatedButton(
                             onPressed: () async {
+                              // Show a loading indicator if desired
+
                               try {
+                                // Attempt to delete the coupon
                                 await rewardService.deleteCoupon(
                                     cId, imgCoupon);
-                                Navigator.of(context).pop(); // Close the dialog
 
-                                // Refresh the coupon list and update state
+                                // Close the dialog once the coupon is deleted successfully
+                                Navigator.of(context).pop();
+
+                                // Refresh the coupon list asynchronously
                                 await refreshCouponList();
 
-                                // Show the SnackBar after the dialog is closed
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Success! Coupon Deleted!"),
-                                    backgroundColor: Colors.green,
-                                  ),
+                                // Update the widget's state after refreshing the list
+                                setState(() {});
+
+                                showAwesomeSnackBar(
+                                  context,
+                                  "Success",
+                                  "Success! Coupon Deleted!",
+                                  ContentType.success,
                                 );
+
+                                // Navigate back to the admin page after the success message
+                                openAdminPage(context);
                               } catch (e) {
-                                Navigator.of(context).pop(); // Close the dialog
+                                // Handle errors and close the dialog
+                                openAdminPage(context);
                                 print("This is error: $e");
 
-                                // Show error SnackBar
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        Text("Failed to delete coupon: $e"),
-                                    backgroundColor: Colors.red,
-                                  ),
+                                // Show error message
+
+                                showAwesomeSnackBar(
+                                  context,
+                                  "Error",
+                                  "Failed to delete coupon!",
+                                  ContentType.success,
                                 );
                               }
                             },
@@ -735,7 +772,7 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pop(); // Exit dialog
+                             openAdminPage(context); // Exit dialog without action
                             },
                             child: const Text('Exit'),
                           ),
@@ -771,15 +808,13 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.clear();
     setState(() {
       imgURL = null;
-     
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () =>  _showFabOptions(context),
+      onPressed: () => _showFabOptions(context),
       backgroundColor: const Color.fromARGB(255, 47, 145, 162),
       shape: const CircleBorder(),
       child: const Icon(

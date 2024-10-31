@@ -704,7 +704,7 @@ Widget _buildAppBar(BuildContext context) {
             color: Colors.white,
             size: 32,
           ),
-          onPressed: () => GoBack(context),
+          onPressed: () => openProfilePage(context),
         ),
         const Expanded(
           child: Text(
