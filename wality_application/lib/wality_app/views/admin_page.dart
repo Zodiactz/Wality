@@ -781,60 +781,59 @@ class _AdminPageState extends State<AdminPage> {
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                            itemCount: _filteredUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
-                              final hasRealName = user['realName'] != null && 
-                                                user['realName'].toString().trim().isNotEmpty;
-                              
-                              return GestureDetector(
-                                onTap: () => _showUserDetails(user),
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 16.0),
-                                  padding: const EdgeInsets.all(16.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 25,
-                                        backgroundImage: _getProfileImage(
-                                            user['profileImg_link']),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: user['username'] ?? 'Unknown User',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              if (hasRealName) TextSpan(
-                                                text: ' [${user['realName']}]',
-                                                style: TextStyle(
-                                                  color: Colors.white.withOpacity(0.7),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+  itemCount: _filteredUsers.length,
+  itemBuilder: (context, index) {
+    final user = _filteredUsers[index];
+    final hasRealName = user['realName'] != null && 
+                      user['realName'].toString().trim().isNotEmpty;
+    
+    return GestureDetector(
+      onTap: () => _showUserDetails(user),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundImage: _getProfileImage(user['profileImg_link']),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user['username'] ?? 'Unknown User',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (hasRealName)
+                    Text(
+                      user['realName'],
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+),
               ),
             ],
           ),
