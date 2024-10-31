@@ -769,7 +769,7 @@ class _AdminPageState extends State<AdminPage> {
                         color: Colors.white,
                         size: 32,
                       ),
-                      onPressed: () => GoBack(context),
+                      onPressed: () => openAdminPage(context),
                     ),
                     const Expanded(
                       child: Center(
