@@ -61,7 +61,7 @@ class AuthenticationViewModel extends ChangeNotifier {
         : (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                 .hasMatch(value))
             ? 'Enter a valid email'
-            : 'Invalid email';
+            : null;
   }
 
   void setEmailError(String? error) {
@@ -107,7 +107,7 @@ class AuthenticationViewModel extends ChangeNotifier {
         : (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
                 .hasMatch(value))
             ? 'Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character'
-            : 'Invalid password';
+            : null;
   }
 
   String? validateConfirmPass(String? password, String? confirmPassword) {

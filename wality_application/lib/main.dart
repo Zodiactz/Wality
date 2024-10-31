@@ -24,8 +24,10 @@ import 'package:wality_application/wality_app/views_models/profile_vm.dart';
 import 'package:wality_application/wality_app/views_models/setting_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
+import 'package:flutter/rendering.dart'; // Import this line
 
 void main() {
+  debugPaintSizeEnabled = true;
   runApp(
     MultiProvider(
       providers: [
@@ -51,7 +53,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: /*const LogoPage()*/ MainPage(),
+      home: const LogoPage() /*MainPage()*/,
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
