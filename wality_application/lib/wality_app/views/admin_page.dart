@@ -458,110 +458,125 @@ class _AdminPageState extends State<AdminPage> {
                             );
                           }
 
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: usedCoupons.length,
-                            itemBuilder: (context, index) {
-                              return FutureBuilder<List<Map<String, dynamic>?>>(
-                                future: Future.wait(usedCoupons.map(
-                                    (couponId) => _userService
-                                        .fetchRewardsByCouponId(couponId))),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
+                          return FutureBuilder<List<Map<String, dynamic>?>>(
+                            future: Future.wait(usedCoupons.map(
+                                (couponId) => _userService
+                                    .fetchRewardsByCouponId(couponId))),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                                  if (snapshot.hasError ||
-                                      !snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const Center(
-                                        child: Text(
-                                            'Unable to load used coupons'));
-                                  }
+                              // Check for any error conditions and empty states
+                              if (snapshot.hasError ||
+                                  !snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber[50],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Text(
+                                    'No coupons used yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
 
-                                  // Filter out any null results and sort by `bot_req`
-                                  final sortedCoupons = snapshot.data!
-                                      .whereType<Map<String, dynamic>>()
-                                      .toList()
-                                    ..sort((a, b) => (a['bot_req'] ?? 0)
-                                        .compareTo(b['bot_req'] ?? 0));
+                              // Filter out any null results and sort by `bot_req`
+                              final sortedCoupons = snapshot.data!
+                                  .whereType<Map<String, dynamic>>()
+                                  .toList()
+                                ..sort((a, b) => (a['bot_req'] ?? 0)
+                                    .compareTo(b['bot_req'] ?? 0));
 
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: sortedCoupons.length,
-                                    itemBuilder: (context, index) {
-                                      final couponData = sortedCoupons[index];
+                              if (sortedCoupons.isEmpty) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber[50],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Text(
+                                    'No coupons used yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
 
-                                      return GestureDetector(
-                                        onTap: () {
-                                          _showCouponPopupForAdmin(
-                                            context,
-                                            couponData['coupon_name'] ?? '',
-                                            couponData['b_desc'] ?? '',
-                                            couponData['bot_req'] ?? 0,
-                                            couponData['img_couponLink'] ?? '',
-                                            couponData['f_desc'] ?? '',
-                                            couponData['imp_desc'] ?? '',
-                                            couponData['coupon_id'] ?? '',
-                                          );
-                                        },
-                                        child: Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.amber[50],
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            border: Border.all(
-                                                color: Colors.amber[100]!),
-                                          ),
-                                          child: ListTile(
-                                            leading: CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                  couponData[
-                                                          'img_couponLink'] ??
-                                                      ''),
-                                              backgroundColor: Colors.grey[200],
-                                            ),
-                                            title: Text(
-                                              couponData['coupon_name'] ??
-                                                  'Unknown Coupon',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            subtitle: Text(
-                                              couponData['b_desc'] ??
-                                                  'No description available',
-                                              style: TextStyle(
-                                                  color: Colors.grey[600]),
-                                            ),
-                                            trailing: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.green[100],
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: const Text(
-                                                'Used',
-                                                style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: sortedCoupons.length,
+                                itemBuilder: (context, index) {
+                                  final couponData = sortedCoupons[index];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _showCouponPopupForAdmin(
+                                        context,
+                                        couponData['coupon_name'] ?? '',
+                                        couponData['b_desc'] ?? '',
+                                        couponData['bot_req'] ?? 0,
+                                        couponData['img_couponLink'] ?? '',
+                                        couponData['f_desc'] ?? '',
+                                        couponData['imp_desc'] ?? '',
+                                        couponData['coupon_id'] ?? '',
                                       );
                                     },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber[50],
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: Colors.amber[100]!),
+                                      ),
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              couponData['img_couponLink'] ??
+                                                  ''),
+                                          backgroundColor: Colors.grey[200],
+                                        ),
+                                        title: Text(
+                                          couponData['coupon_name'] ??
+                                              'Unknown Coupon',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        subtitle: Text(
+                                          couponData['b_desc'] ??
+                                              'No description available',
+                                          style:
+                                              TextStyle(color: Colors.grey[600]),
+                                        ),
+                                        trailing: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green[100],
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: const Text(
+                                            'Used',
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 },
                               );
