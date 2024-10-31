@@ -310,14 +310,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             children: [
                                               Image.memory(
                                                 animationvm.gifBytes!,
-                                                width: screenWidth * 0.2,
-                                                height: screenWidth * 0.2,
+                                                width: screenWidth * 0.15,
+                                                height: screenWidth * 0.15,
                                                 fit: BoxFit.contain,
                                               ),
-                                              const Text(
+                                               Text(
                                                 "Bottles",
                                                 style: TextStyle(
-                                                  fontSize: 35,
+                                                  fontSize: 24,
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'RobotoCondensed',
@@ -328,19 +328,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         )
                                       else
                                         const CircularProgressIndicator(),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            bottom: screenHeight * 0.05,
-                                            right: screenWidth * 0.05),
-                                        child: Text(
-                                          bottleAmount != null
-                                              ? '$bottleAmount'
-                                              : '?',
-                                          style: TextStyle(
-                                            fontSize: screenWidth * 0.2,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'RobotoCondensed',
+                                      Flexible(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              bottom: screenHeight * 0.05,
+                                              right: screenWidth * 0.05),
+                                          child: Text(
+                                            bottleAmount != null
+                                                ? '$bottleAmount'
+                                                : '?',
+                                            style: TextStyle(
+                                              fontSize: screenWidth * 0.13,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'RobotoCondensed',
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -353,14 +355,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             children: [
                                               Image.memory(
                                                 animationvm.gifBytes2!,
-                                                width: screenWidth * 0.2,
-                                                height: screenWidth * 0.2,
+                                                width: screenWidth * 0.15,
+                                                height: screenWidth * 0.15,
                                                 fit: BoxFit.contain,
                                               ),
-                                              const Text(
+                                              Text(
                                                 "Lives",
                                                 style: TextStyle(
-                                                  fontSize: 35,
+                                                  fontSize: 24,
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'RobotoCondensed',
