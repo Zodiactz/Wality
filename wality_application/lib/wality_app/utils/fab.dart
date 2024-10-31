@@ -529,94 +529,85 @@ class _CustomFabState extends State<CustomFab> {
   }
 
   Widget _buildRewardItem(
-    BuildContext context,
-    String cId,
-    String couponName,
-    String bD,
-    int bReq,
-    String imgCoupon,
-    String fD,
-    String impD,
-  ) {
-    bool isUsed = couponCheck.contains(cId);
-
-    return GestureDetector(
-      onTap: () => isUsed
-          ? null
-          : _showCouponPopup(
-              context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: isUsed
-                  ? Colors.white.withOpacity(0.05)
-                  : Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+  BuildContext context,
+  String cId,
+  String couponName,
+  String bD,
+  int bReq,
+  String imgCoupon,
+  String fD,
+  String impD,
+) {
+  return GestureDetector(
+    onTap: () => _showCouponPopup(
+        context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
+    child: Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(imgCoupon),
+              radius: 25,
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(imgCoupon),
-                radius: 25,
+            title: Text(
+              couponName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'RobotoCondensed',
               ),
-              title: Text(
-                couponName,
-                style: TextStyle(
-                  color: isUsed ? Colors.white38 : Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'RobotoCondensed',
-                ),
+            ),
+            subtitle: Text(
+              bD,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontFamily: 'RobotoCondensed',
               ),
-              subtitle: Text(
-                bD,
-                style: TextStyle(
-                  color: isUsed ? Colors.white24 : Colors.white70,
-                  fontFamily: 'RobotoCondensed',
-                ),
-              ),
-              trailing: Column(
+            ),
+            trailing: SizedBox(
+              width: 50, // Set a fixed width
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     '$bReq',
-                    style: TextStyle(
-                      color: isUsed ? Colors.white38 : Colors.white,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'RobotoCondensed',
                     ),
                   ),
-                  Text(
-                    'Bottles',
-                    style: TextStyle(
-                      color: isUsed ? Colors.white24 : Colors.white70,
-                      fontSize: 14,
-                      fontFamily: 'RobotoCondensed',
+                  Flexible( // Use Flexible to allow the text to fit
+                    child: Transform.translate(
+                      offset: const Offset(0, -4), // Adjust the position of the text
+                      child: const Text(
+                        'Bottles',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12, // Adjust font size if needed
+                          fontFamily: 'RobotoCondensed',
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          if (isUsed)
-            const Positioned(
-              left: 150,
-              top: 30,
-              child: Text(
-                'Used',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Future<void> _showCouponPopup(
     BuildContext context,

@@ -266,7 +266,7 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
-  Widget _buildRewardItem(
+Widget _buildRewardItem(
     BuildContext context,
     String cId,
     String couponName,
@@ -314,35 +314,44 @@ class _RewardPageState extends State<RewardPage> {
                   fontFamily: 'RobotoCondensed',
                 ),
               ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '$bReq',
-                    style: TextStyle(
-                      color: isUsed ? Colors.white38 : Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'RobotoCondensed',
+              trailing: SizedBox(
+                height: 60, // Constrain height to prevent overflow
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$bReq',
+                      style: TextStyle(
+                        color: isUsed ? Colors.white38 : Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'RobotoCondensed',
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Bottles',
-                    style: TextStyle(
-                      color: isUsed ? Colors.white24 : Colors.white70,
-                      fontSize: 14,
-                      fontFamily: 'RobotoCondensed',
+                    Flexible(
+                      child: Transform.translate(
+                        offset: const Offset(0, -6), // Move "Bottles" up a bit
+                        child: Text(
+                          'Bottles',
+                          style: TextStyle(
+                            color: isUsed ? Colors.white24 : Colors.white70,
+                            fontSize: 12, // Adjust font size if needed
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
           if (isUsed)
-            const Positioned(
-              left: 150,
+            Positioned(
+              left: MediaQuery.of(context).size.width * 0.4,
               top: 30,
-              child: Text(
+              child: const Text(
                 'Used',
                 style: TextStyle(
                   color: Colors.red,
@@ -355,6 +364,7 @@ class _RewardPageState extends State<RewardPage> {
       ),
     );
   }
+
 
   // Keep your existing _showCouponPopup method
   Future<void> _showCouponPopup(

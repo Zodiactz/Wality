@@ -189,7 +189,7 @@ class UserService {
         return DateTime.parse(data['startFillingTime']);
       }
     } catch (e) {
-      throw Exception('Failed to load StartTime');
+      throw Exception('Failed to load StartTime:$e');
     }
     return null;
   }
