@@ -61,7 +61,7 @@ class AuthenticationViewModel extends ChangeNotifier {
         : (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                 .hasMatch(value))
             ? 'Enter a valid email'
-            : null;
+            : 'Invalid email';
   }
 
   void setEmailError(String? error) {
@@ -107,7 +107,7 @@ class AuthenticationViewModel extends ChangeNotifier {
         : (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
                 .hasMatch(value))
             ? 'Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character'
-            : null;
+            : 'Invalid password';
   }
 
   String? validateConfirmPass(String? password, String? confirmPassword) {
@@ -166,7 +166,7 @@ class AuthenticationViewModel extends ChangeNotifier {
       // Changed condition to check both
       allErrorSignIn = 'Please enter all fields';
     } else {
-      allErrorSignIn = null;
+      allErrorSignIn = 'Invalid email or password';
     }
 
     _showValidationMessage =
