@@ -73,9 +73,15 @@ class _SignInPageState extends State<SignInPage> {
       );
       return;
     }
-
-    // If we reach here, all validations passed
-    // You can proceed with sign in logic here
+    else{
+      authvm.setAllSignInError(authvm.allErrorSignIn);
+      showAwesomeSnackBar(
+        context,
+        "Error",
+         authvm.allErrorSignIn!,
+        ContentType.failure,
+      );
+      }
   }
 
   void signIn() async {
@@ -97,7 +103,7 @@ class _SignInPageState extends State<SignInPage> {
         setState(() {
           isLoading = false;
         });
-      }
+      } 
     }
   }
 

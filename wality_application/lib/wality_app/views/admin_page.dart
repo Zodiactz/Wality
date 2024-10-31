@@ -85,7 +85,7 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
-   void _filterUsers(String query) {
+  void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
         _filteredUsers = List.from(_users);
@@ -93,8 +93,8 @@ class _AdminPageState extends State<AdminPage> {
         _filteredUsers = _users.where((user) {
           final username = (user['username'] ?? '').toString().toLowerCase();
           final realname = (user['realName'] ?? '').toString().toLowerCase();
-          return username.contains(query.toLowerCase()) || 
-                 realname.contains(query.toLowerCase());
+          return username.contains(query.toLowerCase()) ||
+              realname.contains(query.toLowerCase());
         }).toList();
       }
       _sortUsers(_filteredUsers);
@@ -356,15 +356,19 @@ class _AdminPageState extends State<AdminPage> {
                             tag: 'profile-${user['user_id']}',
                             child: CircleAvatar(
                               radius: screenSize.width * 0.12,
-                              backgroundImage: _getProfileImage(user['profileImg_link']),
+                              backgroundImage:
+                                  _getProfileImage(user['profileImg_link']),
                             ),
                           ),
                           const SizedBox(height: 12),
                           Text(
                             user['username'] ?? 'Unknown User',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ],
                       ),
@@ -377,20 +381,62 @@ class _AdminPageState extends State<AdminPage> {
                       context,
                       'PERSONAL INFORMATION',
                       Container(
+                        width: double
+                            .infinity, // Make the container take full width
                         margin: const EdgeInsets.symmetric(horizontal: 16),
-                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Column(
-                          children: [
-                            _buildInfoRow('User ID', userId),
-                            const SizedBox(height: 12),
-                            _buildInfoRow('Real Name', realName),
-                            const SizedBox(height: 12),
-                            _buildInfoRow('Student ID', sID),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                              16), // Padding applied to the inner content
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start, // Align to the start
+                            children: [
+                              // User ID
+                              Text(
+                                'User ID',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              Text(userId,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium), // Display User ID
+                              const SizedBox(height: 12),
+
+                              // Real Name
+                              Text(
+                                'Real Name',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              Text(realName,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium), // Display Real Name
+                              const SizedBox(height: 12),
+
+                              // Student ID
+                              Text(
+                                'Student ID',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              Text(sID,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium), // Display Student ID
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -413,12 +459,18 @@ class _AdminPageState extends State<AdminPage> {
                               crossAxisSpacing: 12,
                               childAspectRatio: 1.5,
                               children: [
-                                _buildStatCard('Total Milliliter', totalMl, Colors.blue),
-                                _buildStatCard('Total Bottles', botLiv, Colors.green),
-                                _buildStatCard('Daily Bottles', dayBot, Colors.pink),
-                                _buildStatCard('Monthly Bottles', monthBot, Colors.purple),
-                                _buildStatCard('Yearly Bottles', yearBot, Colors.red),
-                                _buildStatCard('Event Bottles', eventBot, Colors.orange),
+                                _buildStatCard(
+                                    'Total Milliliter', totalMl, Colors.blue),
+                                _buildStatCard(
+                                    'Total Bottles', botLiv, Colors.green),
+                                _buildStatCard(
+                                    'Daily Bottles', dayBot, Colors.pink),
+                                _buildStatCard(
+                                    'Monthly Bottles', monthBot, Colors.purple),
+                                _buildStatCard(
+                                    'Yearly Bottles', yearBot, Colors.red),
+                                _buildStatCard(
+                                    'Event Bottles', eventBot, Colors.orange),
                               ],
                             ),
                           );
@@ -437,11 +489,14 @@ class _AdminPageState extends State<AdminPage> {
                         child: FutureBuilder<List<String>?>(
                           future: _userService.fetchCouponCheck(userId),
                           builder: (context, couponCheckSnapshot) {
-                            if (couponCheckSnapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
+                            if (couponCheckSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
 
-                            List<String> usedCoupons = couponCheckSnapshot.data ?? [];
+                            List<String> usedCoupons =
+                                couponCheckSnapshot.data ?? [];
 
                             if (usedCoupons.isEmpty) {
                               return _buildEmptyCouponsCard();
@@ -478,10 +533,10 @@ class _AdminPageState extends State<AdminPage> {
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-              ),
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
             ),
           ),
           content,
@@ -512,7 +567,8 @@ class _AdminPageState extends State<AdminPage> {
   Widget _buildCouponsList(List<String> usedCoupons) {
     return FutureBuilder<List<Map<String, dynamic>?>>(
       future: Future.wait(
-        usedCoupons.map((couponId) => _userService.fetchRewardsByCouponId(couponId)),
+        usedCoupons
+            .map((couponId) => _userService.fetchRewardsByCouponId(couponId)),
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -767,74 +823,81 @@ class _AdminPageState extends State<AdminPage> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      )
-                    : _filteredUsers.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No users found',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          )
-                        : ListView.builder(
-  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-  itemCount: _filteredUsers.length,
-  itemBuilder: (context, index) {
-    final user = _filteredUsers[index];
-    final hasRealName = user['realName'] != null && 
-                      user['realName'].toString().trim().isNotEmpty;
-    
-    return GestureDetector(
-      onTap: () => _showUserDetails(user),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: _getProfileImage(user['profileImg_link']),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user['username'] ?? 'Unknown User',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  if (hasRealName)
-                    Text(
-                      user['realName'],
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  },
-),
-              ),
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                      : _filteredUsers.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No users found',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              itemCount: _filteredUsers.length,
+                              itemBuilder: (context, index) {
+                                final user = _filteredUsers[index];
+                                final hasRealName = user['realName'] != null &&
+                                    user['realName']
+                                        .toString()
+                                        .trim()
+                                        .isNotEmpty;
+
+                                return GestureDetector(
+                                  onTap: () => _showUserDetails(user),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 16.0),
+                                    padding: const EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 25,
+                                          backgroundImage: _getProfileImage(
+                                              user['profileImg_link']),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                user['username'] ??
+                                                    'Unknown User',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              if (hasRealName)
+                                                Text(
+                                                  user['realName'],
+                                                  style: TextStyle(
+                                                    color: Colors.white
+                                                        .withOpacity(0.7),
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            )),
             ],
           ),
         ),
