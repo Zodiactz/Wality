@@ -1135,7 +1135,7 @@ class _AdminPageState extends State<AdminPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              openAdminPage(context);
+                              GoBack(context);
                               ;
                             },
                             child: const Text('Exit'),
