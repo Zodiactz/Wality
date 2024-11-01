@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   int? bottleAmount;
   int? waterAmount;
+  int? totalAmount;
 
   @override
   void initState() {
@@ -59,14 +60,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               _userService.fetchBottleAmount(userId);
           final Future<int?> waterFuture =
               _userService.fetchWaterAmount(userId);
+          final Future<int?> totalAmountFuture =
+              _userService.fetchTotalWater(userId);
 
           // Wait for both futures to complete
-          final results = await Future.wait([bottleFuture, waterFuture]);
+          final results =
+              await Future.wait([bottleFuture, waterFuture, totalAmountFuture]);
 
           if (_mounted) {
             setState(() {
               bottleAmount = results[0];
               waterAmount = results[1];
+              totalAmount = results[2];
             });
           }
         } catch (e) {
@@ -88,11 +93,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     try {
       final newBottleAmount = await _userService.fetchBottleAmount(userId);
       final newWaterAmount = await _userService.fetchWaterAmount(userId);
+      final newTotalAmount = await _userService.fetchTotalWater(userId);
 
       if (_mounted) {
         setState(() {
           bottleAmount = newBottleAmount;
           waterAmount = newWaterAmount;
+          totalAmount = newTotalAmount;
         });
       }
     } catch (e) {
@@ -295,108 +302,107 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     fontFamily: 'RobotoCondensed',
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: screenHeight * 0.08),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // Bottle
-                                      if (animationvm.gifBytes2 != null)
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              right: screenWidth * 0.1),
-                                          child: Column(
-                                            children: [
-                                              Image.memory(
-                                                animationvm.gifBytes!,
-                                                width: screenWidth * 0.15,
-                                                height: screenWidth * 0.15,
-                                                fit: BoxFit.contain,
-                                              ),
-                                               Text(
-                                                "Bottles",
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'RobotoCondensed',
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      else
-                                        const CircularProgressIndicator(),
-                                      Flexible(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              bottom: screenHeight * 0.05,
-                                              right: screenWidth * 0.05),
-                                          child:Padding(
-                                            padding: const EdgeInsets.only(top: 24),
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  bottleAmount != null
-                                                      ? '$bottleAmount'
-                                                      : '?',
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.13,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'RobotoCondensed',
-                                                    height: 1, // Adjust this to reduce spacing
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                Text(
-                                                  ' / ${waterAmount ?? 0} ML',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'RobotoCondensed',
-                                                    height:
-                                                        0.9, // Adjust this as needed
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      // Turtle
-                                      if (animationvm.gifBytes != null)
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: screenWidth * 0.1),
-                                          child: Column(
-                                            children: [
-                                              Image.memory(
-                                                animationvm.gifBytes2!,
-                                                width: screenWidth * 0.15,
-                                                height: screenWidth * 0.15,
-                                                fit: BoxFit.contain,
-                                              ),
-                                              Text(
-                                                "Lives",
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'RobotoCondensed',
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      else
-                                        const CircularProgressIndicator(),
-                                    ],
-                                  ),
-                                ),
+                               Padding(
+  padding: EdgeInsets.only(bottom: screenHeight * 0.08),
+  child: Stack(
+    alignment: Alignment.center,
+    children: [
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Bottle
+              if (animationvm.gifBytes2 != null)
+                Padding(
+                  padding: EdgeInsets.only(right: screenWidth * 0.1),
+                  child: Column(
+                    children: [
+                      Image.memory(
+                        animationvm.gifBytes!,
+                        width: screenWidth * 0.15,
+                        height: screenWidth * 0.15,
+                        fit: BoxFit.contain,
+                      ),
+                      Text(
+                        "Bottles",
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const CircularProgressIndicator(),
+              
+              // Bottle Amount
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Text(
+                  bottleAmount != null ? '$bottleAmount' : '?',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.13,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'RobotoCondensed',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              
+              // Turtle
+              if (animationvm.gifBytes != null)
+                Padding(
+                  padding: EdgeInsets.only(left: screenWidth * 0.1),
+                  child: Column(
+                    children: [
+                      Image.memory(
+                        animationvm.gifBytes2!,
+                        width: screenWidth * 0.15,
+                        height: screenWidth * 0.15,
+                        fit: BoxFit.contain,
+                      ),
+                      Text(
+                        "Lives",
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const CircularProgressIndicator(),
+            ],
+          ),
+          SizedBox(height: screenHeight * 0.02), // Add spacing between the rows
+          // Total Amount text
+          Text(
+            'Total: ${totalAmount ?? 0} ML',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'RobotoCondensed',
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+
+
                               ],
                             ),
                           ),
