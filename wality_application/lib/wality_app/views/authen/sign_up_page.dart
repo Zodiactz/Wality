@@ -212,234 +212,231 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Consumer<AuthenticationViewModel>(
-          builder: (context, authenvm, child) {
-        return LoadingOverlay(
-          isLoading: isLoading,
-          child: Scaffold(
-            body: Listener(
-              onPointerDown: (_) {
-                FocusScope.of(context).unfocus();
-              },
-              child: SingleChildScrollView(
-                physics: authenvm.isScrollable
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                reverse: true,
-                child: Container(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height,
+    return Consumer<AuthenticationViewModel>(
+        builder: (context, authenvm, child) {
+      return LoadingOverlay(
+        isLoading: isLoading,
+        child: Scaffold(
+          body: Listener(
+            onPointerDown: (_) {
+              FocusScope.of(context).unfocus();
+            },
+            child: SingleChildScrollView(
+              physics: authenvm.isScrollable
+                  ? const AlwaysScrollableScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              reverse: true,
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF0083AB),
+                      Color.fromARGB(255, 33, 117, 143),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.1, 1.0],
                   ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF0083AB),
-                        Color.fromARGB(255, 33, 117, 143),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.1, 1.0],
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 50),
-                        Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 100),
-                              child: Center(
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 90),
-                                      child: Image.asset(
-                                        'assets/images/Logo.png',
-                                        width: 220,
-                                        height: 220,
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 200),
-                                      child: Text(
-                                        'Wality',
-                                        style: TextStyle(
-                                          fontSize: 96,
-                                          fontFamily: 'RobotoCondensed',
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 136, left: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 50),
+                      Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 100),
+                            child: Center(
+                              child: Stack(
+                                alignment: Alignment.center,
                                 children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.chevron_left,
-                                      size: 32,
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 90),
+                                    child: Image.asset(
+                                      'assets/images/Logo.png',
+                                      width: 220,
+                                      height: 220,
                                     ),
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      openChoosewayPage(context);
-                                    },
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 200),
+                                    child: Text(
+                                      'Wality',
+                                      style: TextStyle(
+                                        fontSize: 96,
+                                        fontFamily: 'RobotoCondensed',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                        Center(
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 136, left: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                  height: 50.0,
-                                  width: 300.0,
-                                  child: TextFormFieldAuthen(
-                                    controller: usernameController,
-                                    hintText: "Username",
-                                    obscureText: false,
-                                    focusNode: usernameFocusNode,
-                                    onFieldSubmitted: (value) {
-                                      FocusScope.of(context)
-                                          .requestFocus(emailFocusNode);
-                                    },
-                                    borderColor: authenvm.usernameError != null
-                                        ? Colors.red
-                                        : Colors.grey,
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.chevron_left,
+                                    size: 32,
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  height: 50.0,
-                                  width: 300.0,
-                                  child: TextFormFieldAuthen(
-                                    controller: emailController,
-                                    hintText: "Email",
-                                    obscureText: false,
-                                    focusNode: emailFocusNode,
-                                    onFieldSubmitted: (value) {
-                                      FocusScope.of(context)
-                                          .requestFocus(passwordFocusNode);
-                                    },
-                                    borderColor: authenvm.emailError != null
-                                        ? Colors.red
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  height: 50.0,
-                                  width: 300.0,
-                                  child: TextFormFieldAuthen(
-                                    controller: passwordController,
-                                    hintText: "Password",
-                                    obscureText: !authenvm.passwordVisible1,
-                                    focusNode: passwordFocusNode,
-                                    suffixIcon: IconButton(
-                                      icon: Icon(authenvm.passwordVisible1
-                                          ? Icons.visibility
-                                          : Icons.visibility_off),
-                                      color: Colors.grey,
-                                      onPressed: () {
-                                        authenvm.togglePasswordVisibility1();
-                                      },
-                                    ),
-                                    onFieldSubmitted: (value) {
-                                      FocusScope.of(context)
-                                          .requestFocus(confirmPassFocusNote);
-                                    },
-                                    borderColor: authenvm.passwordError != null
-                                        ? Colors.red
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  height: 50.0,
-                                  width: 300.0,
-                                  child: TextFormFieldAuthen(
-                                    controller: passwordController2,
-                                    hintText: "Confirm Password",
-                                    obscureText: !authenvm.passwordVisible2,
-                                    focusNode: confirmPassFocusNote,
-                                    suffixIcon: IconButton(
-                                      icon: Icon(authenvm.passwordVisible2
-                                          ? Icons.visibility
-                                          : Icons.visibility_off),
-                                      color: Colors.grey,
-                                      onPressed: () {
-                                        authenvm.togglePasswordVisibility2();
-                                      },
-                                    ),
-                                    borderColor: authenvm.confirmPassErrs != null
-                                        ? Colors.red
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 28),
-                                ElevatedButton(
-                                  onPressed:
-                                      isLoading ? null : () => signUp(authenvm),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF342056),
-                                    fixedSize: const Size(300, 50),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    isLoading ? 'Signing up...' : 'Sign up',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontFamily: 'RobotoCondensed',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 28),
-                                GestureDetector(
-                                  onTap: () {
-                                    openSignInPage(context);
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    openChoosewayPage(context);
                                   },
-                                  child: const Text(
-                                    "Already have an account ?",
-                                    style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      fontFamily: 'RobotoCondensed',
-                                      fontSize: 16,
-                                    ),
-                                  ),
                                 ),
-                                const SizedBox(height: 60),
                               ],
                             ),
                           ),
+                        ],
+                      ),
+                      Center(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: usernameController,
+                                  hintText: "Username",
+                                  obscureText: false,
+                                  focusNode: usernameFocusNode,
+                                  onFieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(emailFocusNode);
+                                  },
+                                  borderColor: authenvm.usernameError != null
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: emailController,
+                                  hintText: "Email",
+                                  obscureText: false,
+                                  focusNode: emailFocusNode,
+                                  onFieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(passwordFocusNode);
+                                  },
+                                  borderColor: authenvm.emailError != null
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: passwordController,
+                                  hintText: "Password",
+                                  obscureText: !authenvm.passwordVisible1,
+                                  focusNode: passwordFocusNode,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(authenvm.passwordVisible1
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                    color: Colors.grey,
+                                    onPressed: () {
+                                      authenvm.togglePasswordVisibility1();
+                                    },
+                                  ),
+                                  onFieldSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(confirmPassFocusNote);
+                                  },
+                                  borderColor: authenvm.passwordError != null
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 50.0,
+                                width: 300.0,
+                                child: TextFormFieldAuthen(
+                                  controller: passwordController2,
+                                  hintText: "Confirm Password",
+                                  obscureText: !authenvm.passwordVisible2,
+                                  focusNode: confirmPassFocusNote,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(authenvm.passwordVisible2
+                                        ? Icons.visibility
+                                        : Icons.visibility_off),
+                                    color: Colors.grey,
+                                    onPressed: () {
+                                      authenvm.togglePasswordVisibility2();
+                                    },
+                                  ),
+                                  borderColor: authenvm.confirmPassErrs != null
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              ElevatedButton(
+                                onPressed:
+                                    isLoading ? null : () => signUp(authenvm),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF342056),
+                                  fixedSize: const Size(300, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text(
+                                  isLoading ? 'Signing up...' : 'Sign up',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'RobotoCondensed',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              GestureDetector(
+                                onTap: () {
+                                  openSignInPage(context);
+                                },
+                                child: const Text(
+                                  "Already have an account ?",
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontFamily: 'RobotoCondensed',
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 60),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 }

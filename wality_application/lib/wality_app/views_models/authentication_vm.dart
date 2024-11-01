@@ -32,8 +32,8 @@ class AuthenticationViewModel extends ChangeNotifier {
     if (value == null || value.isEmpty) {
       return 'Username is required';
     }
-    if (value.length > 10) {
-      return 'Username must be less than 10 characters';
+    if (value.length > 12) {
+      return 'Username must be less than 12 characters';
     }
     return null;
   }
@@ -132,25 +132,6 @@ class AuthenticationViewModel extends ChangeNotifier {
     });
   }
 
-  void setAllSignInError(String? error) {
-    allErrorSignIn = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      allErrorSignIn = null;
-      _showValidationMessage = false;
-      notifyListeners();
-    });
-  }
-
-  void setChangePassError(String? error) {
-    allErrorChangePass = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      allErrorChangePass = null;
-      notifyListeners();
-    });
-  }
-
   void validateAllSignUp(String usernameVal, String emailVal,
       String passwordVal, String confirmPassEr) async {
     usernameError = validateUsername(usernameVal);
@@ -195,6 +176,16 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setAllSignInError(String? error) {
+    allErrorSignIn = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorSignIn = null;
+      _showValidationMessage = false;
+      notifyListeners();
+    });
+  }
+
   Future<bool> validateAllForgetPassword(String emailVal) async {
     emailError = validateEmailForSignUp(emailVal);
 
@@ -211,7 +202,8 @@ class AuthenticationViewModel extends ChangeNotifier {
     return !_showValidationMessage;
   }
 
-  void validateChangePassword(String passwordVal, String confirmPassEr) async {
+  Future<bool> validateChangePassword(
+      String passwordVal, String confirmPassEr) async {
     passwordError = validatePasswordForSignIn(passwordVal);
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
@@ -228,6 +220,8 @@ class AuthenticationViewModel extends ChangeNotifier {
         allErrorChangePass != null;
 
     notifyListeners();
+
+    return !_showValidationMessage;
   }
 
   void clearErrors() {

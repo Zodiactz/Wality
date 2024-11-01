@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/reward_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
-import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 import 'package:wality_application/wality_app/utils/change_pic/PictureCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
@@ -28,7 +27,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
   String imgURL = "";
   final RealmService _realmService = RealmService();
   bool _mounted = true;
-   bool isLoading = false;
 
   @override
   void initState() {
@@ -65,15 +63,9 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
     }
   }
 
- Future<void> _handleProfileUpdate(AuthenticationViewModel authvm) async {
-  if (!mounted) return;
+  Future<void> _handleProfileUpdate(AuthenticationViewModel authvm) async {
+    if (!mounted) return;
 
-  // Set loading state to true when starting the update
-  setState(() {
-    isLoading = true;
-  });
-
-  try {
     final userId = _realmService.getCurrentUserId();
     final newUsername = usernameController.text;
 
@@ -93,10 +85,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
           ContentType.failure,
         );
       }
-      // Set loading back to false if validation fails
-      setState(() {
-        isLoading = false;
-      });
       return;
     }
 
@@ -118,10 +106,6 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
               ContentType.failure,
             );
           }
-          // Set loading back to false if file handling fails
-          setState(() {
-            isLoading = false;
-          });
           return;
         }
       }
@@ -155,172 +139,158 @@ class _ChangePicAndUsernamePageState extends State<ChangePicAndUsernamePage> {
         }
       }
     }
-  } finally {
-    // Make sure to set loading back to false when everything is done
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Consumer<AuthenticationViewModel>(
-        builder: (context, authvm, child) {
-          return LoadingOverlay(
-              isLoading: isLoading,
-            child: Scaffold(
-              extendBody: true,
-              extendBodyBehindAppBar: true,
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(kToolbarHeight + 40),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF0083AB),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
+    return Consumer<AuthenticationViewModel>(
+      builder: (context, authvm, child) {
+        return Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight + 40),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF0083AB),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: AppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      automaticallyImplyLeading: false,
-                      leading: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 30,
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
+                  leading: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      GoBack(context);
+                    },
+                  ),
+                  title: const Padding(
+                    padding: EdgeInsets.only(right: 50),
+                    child: Center(
+                      child: Text(
+                        'Update Profile',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontFamily: 'Roboto',
                           color: Colors.white,
-                        ),
-                        onPressed: () {
-                          GoBack(context);
-                        },
-                      ),
-                      title: const Padding(
-                        padding: EdgeInsets.only(right: 50),
-                        child: Center(
-                          child: Text(
-                            'Update Profile',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontFamily: 'Roboto',
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-              body: Stack(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFD6F1F3),
-                          Color(0xFF0083AB),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.1, 1.0],
-                      ),
-                    ),
+            ),
+          ),
+          body: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFD6F1F3),
+                      Color(0xFF0083AB),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.1, 1.0],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 180, left: 16, right: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 180, left: 16, right: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomRight,
                       children: [
-                        Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Picturecircle(onImageUploaded: _updateImageURL);
-                              },
-                              child:
-                                  Picturecircle(onImageUploaded: _updateImageURL),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Picturecircle(onImageUploaded: _updateImageURL);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withOpacity(0.8),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.edit,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
+                        GestureDetector(
+                          onTap: () {
+                            Picturecircle(onImageUploaded: _updateImageURL);
+                          },
+                          child:
+                              Picturecircle(onImageUploaded: _updateImageURL),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () {
+                              Picturecircle(onImageUploaded: _updateImageURL);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.blueAccent.withOpacity(0.8),
+                                shape: BoxShape.circle,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormFieldAuthen(
-                          controller: usernameController,
-                          hintText: "New Username",
-                          obscureText: false,
-                          focusNode: FocusNode(),
-                          borderColor: authvm.usernameError != null
-                              ? Colors.red
-                              : Colors.grey,
-                        ),
-                        const SizedBox(height: 30),
-                        ElevatedButton(
-                          onPressed: () => isLoading ? null : _handleProfileUpdate(authvm),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0083AB),
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 60),
-                          ),
-                          child: Text(
-                            isLoading ? 'Update...' : 'Update',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'Roboto',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    TextFormFieldAuthen(
+                      controller: usernameController,
+                      hintText: "New Username",
+                      obscureText: false,
+                      focusNode: FocusNode(),
+                      borderColor: authvm.usernameError != null
+                          ? Colors.red
+                          : Colors.grey,
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () => _handleProfileUpdate(authvm),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0083AB),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 60),
+                      ),
+                      child: const Text(
+                        'Update',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
