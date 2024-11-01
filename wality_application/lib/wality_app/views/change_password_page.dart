@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
@@ -92,7 +90,7 @@ void dispose() {
     authvm.setPasswordError(null);
     authvm.setConfirmPasswordError(null);
 
-    final passError = authvm.validatePassword(pass);
+    final passError = authvm.validatePasswordForSignIn(pass);
     final cPassError = authvm.validateConfirmPass(cPass , pass);
     if (passError != null) {
       authvm.setPasswordError(passError);

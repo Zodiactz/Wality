@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:math';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 import 'package:wality_application/wality_app/utils/text_form_field_authen.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/authentication_vm.dart';
@@ -22,19 +26,43 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _handleForgetPassword(AuthenticationViewModel authvm) async {
+      final email = emailController.text.trim();
 
-    void showErrorSnackBar(AuthenticationViewModel authenvm) {
-      authenvm.validateAllForgetPassword(
-        emailController.text,
-      );
+      // Clear any previous errors
+      authvm.setAllSignInError(null);
+      authvm.setEmailError(null);
+      authvm.setPasswordError(null);
 
-      if (authenvm.emailError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.emailError!)),
+      // Check email error first
+      if (authvm.emailError != null) {
+        authvm.setEmailError(authvm.emailError);
+        showAwesomeSnackBar(
+          context,
+          "Email Error",
+          authvm.emailError!,
+          ContentType.failure,
         );
-      } else if (authenvm.confirmEmailError != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authenvm.confirmEmailError!)),
+        return;
+      }
+
+      // Then check password error
+      if (authvm.passwordError != null) {
+        authvm.setPasswordError(authvm.passwordError);
+        showAwesomeSnackBar(
+          context,
+          "Password Error",
+          authvm.passwordError!,
+          ContentType.failure,
+        );
+        return;
+      } else {
+        authvm.setAllSignInError(authvm.allErrorSignIn);
+        showAwesomeSnackBar(
+          context,
+          "Error",
+          authvm.allErrorSignIn!,
+          ContentType.failure,
         );
       }
     }
@@ -49,10 +77,8 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
           // ignore: use_build_context_synchronously
           openChoosewayPageFromLogoPage(context);
         } else {
-          showErrorSnackBar(authenvm);
+          _handleForgetPassword(authenvm);
         }
-      } else {
-        showErrorSnackBar(authenvm);
       }
     }
 
@@ -68,8 +94,8 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFD6F1F3),
                     Color(0xFF0083AB),
+                    Color.fromARGB(255, 33, 117, 143),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -142,6 +168,16 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                             SingleChildScrollView(
                               child: Column(
                                 children: [
+                                  const Text(
+                                    'Please enter your email to reset your password',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'RobotoCondensed',
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12,),
                                   SizedBox(
                                     height: 50.0,
                                     width: 300.0,
@@ -160,25 +196,10 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  SizedBox(
-                                    height: 50.0,
-                                    width: 300.0,
-                                    child: TextFormFieldAuthen(
-                                      controller: confirmEmailController,
-                                      hintText: "Confirm Email",
-                                      obscureText: false,
-                                      focusNode: confirmEmailFocusNode,
-                                      onFieldSubmitted: (value) {},
-                                      borderColor:
-                                          authenvm.confirmEmailError != null
-                                              ? Colors.red
-                                              : Colors.grey,
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 12),
                             ElevatedButton(
                               onPressed: () {
                                 confirmEmail(authenvm);
