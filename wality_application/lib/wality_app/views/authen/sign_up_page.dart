@@ -95,12 +95,12 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    if (authvm.confirmEmailError != null) {
-      authvm.setConfirmPasswordError(authvm.confirmEmailError);
+    if (authvm.confirmPassErrs != null) {
+      authvm.setConfirmPasswordError(authvm.confirmPassErrs);
       showAwesomeSnackBar(
         context,
         "ConfirmPassword Error",
-        authvm.confirmEmailError!,
+        authvm.confirmPassErrs!,
         ContentType.failure,
       );
       return;
@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
           authenvm.usernameError == null &&
           authenvm.emailError == null &&
           authenvm.passwordError == null &&
-          authenvm.confirmEmailError == null;
+          authenvm.confirmPassErrs == null;
 
       if (isValidForSignUp) {
         setState(() {

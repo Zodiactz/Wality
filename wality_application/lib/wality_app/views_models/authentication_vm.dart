@@ -4,7 +4,6 @@ class AuthenticationViewModel extends ChangeNotifier {
   String? usernameError;
   String? emailError;
   String? passwordError;
-  String? confirmEmailError;
   String? confirmPassErrs;
   String? allErrorSignIn;
   String? allErrorSignUp;
@@ -29,33 +28,35 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setUsernameError(String? error) {
-    usernameError = error;
-
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      usernameError = null;
-      notifyListeners();
-    });
-  }
-
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
       return 'Username is required';
     }
-    if (value.length < 3) {
-      return 'Username must be at least 3 characters long';
-    }
-    if (value.length > 30) {
-      return 'Username must be less than 30 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-      return 'Username can only contain letters, numbers, and underscores';
+    if (value.length > 12) {
+      return 'Username must be less than 12 characters';
     }
     return null;
   }
 
-  String? validateEmail(String? value) {
+  String? validateEmailForSignIn(String? value) {
+    return (value == null || value.isEmpty)
+        ? 'Email is required'
+        : (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                .hasMatch(value))
+            ? 'Enter a valid email'
+            : 'Invalid email';
+  }
+
+  String? validatePasswordForSignIn(String? value) {
+    return (value == null || value.isEmpty)
+        ? 'Password is required'
+        : (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+                .hasMatch(value))
+            ? 'Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 lowercase letter, 1 digit and 1 special character'
+            : 'Invalid password';
+  }
+
+  String? validateEmailForSignUp(String? value) {
     return (value == null || value.isEmpty)
         ? 'Email is required'
         : (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -64,44 +65,7 @@ class AuthenticationViewModel extends ChangeNotifier {
             : null;
   }
 
-  void setEmailError(String? error) {
-    emailError = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      emailError = null;
-      notifyListeners();
-    });
-  }
-
-  String? validateConfirmEmail(String? email, String? confirmEmail) {
-    if (confirmEmail == null || confirmEmail.isEmpty) {
-      return 'Confirm Email is required';
-    }
-    if (email != confirmEmail) {
-      return 'Email does not match';
-    }
-    return null;
-  }
-
-  void setPasswordError(String? error) {
-    passwordError = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      passwordError = null;
-      notifyListeners();
-    });
-  }
-
-  void setConfirmPasswordError(String? error) {
-    confirmPassErrs = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      confirmPassErrs = null;
-      notifyListeners();
-    });
-  }
-
-  String? validatePassword(String? value) {
+  String? validatePasswordForSignUp(String? value) {
     return (value == null || value.isEmpty)
         ? 'Password is required'
         : (!RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
@@ -122,11 +86,57 @@ class AuthenticationViewModel extends ChangeNotifier {
     return null;
   }
 
+  void setUsernameError(String? error) {
+    usernameError = error;
+
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      usernameError = null;
+      notifyListeners();
+    });
+  }
+
+  void setEmailError(String? error) {
+    emailError = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      emailError = null;
+      notifyListeners();
+    });
+  }
+
+  void setPasswordError(String? error) {
+    passwordError = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      passwordError = null;
+      notifyListeners();
+    });
+  }
+
+  void setConfirmPasswordError(String? error) {
+    confirmPassErrs = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      confirmPassErrs = null;
+      notifyListeners();
+    });
+  }
+
+  void setAllSignUpError(String? error) {
+    allErrorSignUp = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorSignUp = null;
+      notifyListeners();
+    });
+  }
+
   void validateAllSignUp(String usernameVal, String emailVal,
       String passwordVal, String confirmPassEr) async {
     usernameError = validateUsername(usernameVal);
-    emailError = validateEmail(emailVal);
-    passwordError = validatePassword(passwordVal);
+    emailError = validateEmailForSignUp(emailVal);
+    passwordError = validatePasswordForSignUp(passwordVal);
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
     if (usernameVal.isEmpty ||
@@ -149,18 +159,9 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAllSignUpError(String? error) {
-    allErrorSignUp = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      allErrorSignUp = null;
-      notifyListeners();
-    });
-  }
-
   void validateAllSignIn(String emailVal, String passwordVal) {
-    emailError = validateEmail(emailVal);
-    passwordError = validatePassword(passwordVal);
+    emailError = validateEmailForSignIn(emailVal);
+    passwordError = validatePasswordForSignIn(passwordVal);
 
     if (emailVal.isEmpty || passwordVal.isEmpty) {
       // Changed condition to check both
@@ -186,7 +187,7 @@ class AuthenticationViewModel extends ChangeNotifier {
   }
 
   Future<bool> validateAllForgetPassword(String emailVal) async {
-    emailError = validateEmail(emailVal);
+    emailError = validateEmailForSignUp(emailVal);
 
     if (emailVal.isEmpty) {
       allErrorSignIn = 'Email and Confirm Email is required';
@@ -203,7 +204,7 @@ class AuthenticationViewModel extends ChangeNotifier {
 
   Future<bool> validateChangePassword(
       String passwordVal, String confirmPassEr) async {
-    passwordError = validatePassword(passwordVal);
+    passwordError = validatePasswordForSignIn(passwordVal);
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
     if (passwordVal.isEmpty) {
@@ -227,7 +228,6 @@ class AuthenticationViewModel extends ChangeNotifier {
     usernameError = null;
     emailError = null;
     passwordError = null;
-    confirmEmailError = null;
     confirmPassErrs = null;
     allErrorSignIn = null;
     allErrorSignUp = null;
