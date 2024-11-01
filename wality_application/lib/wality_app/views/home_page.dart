@@ -333,15 +333,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           padding: EdgeInsets.only(
                                               bottom: screenHeight * 0.05,
                                               right: screenWidth * 0.05),
-                                          child: Text(
-                                            bottleAmount != null
-                                                ? '$bottleAmount'
-                                                : '?',
-                                            style: TextStyle(
-                                              fontSize: screenWidth * 0.13,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed',
+                                          child:Padding(
+                                            padding: const EdgeInsets.only(top: 24),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  bottleAmount != null
+                                                      ? '$bottleAmount'
+                                                      : '?',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'RobotoCondensed',
+                                                    height: 1, // Adjust this to reduce spacing
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                Text(
+                                                  ' / ${waterAmount ?? 0} ML',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily: 'RobotoCondensed',
+                                                    height:
+                                                        0.9, // Adjust this as needed
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
