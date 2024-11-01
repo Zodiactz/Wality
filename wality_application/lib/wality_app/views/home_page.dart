@@ -314,7 +314,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 height: screenWidth * 0.15,
                                                 fit: BoxFit.contain,
                                               ),
-                                              Text(
+                                               Text(
                                                 "Bottles",
                                                 style: TextStyle(
                                                   fontSize: 24,
@@ -333,69 +333,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           padding: EdgeInsets.only(
                                               bottom: screenHeight * 0.05,
                                               right: screenWidth * 0.05),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(top: 24),
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  bottleAmount != null
-                                                      ? '$bottleAmount'
-                                                      : '?',
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.13,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'RobotoCondensed',
-                                                    height: 1, // Adjust this to reduce spacing
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                Text(
-                                                  ' / ${waterAmount ?? 0} ML',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'RobotoCondensed',
-                                                    height:
-                                                        0.9, // Adjust this as needed
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
+                                          child: Text(
+                                            bottleAmount != null
+                                                ? '$bottleAmount'
+                                                : '?',
+                                            style: TextStyle(
+                                              fontSize: screenWidth * 0.13,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'RobotoCondensed',
                                             ),
                                           ),
-                                          /*FutureBuilder<int?>(
-                                  future: botAmount,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      '${snapshot.data ?? 0}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 60,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
-                                        height:
-                                            0.9, // Adjust this to reduce spacing
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    );
-                                  },
-                                ),
-                                const SizedBox(
-                                    height:
-                                        4), // Add a small gap between the texts
-                                Text(
-                                  ' / ${waterAmount ?? 0} ML',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
-                                    height: 0.9, // Adjust this as needed
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),*/
                                         ),
                                       ),
                                       // Turtle
