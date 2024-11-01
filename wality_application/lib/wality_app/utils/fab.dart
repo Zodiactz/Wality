@@ -30,6 +30,7 @@ class _CustomFabState extends State<CustomFab> {
       TextEditingController();
   final TextEditingController _couponDescriptionController =
       TextEditingController();
+  DateTime? _expirationDate;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -71,14 +72,14 @@ class _CustomFabState extends State<CustomFab> {
     });
   }
 
-  bool _isFormValid() {
+ bool _isFormValid() {
     return _couponViewModel.validateAllCouponFields(
       name: _couponNameController.text,
       briefDescription: _couponBriefDescriptionController.text,
       importanceDescription: _couponImportanceDescriptionController.text,
       botRequirement: _couponBotRequirementController.text,
       description: _couponDescriptionController.text,
-    );
+    ) && _expirationDate != null; // Add expiration date validation
   }
 
   @override
@@ -90,6 +91,7 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.dispose();
     super.dispose();
   }
+
 
   // Submit method to validate and show errors
   void _submitCoupon() {
@@ -357,39 +359,66 @@ class _CustomFabState extends State<CustomFab> {
                           errorStyle: const TextStyle(color: Colors.red),
                         ),
                       ),
-                      const SizedBox(height: 24),
-
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Expiration Date',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF342056),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _expirationDate == null
+                                    ? 'Select expiration date'
+                                    : '${_expirationDate!.day}/${_expirationDate!.month}/${_expirationDate!.year}',
+                                style: TextStyle(
+                                  color: _expirationDate == null ? Colors.grey[600] : Colors.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today, color: Color(0xFF342056)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       // Submit Button
                       Center(
                         child: ElevatedButton(
                           onPressed: _isFormValid()
                               ? () async {
                                   try {
-                                    final coupon_name =
-                                        _couponNameController.text.trim();
-                                    final bot_req =
-                                        _couponBotRequirementController.text
-                                            .trim();
-                                    final b_desc =
-                                        _couponBriefDescriptionController.text
-                                            .trim();
-                                    final f_desc = _couponDescriptionController
-                                        .text
-                                        .trim();
-                                    final imp_desc =
-                                        _couponImportanceDescriptionController
-                                            .text
-                                            .trim();
+                                    final coupon_name = _couponNameController.text.trim();
+                                    final bot_req = _couponBotRequirementController.text.trim();
+                                    final b_desc = _couponBriefDescriptionController.text.trim();
+                                    final f_desc = _couponDescriptionController.text.trim();
+                                    final imp_desc = _couponImportanceDescriptionController.text.trim();
                                     final imageFile = File(imgURL ?? '');
+                                    final expirationDate = _expirationDate; // Convert date to string
 
                                     final int? botReq = int.tryParse(bot_req);
                                     await rewardService.createCoupon(
-                                        coupon_name,
-                                        botReq ?? 0,
-                                        b_desc,
-                                        f_desc,
-                                        imp_desc,
-                                        imageFile);
+                                      coupon_name,
+                                      botReq ?? 0,
+                                      b_desc,
+                                      f_desc,
+                                      imp_desc,
+                                      imageFile,
+                                      expirationDate, // Add expiration date to API call
+                                    );
 
                                     _clearFields();
                                     openAdminPage(context);
@@ -411,9 +440,7 @@ class _CustomFabState extends State<CustomFab> {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isFormValid()
-                                ? const Color(0xFF342056)
-                                : Colors.grey,
+                            backgroundColor: _isFormValid() ? const Color(0xFF342056) : Colors.grey,
                             minimumSize: const Size(200, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -772,7 +799,8 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                             openAdminPage(context); // Exit dialog without action
+                              openAdminPage(
+                                  context); // Exit dialog without action
                             },
                             child: const Text('Exit'),
                           ),
@@ -808,8 +836,38 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.clear();
     setState(() {
       imgURL = null;
+      _expirationDate = null; // Clear expiration date
     });
   }
+
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _expirationDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)), // 2 years from now
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF342056), // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: Color(0xFF342056), // Calendar text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _expirationDate) {
+      setState(() {
+        _expirationDate = picked;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
