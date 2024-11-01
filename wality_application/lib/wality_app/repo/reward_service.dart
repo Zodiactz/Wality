@@ -13,54 +13,64 @@ import 'package:flutter/material.dart';
 final UserService userService = UserService();
 
 class RewardService {
-  Future<String?> createCoupon(String coupon_name, int bot_req, String b_desc,
-      String f_desc, String imp_desc, File? imageFile) async {
-    String? uploadedImageUrl;
-    // Generate a random 6-digit qr_id
-    final random = Random();
-    final coupon_id = (random.nextInt(900000) + 100000)
-        .toString(); // Generates a 6-digit number
+  Future<String?> createCoupon(
+    String coupon_name,
+    int bot_req,
+    String b_desc,
+    String f_desc,
+    String imp_desc,
+    File? imageFile,
+    DateTime exp_date) async {
+  String? uploadedImageUrl;
+  // Generate a random 6-digit qr_id
+  final random = Random();
+  final coupon_id = (random.nextInt(900000) + 100000)
+      .toString(); // Generates a 6-digit number
 
-    if (imageFile != null) {
-      uploadedImageUrl = await userService.uploadImage(imageFile);
-      if (uploadedImageUrl == null) {
-        return 'Failed to upload image.';
-      }
-    }
-
-    // Construct the request payload
-    final newQRData = {
-      "coupon_id": coupon_id,
-      "b_desc": b_desc,
-      "bot_req": bot_req,
-      "coupon_name": coupon_name,
-      "f_desc": f_desc,
-      "imp_desc": imp_desc,
-      "img_couponLink": uploadedImageUrl
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(
-            '$baseUrl/createCoupon'), // Replace with your backend URL endpoint for creating QR
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(newQRData),
-      );
-
-      if (response.statusCode == 200) {
-        // Success: Return the response body if needed
-        return coupon_id;
-      } else {
-        // Failure: Return error message
-        return 'Failed to create Coupon: ${response.body}';
-      }
-    } catch (e) {
-      // Exception: Return error message
-      return 'Failed to create Coupon: $e';
+  if (imageFile != null) {
+    uploadedImageUrl = await userService.uploadImage(imageFile);
+    if (uploadedImageUrl == null) {
+      return 'Failed to upload image.';
     }
   }
+
+  // Convert exp_date to ISO8601 string
+  final expDateIso = exp_date!.toIso8601String();
+
+  // Construct the request payload
+  final newQRData = {
+    "coupon_id": coupon_id,
+    "b_desc": b_desc,
+    "bot_req": bot_req,
+    "coupon_name": coupon_name,
+    "f_desc": f_desc,
+    "imp_desc": imp_desc,
+    "img_couponLink": uploadedImageUrl,
+    "exp_date": expDateIso, // Add expiration date to payload
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/createCoupon'), // Replace with your backend URL endpoint for creating QR
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(newQRData),
+    );
+
+    if (response.statusCode == 200) {
+      // Success: Return the response body if needed
+      return coupon_id;
+    } else {
+      // Failure: Return error message
+      return 'Failed to create Coupon: ${response.body}';
+    }
+  } catch (e) {
+    // Exception: Return error message
+    return 'Failed to create Coupon: $e';
+  }
+}
+
 
   Future<List<dynamic>> fetchRewards() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllCoupons'));
