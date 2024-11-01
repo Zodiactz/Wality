@@ -20,7 +20,9 @@ class RewardService {
     String f_desc,
     String imp_desc,
     File? imageFile,
-    DateTime exp_date) async {
+    DateTime? exp_date,
+    int rep_day
+    ) async {
   String? uploadedImageUrl;
   // Generate a random 6-digit qr_id
   final random = Random();
@@ -46,7 +48,8 @@ class RewardService {
     "f_desc": f_desc,
     "imp_desc": imp_desc,
     "img_couponLink": uploadedImageUrl,
-    "exp_date": expDateIso, // Add expiration date to payload
+    "exp_date": expDateIso, 
+    "rep_day": rep_day, // Add expiration date to payload
   };
 
   try {
@@ -59,6 +62,7 @@ class RewardService {
     );
 
     if (response.statusCode == 200) {
+      print('show detail: ${response.body}');
       // Success: Return the response body if needed
       return coupon_id;
     } else {

@@ -27,7 +27,7 @@ import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/rendering.dart'; // Import this line
 
 void main() {
-  debugPaintSizeEnabled = /*true*/false;
+  debugPaintSizeEnabled = false;
   runApp(
     MultiProvider(
       providers: [

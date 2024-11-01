@@ -30,11 +30,16 @@ class _CustomFabState extends State<CustomFab> {
       TextEditingController();
   final TextEditingController _couponDescriptionController =
       TextEditingController();
+  final TextEditingController _replenishController =
+      TextEditingController();
+  DateTime? _expirationDate;
 
   final _formKey = GlobalKey<FormState>();
 
   final CouponViewModel _couponViewModel =
       CouponViewModel(); // Instantiate ViewModel
+
+  final ValueNotifier<bool> _isDatePickerOpen = ValueNotifier<bool>(false);
 
   List<String> couponCheck = [];
   bool isLoading = true;
@@ -71,18 +76,21 @@ class _CustomFabState extends State<CustomFab> {
     });
   }
 
-  bool _isFormValid() {
+ bool _isFormValid() {
     return _couponViewModel.validateAllCouponFields(
       name: _couponNameController.text,
       briefDescription: _couponBriefDescriptionController.text,
       importanceDescription: _couponImportanceDescriptionController.text,
       botRequirement: _couponBotRequirementController.text,
       description: _couponDescriptionController.text,
-    );
+      replenish: _replenishController.text, // Add replenish validation
+    ) && _expirationDate != null;
   }
+
 
   @override
   void dispose() {
+     _isDatePickerOpen.dispose();
     _couponNameController.dispose();
     _couponBriefDescriptionController.dispose();
     _couponImportanceDescriptionController.dispose();
@@ -90,6 +98,7 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.dispose();
     super.dispose();
   }
+
 
   // Submit method to validate and show errors
   void _submitCoupon() {
@@ -99,6 +108,7 @@ class _CustomFabState extends State<CustomFab> {
       importanceDescription: _couponImportanceDescriptionController.text,
       botRequirement: _couponBotRequirementController.text,
       description: _couponDescriptionController.text,
+      replenish: _replenishController.text,
     );
 
     if (isValid) {
@@ -154,7 +164,7 @@ class _CustomFabState extends State<CustomFab> {
     );
   }
 
-  void _showFullScreenBottomSheet(BuildContext context) {
+ void _showFullScreenBottomSheet(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomSheetHeight = screenHeight * 0.9;
 
@@ -163,278 +173,371 @@ class _CustomFabState extends State<CustomFab> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: bottomSheetHeight,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
+        return ValueListenableBuilder<bool>(
+          valueListenable: _isDatePickerOpen,
+          builder: (context, isDatePickerOpen, child) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: isDatePickerOpen ? 80.0 : 0.0,
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 48,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Create Coupon',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Image Upload Section
-                      Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            GestureDetector(
-                                onTap: () {
-                                  CouponCircle(
-                                      onImageUploaded: _updateImageURL);
-                                },
-                                child: CouponCircle(
-                                    onImageUploaded: _updateImageURL)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Coupon Name Field
-                      const Text(
-                        'Coupon Name',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _couponNameController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter coupon name',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          errorText: _couponViewModel.couponNameError,
-                          errorStyle: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Brief Description Field
-                      const Text(
-                        'Brief Coupon Description',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _couponBriefDescriptionController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter brief coupon description',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          errorText:
-                              _couponViewModel.couponBriefDescriptionError,
-                          errorStyle: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Importance Description Field
-                      const Text(
-                        'Importance Description',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _couponImportanceDescriptionController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Enter importance description (optional)',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Bottle Requirement Field
-                      const Text(
-                        'Bottle Requirement',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _couponBotRequirementController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                          hintText: 'Enter bottle requirement',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          errorText: _couponViewModel.couponBotRequirementError,
-                          errorStyle: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Coupon Description Field
-                      const Text(
-                        'Coupon Description',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF342056),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _couponDescriptionController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Enter coupon description',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          errorText: _couponViewModel.couponDescriptionError,
-                          errorStyle: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Submit Button
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _isFormValid()
-                              ? () async {
-                                  try {
-                                    final coupon_name =
-                                        _couponNameController.text.trim();
-                                    final bot_req =
-                                        _couponBotRequirementController.text
-                                            .trim();
-                                    final b_desc =
-                                        _couponBriefDescriptionController.text
-                                            .trim();
-                                    final f_desc = _couponDescriptionController
-                                        .text
-                                        .trim();
-                                    final imp_desc =
-                                        _couponImportanceDescriptionController
-                                            .text
-                                            .trim();
-                                    final imageFile = File(imgURL ?? '');
-
-                                    final int? botReq = int.tryParse(bot_req);
-                                    await rewardService.createCoupon(
-                                        coupon_name,
-                                        botReq ?? 0,
-                                        b_desc,
-                                        f_desc,
-                                        imp_desc,
-                                        imageFile);
-
-                                    _clearFields();
-                                    openAdminPage(context);
-
-                                    showAwesomeSnackBar(
-                                      context,
-                                      "Success",
-                                      "Coupon created successfully!",
-                                      ContentType.success,
-                                    );
-                                  } catch (e) {
-                                    showAwesomeSnackBar(
-                                      context,
-                                      "Error",
-                                      "Failed to create coupon. Please try again.",
-                                      ContentType.failure,
-                                    );
-                                  }
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isFormValid()
-                                ? const Color(0xFF342056)
-                                : Colors.grey,
-                            minimumSize: const Size(200, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: bottomSheetHeight,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 48,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
-                          child: const Text(
+                          const SizedBox(height: 20),
+                          const Text(
                             'Create Coupon',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Image Upload Section
+                          Center(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                GestureDetector(
+                                    onTap: () {
+                                      CouponCircle(
+                                          onImageUploaded: _updateImageURL);
+                                    },
+                                    child: CouponCircle(
+                                        onImageUploaded: _updateImageURL)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Coupon Name Field
+                          const Text(
+                            'Coupon Name',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Color(0xFF342056),
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponNameController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter coupon name',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorText: _couponViewModel.couponNameError,
+                              errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Brief Description Field
+                          const Text(
+                            'Brief Coupon Description',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponBriefDescriptionController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter brief coupon description',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorText:
+                                  _couponViewModel.couponBriefDescriptionError,
+                              errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Importance Description Field
+                          const Text(
+                            'Importance Description',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponImportanceDescriptionController,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText: 'Enter importance description (optional)',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Bottle Requirement Field
+                          const Text(
+                            'Bottle Requirement',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponBotRequirementController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'Enter bottle requirement',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorText: _couponViewModel.couponBotRequirementError,
+                              errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Coupon Description Field
+                          const Text(
+                            'Coupon Description',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponDescriptionController,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText: 'Enter coupon description',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorText: _couponViewModel.couponDescriptionError,
+                              errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Replenish Amount Field
+                          const Text(
+                            'Replenish Amount',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _replenishController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'Enter replenish amount (minimum 1)',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorText: _couponViewModel.replenishError,
+                              errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Expiration Date Field
+                          const Text(
+                            'Expiration Date',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => _selectDate(context),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 15),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _expirationDate == null
+                                        ? 'Select expiration date'
+                                        : '${_expirationDate!.day}/${_expirationDate!.month}/${_expirationDate!.year}',
+                                    style: TextStyle(
+                                      color: _expirationDate == null
+                                          ? Colors.grey[600]
+                                          : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const Icon(Icons.calendar_today,
+                                      color: Color(0xFF342056)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Submit Button
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: _isFormValid()
+                                  ? () async {
+                                      try {
+                                        final coupon_name =
+                                            _couponNameController.text.trim();
+                                        final bot_req =
+                                            _couponBotRequirementController.text
+                                                .trim();
+                                        final b_desc =
+                                            _couponBriefDescriptionController
+                                                .text
+                                                .trim();
+                                        final f_desc =
+                                            _couponDescriptionController.text
+                                                .trim();
+                                        final imp_desc =
+                                            _couponImportanceDescriptionController
+                                                .text
+                                                .trim();
+                                        final replenish =
+                                            _replenishController.text.trim();
+                                        final imageFile =
+                                            File(imgURL ?? '');
+                                        final expirationDate =
+                                            _expirationDate;
+
+                                        final int? botReq =
+                                            int.tryParse(bot_req);
+                                        final int? replenishAmount =
+                                            int.tryParse(replenish);
+
+                                        await rewardService.createCoupon(
+                                          coupon_name,
+                                          botReq ?? 0,
+                                          b_desc,
+                                          f_desc,
+                                          imp_desc,
+                                          imageFile,
+                                          expirationDate,
+                                          replenishAmount ?? 1,
+                                        );
+
+                                        _clearFields();
+                                        openAdminPage(context);
+
+                                        showAwesomeSnackBar(
+                                          context,
+                                          "Success",
+                                          "Coupon created successfully!",
+                                          ContentType.success,
+                                        );
+                                      } catch (e) {
+                                        showAwesomeSnackBar(
+                                          context,
+                                          "Error",
+                                          "Failed to create coupon. Please try again.",
+                                          ContentType.failure,
+                                        );
+                                      }
+                                    }
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isFormValid()
+                                    ? const Color(0xFF342056)
+                                    : Colors.grey,
+                                minimumSize: const Size(200, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Create Coupon',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -772,7 +875,8 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                             openAdminPage(context); // Exit dialog without action
+                              openAdminPage(
+                                  context); // Exit dialog without action
                             },
                             child: const Text('Exit'),
                           ),
@@ -808,8 +912,42 @@ class _CustomFabState extends State<CustomFab> {
     _couponDescriptionController.clear();
     setState(() {
       imgURL = null;
+      _expirationDate = null; // Clear expiration date
     });
   }
+
+
+  Future<void> _selectDate(BuildContext context) async {
+    _isDatePickerOpen.value = true; // Set to true when opening date picker
+    
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _expirationDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF342056),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF342056),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    _isDatePickerOpen.value = false; // Set to false when closing date picker
+
+    if (picked != null && picked != _expirationDate) {
+      setState(() {
+        _expirationDate = picked;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

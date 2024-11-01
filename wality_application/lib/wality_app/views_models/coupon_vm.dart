@@ -6,7 +6,9 @@ class CouponViewModel extends ChangeNotifier {
   String? couponImportanceDescriptionError;
   String? couponBotRequirementError;
   String? couponDescriptionError;
+  String? replenishError;
   String? allErrorCoupon;
+
 
   final bool _isScrollable = false;
   bool _showValidationMessage = false;
@@ -61,6 +63,12 @@ class CouponViewModel extends ChangeNotifier {
     return null;
   }
 
+String? validateReplenish(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Replenish is required';
+    }
+    return null;
+  }
   void setBriefDescriptionError(String? error) {
     couponBriefDescriptionError = error;
     notifyListeners();
@@ -81,12 +89,18 @@ class CouponViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setReplenish(String? error) {
+    replenishError = error;
+    notifyListeners();
+  }
+
   void clearErrors() {
     couponNameError = null;
     couponBriefDescriptionError = null;
     couponImportanceDescriptionError = null;
     couponBotRequirementError = null;
     couponDescriptionError = null;
+    replenishError = null;
     allErrorCoupon = null;
     _showValidationMessage = false;
     notifyListeners();
@@ -98,6 +112,7 @@ class CouponViewModel extends ChangeNotifier {
     required String importanceDescription,
     required String botRequirement,
     required String description,
+    required String replenish,
   }) {
     // Trim all inputs to handle whitespace-only inputs
     name = name.trim();
@@ -105,7 +120,7 @@ class CouponViewModel extends ChangeNotifier {
     importanceDescription = importanceDescription.trim();
     botRequirement = botRequirement.trim();
     description = description.trim();
-
+    replenish = replenish.trim();
     bool isValid = true;
 
     // Validate required fields
@@ -113,6 +128,7 @@ class CouponViewModel extends ChangeNotifier {
     if (validateBriefDescription(briefDescription) != null) isValid = false;
     if (validateBotRequirement(botRequirement) != null) isValid = false;
     if (validateDescription(description) != null) isValid = false;
+    if (validateDescription(replenish) != null) isValid = false;
     // Note: importanceDescription is optional, so we don't check it here
 
     return isValid;
