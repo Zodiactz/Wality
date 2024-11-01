@@ -875,7 +875,7 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              openAdminPage(
+                              GoBack(
                                   context); // Exit dialog without action
                             },
                             child: const Text('Exit'),

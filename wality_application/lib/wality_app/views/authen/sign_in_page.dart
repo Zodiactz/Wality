@@ -114,83 +114,85 @@ class _SignInPageState extends State<SignInPage> {
     super.dispose();
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthenticationViewModel>(
-      builder: (context, authvm, child) {
-        return LoadingOverlay(
-          isLoading: isLoading,
-          child: Scaffold(
-            body: Listener(
-              onPointerDown: (_) {
-                if (emailFocusNode.hasFocus || passwordFocusNode.hasFocus) {
-                  emailFocusNode.unfocus();
-                  passwordFocusNode.unfocus();
-                }
-              },
-              child: SingleChildScrollView(
-                physics: authvm.isScrollable
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                reverse: true,
-                child: Container(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Consumer<AuthenticationViewModel>(
+        builder: (context, authvm, child) {
+          return LoadingOverlay(
+            isLoading: isLoading,
+            child: Scaffold(
+              body: Listener(
+                onPointerDown: (_) {
+                  if (emailFocusNode.hasFocus || passwordFocusNode.hasFocus) {
+                    emailFocusNode.unfocus();
+                    passwordFocusNode.unfocus();
+                  }
+                },
+                child: SingleChildScrollView(
+                  physics: authvm.isScrollable
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  reverse: true,
+                  child: Container(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height,
                   ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF0083AB),
-                        Color.fromARGB(255, 33, 117, 143),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.1, 1.0],
+                 decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFF0083AB),
+                          Color.fromARGB(255, 33, 117, 143),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [0.1, 1.0],
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 100),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(height: 32),
-                                    Image.asset(
-                                      'assets/images/Logo.png',
-                                      width: 220,
-                                      height: 220,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const Text(
-                                      'Wality',
-                                      style: TextStyle(
-                                        fontSize: 96,
-                                        fontFamily: 'RobotoCondensed',
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 100),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(height: 32),
+                                      Image.asset(
+                                        'assets/images/Logo.png',
+                                        width: 220,
+                                        height: 220,
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                  ],
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'Wality',
+                                        style: TextStyle(
+                                          fontSize: 96,
+                                          fontFamily: 'RobotoCondensed',
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 116, left: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.chevron_left,
-                                      size: 32,
+                              Padding(
+                                padding: const EdgeInsets.only(top: 116, left: 8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.chevron_left,
+                                        size: 32,
                                     ),
                                     color: Colors.white,
                                     onPressed: () {
@@ -310,6 +312,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       },
+      )
     );
   }
 }

@@ -11,11 +11,21 @@ class AuthenticationViewModel extends ChangeNotifier {
   final bool _isScrollable = false;
   bool _passwordVisible1 = false;
   bool _passwordVisible2 = false;
+  bool _passwordVisible3 = false;
+  bool _passwordVisible4 = false;
+  bool _passwordVisible5 = false;
+  bool _passwordVisible6 = false;
+  bool _passwordVisible7 = false;
   bool _showValidationMessage = false;
 
   bool get isScrollable => _isScrollable;
   bool get passwordVisible1 => _passwordVisible1;
   bool get passwordVisible2 => _passwordVisible2;
+  bool get passwordVisible3 => _passwordVisible3;
+  bool get passwordVisible4 => _passwordVisible4;
+  bool get passwordVisible5 => _passwordVisible5;
+  bool get passwordVisible6 => _passwordVisible6;
+  bool get passwordVisible7 => _passwordVisible7;
   bool get showValidationMessage => _showValidationMessage;
 
   void togglePasswordVisibility1() {
@@ -28,12 +38,37 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void togglePasswordVisibility3() {
+    _passwordVisible2 = !_passwordVisible2;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility4() {
+    _passwordVisible2 = !_passwordVisible2;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility5() {
+    _passwordVisible2 = !_passwordVisible2;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility6() {
+    _passwordVisible2 = !_passwordVisible2;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility7() {
+    _passwordVisible2 = !_passwordVisible2;
+    notifyListeners();
+  }
+
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
       return 'Username is required';
     }
-    if (value.length > 12) {
-      return 'Username must be less than 12 characters';
+    if (value.length > 10) {
+      return 'Username must be less than 10 characters';
     }
     return null;
   }
@@ -132,6 +167,25 @@ class AuthenticationViewModel extends ChangeNotifier {
     });
   }
 
+  void setAllSignInError(String? error) {
+    allErrorSignIn = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorSignIn = null;
+      _showValidationMessage = false;
+      notifyListeners();
+    });
+  }
+
+  void setChangePassError(String? error) {
+    allErrorChangePass = error;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 3), () {
+      allErrorChangePass = null;
+      notifyListeners();
+    });
+  }
+
   void validateAllSignUp(String usernameVal, String emailVal,
       String passwordVal, String confirmPassEr) async {
     usernameError = validateUsername(usernameVal);
@@ -176,16 +230,6 @@ class AuthenticationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAllSignInError(String? error) {
-    allErrorSignIn = error;
-    notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
-      allErrorSignIn = null;
-      _showValidationMessage = false;
-      notifyListeners();
-    });
-  }
-
   Future<bool> validateAllForgetPassword(String emailVal) async {
     emailError = validateEmailForSignUp(emailVal);
 
@@ -202,8 +246,7 @@ class AuthenticationViewModel extends ChangeNotifier {
     return !_showValidationMessage;
   }
 
-  Future<bool> validateChangePassword(
-      String passwordVal, String confirmPassEr) async {
+  void validateChangePassword(String passwordVal, String confirmPassEr) async {
     passwordError = validatePasswordForSignIn(passwordVal);
     confirmPassErrs = validateConfirmPass(passwordVal, confirmPassEr);
 
@@ -220,8 +263,6 @@ class AuthenticationViewModel extends ChangeNotifier {
         allErrorChangePass != null;
 
     notifyListeners();
-
-    return !_showValidationMessage;
   }
 
   void clearErrors() {

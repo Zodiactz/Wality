@@ -82,12 +82,14 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
       }
     }
 
-    return Consumer<AuthenticationViewModel>(
-        builder: (context, authenvm, child) {
-      return Scaffold(
-        body: SingleChildScrollView(
-          reverse: true,
-          child: Container(
+    return GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Consumer<AuthenticationViewModel>(
+            builder: (context, authenvm, child) {
+          return Scaffold(
+              body: SingleChildScrollView(
+            reverse: true,
+            child: Container(
               constraints: BoxConstraints(
                 minHeight: MediaQuery.of(context).size.height,
               ),
@@ -103,133 +105,136 @@ class _ForgetpasswordPageState extends State<ForgetpasswordPage> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 60),
+                        Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 60),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      height: 32,
+                                    ),
+                                    Image.asset(
+                                      'assets/images/Logo.png',
+                                      width: 220,
+                                      height: 220,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Wality',
+                                      style: TextStyle(
+                                        fontSize: 96,
+                                        fontFamily: 'RobotoCondensed',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 28, left: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.chevron_left,
+                                      size: 32,
+                                    ),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      GoBack(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Form(
+                          key: _formKey,
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const SizedBox(
-                                  height: 32,
-                                ),
-                                Image.asset(
-                                  'assets/images/Logo.png',
-                                  width: 220,
-                                  height: 220,
-                                ),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  'Wality',
-                                  style: TextStyle(
-                                    fontSize: 96,
-                                    fontFamily: 'RobotoCondensed',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      const Text(
+                                        'Please enter your email to reset your password',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: 'RobotoCondensed',
+                                          fontWeight: FontWeight.normal,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 12,
+                                      ),
+                                      SizedBox(
+                                        height: 50.0,
+                                        width: 300.0,
+                                        child: TextFormFieldAuthen(
+                                          controller: emailController,
+                                          hintText: "Email",
+                                          obscureText: false,
+                                          focusNode: emailFocusNode,
+                                          onFieldSubmitted: (value) {
+                                            FocusScope.of(context).requestFocus(
+                                                confirmEmailFocusNode);
+                                          },
+                                          borderColor:
+                                              authenvm.emailError != null
+                                                  ? Colors.red
+                                                  : Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      const SizedBox(height: 12),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          confirmEmail(authenvm);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF342056),
+                                          fixedSize: const Size(300, 50),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Confirm',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: 'RobotoCondensed',
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 8),
+                                )
                               ],
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 28, left: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.chevron_left,
-                                  size: 32,
-                                ),
-                                color: Colors.white,
-                                onPressed: () {
-                                  GoBack(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Form(
-                      key: _formKey,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 8),
-                            SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  const Text(
-                                    'Please enter your email to reset your password',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontFamily: 'RobotoCondensed',
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 12,),
-                                  SizedBox(
-                                    height: 50.0,
-                                    width: 300.0,
-                                    child: TextFormFieldAuthen(
-                                      controller: emailController,
-                                      hintText: "Email",
-                                      obscureText: false,
-                                      focusNode: emailFocusNode,
-                                      onFieldSubmitted: (value) {
-                                        FocusScope.of(context).requestFocus(
-                                            confirmEmailFocusNode);
-                                      },
-                                      borderColor: authenvm.emailError != null
-                                          ? Colors.red
-                                          : Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: () {
-                                confirmEmail(authenvm);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF342056),
-                                fixedSize: const Size(300, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: const Text(
-                                'Confirm',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'RobotoCondensed',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-        ),
-      );
-    });
+                        )
+                      ])),
+            ),
+          ));
+        }));
   }
 }
