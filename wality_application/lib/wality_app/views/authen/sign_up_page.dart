@@ -210,25 +210,27 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    return Consumer<AuthenticationViewModel>(
-        builder: (context, authenvm, child) {
-      return LoadingOverlay(
-        isLoading: isLoading,
-        child: Scaffold(
-          body: Listener(
-            onPointerDown: (_) {
-              FocusScope.of(context).unfocus();
-            },
-            child: SingleChildScrollView(
-              physics: authenvm.isScrollable
-                  ? const AlwaysScrollableScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              reverse: true,
-              child: Container(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Consumer<AuthenticationViewModel>(
+          builder: (context, authenvm, child) {
+        return LoadingOverlay(
+          isLoading: isLoading,
+          child: Scaffold(
+            body: Listener(
+              onPointerDown: (_) {
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                physics: authenvm.isScrollable
+                    ? const AlwaysScrollableScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                reverse: true,
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height,
                 ),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -346,15 +348,15 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: TextFormFieldAuthen(
                                   controller: passwordController,
                                   hintText: "Password",
-                                  obscureText: !authenvm.passwordVisible1,
+                                  obscureText: !authenvm.passwordVisible2,
                                   focusNode: passwordFocusNode,
                                   suffixIcon: IconButton(
-                                    icon: Icon(authenvm.passwordVisible1
+                                    icon: Icon(authenvm.passwordVisible2
                                         ? Icons.visibility
                                         : Icons.visibility_off),
                                     color: Colors.grey,
                                     onPressed: () {
-                                      authenvm.togglePasswordVisibility1();
+                                      authenvm.togglePasswordVisibility2();
                                     },
                                   ),
                                   onFieldSubmitted: (value) {
@@ -373,15 +375,15 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: TextFormFieldAuthen(
                                   controller: passwordController2,
                                   hintText: "Confirm Password",
-                                  obscureText: !authenvm.passwordVisible2,
+                                  obscureText: !authenvm.passwordVisible3,
                                   focusNode: confirmPassFocusNote,
                                   suffixIcon: IconButton(
-                                    icon: Icon(authenvm.passwordVisible2
+                                    icon: Icon(authenvm.passwordVisible3
                                         ? Icons.visibility
                                         : Icons.visibility_off),
                                     color: Colors.grey,
                                     onPressed: () {
-                                      authenvm.togglePasswordVisibility2();
+                                      authenvm.togglePasswordVisibility3();
                                     },
                                   ),
                                   borderColor: authenvm.confirmPassErrs != null
@@ -437,6 +439,6 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       );
-    });
+    }));
   }
 }
