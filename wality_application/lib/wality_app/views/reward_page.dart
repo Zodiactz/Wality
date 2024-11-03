@@ -61,6 +61,17 @@ class _RewardPageState extends State<RewardPage> {
     }
   }
 
+  (String, Color) calculateDaysUntilReCoupon(int repDay, int countStart) {
+    int daysLeft = repDay - countStart;
+
+    // Return red color if 3 or fewer days left
+    if (daysLeft <= 3) {
+      return ('$daysLeft days left', Colors.red);
+    }
+
+    return ('$daysLeft days left', Colors.green);
+  }
+
   Future<void> fetchUserCoupons() async {
     final response =
         await http.get(Uri.parse('http://localhost:8080/getCoupons/$userId'));
@@ -154,6 +165,7 @@ class _RewardPageState extends State<RewardPage> {
                           reward['img_couponLink'],
                           reward['f_desc'],
                           reward['imp_desc'],
+                          reward['exp_date'],
                         );
                       },
                     );
@@ -163,9 +175,13 @@ class _RewardPageState extends State<RewardPage> {
 
               // Bottom info panel styled like ranking page
               Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 47, 133, 141).withOpacity(1),
-                  borderRadius: const BorderRadius.only(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0083AB), Color(0xFF005678)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
@@ -178,7 +194,7 @@ class _RewardPageState extends State<RewardPage> {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
-                        fontFamily: 'RobotoCondensed',
+                        fontFamily: 'RobotoCondensedCondensed',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -201,7 +217,7 @@ class _RewardPageState extends State<RewardPage> {
                                         color: Colors.white,
                                         fontSize: 60,
                                         fontWeight: FontWeight.bold,
-                                        fontFamily: 'RobotoCondensed',
+                                        fontFamily: 'RobotoCondensedCondensed',
                                         height:
                                             0.9, // Adjust this to reduce spacing
                                       ),
@@ -228,7 +244,7 @@ class _RewardPageState extends State<RewardPage> {
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
-                        fontFamily: 'RobotoCondensed',
+                        fontFamily: 'RobotoCondensedCondensed',
                       ),
                     ),
                   ],
@@ -241,6 +257,7 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
+  //Coupon item
   Widget _buildRewardItem(
     BuildContext context,
     String cId,
@@ -250,6 +267,7 @@ class _RewardPageState extends State<RewardPage> {
     String imgCoupon,
     String fD,
     String impD,
+    String expD,
   ) {
     bool isUsed = couponCheck.contains(cId);
 
@@ -257,7 +275,7 @@ class _RewardPageState extends State<RewardPage> {
       onTap: () => isUsed
           ? null
           : _showCouponPopup(
-              context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
+              context, couponName, bD, bReq, imgCoupon, fD, impD, cId, expD),
       child: Stack(
         alignment: Alignment.center, // Center align elements in the stack
         children: [
@@ -280,14 +298,14 @@ class _RewardPageState extends State<RewardPage> {
                   color: isUsed ? Colors.white38 : Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'RobotoCondensed',
+                  fontFamily: 'RobotoCondensedCondensed',
                 ),
               ),
               subtitle: Text(
                 bD,
                 style: TextStyle(
                   color: isUsed ? Colors.white24 : Colors.white70,
-                  fontFamily: 'RobotoCondensed',
+                  fontFamily: 'RobotoCondensedCondensed',
                 ),
               ),
               trailing: SizedBox(
@@ -302,19 +320,18 @@ class _RewardPageState extends State<RewardPage> {
                         color: isUsed ? Colors.white38 : Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'RobotoCondensed',
+                        fontFamily: 'RobotoCondensedCondensed',
                       ),
                     ),
                     Flexible(
                       child: Transform.translate(
                         offset: const Offset(0, -6), // Move "Bottles" up a bit
                         child: Text(
-                          'Bottles',
+                          'Coins',
                           style: TextStyle(
-                            color: isUsed ? Colors.white24 : Colors.white70,
-                            fontSize: 12, // Adjust font size if needed
-                            fontFamily: 'RobotoCondensed',
-                          ),
+                              color: isUsed ? Colors.white24 : Colors.white70,
+                              fontSize: 12, // Adjust font size if needed
+                              fontFamily: 'RobotoCondensed'),
                         ),
                       ),
                     ),
@@ -329,10 +346,10 @@ class _RewardPageState extends State<RewardPage> {
               child: Text(
                 'Used',
                 style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
+                    color: Colors.red,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'RobotoCondensed'),
               ),
             ),
         ],
@@ -340,7 +357,7 @@ class _RewardPageState extends State<RewardPage> {
     );
   }
 
-  // Keep your existing _showCouponPopup method
+  //Coupon popup
   Future<void> _showCouponPopup(
       BuildContext context,
       String couponName,
@@ -349,7 +366,8 @@ class _RewardPageState extends State<RewardPage> {
       String imgCoupon,
       String fD,
       String impD,
-      String cId) async {
+      String cId,
+      String expD) async {
     bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
     showDialog(
       context: context,
@@ -386,15 +404,17 @@ class _RewardPageState extends State<RewardPage> {
                                 Text(
                                   couponName,
                                   style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed'),
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
                                   bD,
                                   style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600]),
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'RobotoCondensed'),
                                 ),
                               ],
                             ),
@@ -404,10 +424,14 @@ class _RewardPageState extends State<RewardPage> {
                               Text(
                                 '$bReq',
                                 style: const TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed'),
                               ),
-                              const Text('Bottles',
-                                  style: TextStyle(fontSize: 16)),
+                              const Text('Coins',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'RobotoCondensed')),
                             ],
                           ),
                         ],
@@ -419,13 +443,65 @@ class _RewardPageState extends State<RewardPage> {
                       Text(
                         fD,
                         textAlign: TextAlign.start,
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(
+                            fontSize: 16, fontFamily: 'RobotoCondensed'),
                       ),
                       Text(
                         impD,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed'),
                       ),
+                      const SizedBox(height: 5),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Expired Date: ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            TextSpan(
+                              text: expD,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: _rewardService.fetchRewardById(cId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final (reCouponText, textColor) =
+                                calculateDaysUntilReCoupon(
+                              snapshot.data!['rep_day'] as int,
+                              snapshot.data!['countStart'] as int,
+                            );
+                            return Text(
+                              reCouponText,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensedCondensed',
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+
                       const SizedBox(height: 20),
 
                       // Warning message
@@ -435,7 +511,8 @@ class _RewardPageState extends State<RewardPage> {
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.red,
-                            fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed'),
                       ),
                       const SizedBox(height: 20),
 
@@ -468,13 +545,23 @@ class _RewardPageState extends State<RewardPage> {
                               backgroundColor:
                                   hasEnoughBottles ? Colors.blue : Colors.grey,
                             ),
-                            child: const Text('Use Coupon'),
+                            child: const Text('Use Coupon',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed')),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               GoBack(context);
                             },
-                            child: const Text('Exit'),
+                            child: const Text('Exit',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed')),
                           ),
                         ],
                       ),
@@ -627,23 +714,20 @@ class _RewardPageState extends State<RewardPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () async {
-                                    GoBack(context);
-                                    await qrService
-                                        .deleteALLQRofThisUser(userId!);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                  ),
-                                  child: const Text('Exit',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                  
-                                  )
-                                  )
-                                ),
+                                    onPressed: () async {
+                                      GoBack(context);
+                                      await qrService
+                                          .deleteALLQRofThisUser(userId!);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                    ),
+                                    child: const Text('Exit',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ))),
                               ],
                             ),
                           ],
@@ -702,6 +786,7 @@ class _RewardPageState extends State<RewardPage> {
   }
 }
 
+//App bar
 Widget _buildAppBar(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -722,7 +807,7 @@ Widget _buildAppBar(BuildContext context) {
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              fontFamily: 'RobotoCondensed',
+              fontFamily: 'RobotoCondensedCondensed',
             ),
             textAlign: TextAlign.center,
           ),

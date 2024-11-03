@@ -68,6 +68,7 @@ func main() {
 	app.Post("/updateWaterStatus/:waterId", updateWaterStatus)
 	app.Get("/getImage", getImageFromDynamicLink) //use
 	app.Post("/createCoupon", createCoupon)
+	app.Get("/getCoupon/:coupon_id", getCouponById)
 	app.Get("/getAllCoupons", getAllCoupons)
 	app.Get("/getCouponsHistoryFromUser/:user_id", getCouponsHistoryFromUser)
 	app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
@@ -643,6 +644,18 @@ func createCoupon(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon created successfully!"})
+}
+
+func getCouponById(c *fiber.Ctx) error {
+	collection := client.Database("Wality_DB").Collection("Reward")
+	coupon_id := c.Params("coupon_id")
+
+	var result bson.M
+	err := collection.FindOne(context.Background(), bson.M{"coupon_id": coupon_id}).Decode(&result)
+	if err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "coupon not found!"})
+	}
+	return c.Status(http.StatusOK).JSON(result)
 }
 
 func getAllCoupons(c *fiber.Ctx) error {

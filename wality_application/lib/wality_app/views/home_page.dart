@@ -283,7 +283,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           '${waterAmount ?? 0}/${watervm.water.maxMl}ml',
                                           style: TextStyle(
                                             fontSize: screenWidth * 0.06,
-                                            color: Colors.black,
+                                            color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'RobotoCondensed',
                                           ),
@@ -297,112 +297,130 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   'You saved',
                                   style: TextStyle(
                                     fontSize: 35,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'RobotoCondensed',
                                   ),
                                 ),
-                               Padding(
-  padding: EdgeInsets.only(bottom: screenHeight * 0.08),
-  child: Stack(
-    alignment: Alignment.center,
-    children: [
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Bottle
-              if (animationvm.gifBytes2 != null)
-                Padding(
-                  padding: EdgeInsets.only(right: screenWidth * 0.1),
-                  child: Column(
-                    children: [
-                      Image.memory(
-                        animationvm.gifBytes!,
-                        width: screenWidth * 0.15,
-                        height: screenWidth * 0.15,
-                        fit: BoxFit.contain,
-                      ),
-                      Text(
-                        "Bottles",
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                const CircularProgressIndicator(),
-              
-              // Bottle Amount
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Text(
-                  bottleAmount != null ? '$bottleAmount' : '?',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.13,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'RobotoCondensed',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              
-              // Turtle
-              if (animationvm.gifBytes != null)
-                Padding(
-                  padding: EdgeInsets.only(left: screenWidth * 0.1),
-                  child: Column(
-                    children: [
-                      Image.memory(
-                        animationvm.gifBytes2!,
-                        width: screenWidth * 0.15,
-                        height: screenWidth * 0.15,
-                        fit: BoxFit.contain,
-                      ),
-                      Text(
-                        "Lives",
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                const CircularProgressIndicator(),
-            ],
-          ),
-          SizedBox(height: screenHeight * 0.02), // Add spacing between the rows
-          // Total Amount text
-          Text(
-            'Total: ${totalAmount ?? 0} ML',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'RobotoCondensed',
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ],
-  ),
-),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: screenHeight * 0.08),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // Bottle
+                                              if (animationvm.gifBytes2 != null)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      right: screenWidth * 0.1),
+                                                  child: Column(
+                                                    children: [
+                                                      Image.memory(
+                                                        animationvm.gifBytes!,
+                                                        width:
+                                                            screenWidth * 0.15,
+                                                        height:
+                                                            screenWidth * 0.15,
+                                                        fit: BoxFit.contain,
+                                                      ),
+                                                      Text(
+                                                        "Bottles",
+                                                        style: TextStyle(
+                                                          fontSize: 24,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              'RobotoCondensed',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              else
+                                                const CircularProgressIndicator(),
 
+                                              // Bottle Amount
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 16),
+                                                child: Text(
+                                                  bottleAmount != null
+                                                      ? '$bottleAmount'
+                                                      : '?',
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        screenWidth * 0.13,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily:
+                                                        'RobotoCondensed',
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
 
+                                              // Turtle
+                                              if (animationvm.gifBytes != null)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: screenWidth * 0.1),
+                                                  child: Column(
+                                                    children: [
+                                                      Image.memory(
+                                                        animationvm.gifBytes2!,
+                                                        width:
+                                                            screenWidth * 0.15,
+                                                        height:
+                                                            screenWidth * 0.15,
+                                                        fit: BoxFit.contain,
+                                                      ),
+                                                      Text(
+                                                        "Lives",
+                                                        style: TextStyle(
+                                                          fontSize: 24,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              'RobotoCondensed',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              else
+                                                const CircularProgressIndicator(),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: screenHeight *
+                                                  0.02), // Add spacing between the rows
+                                          // Total Amount text
+                                          Text(
+                                            'Total: ${totalAmount ?? 0} ML',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'RobotoCondensed',
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),

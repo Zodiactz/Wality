@@ -21,6 +21,7 @@ class CustomFab extends StatefulWidget {
 }
 
 class _CustomFabState extends State<CustomFab> {
+  // TextEditingControllers
   final TextEditingController _couponNameController = TextEditingController();
   final TextEditingController _couponBriefDescriptionController =
       TextEditingController();
@@ -30,15 +31,19 @@ class _CustomFabState extends State<CustomFab> {
       TextEditingController();
   final TextEditingController _couponDescriptionController =
       TextEditingController();
-  final TextEditingController _replenishController =
-      TextEditingController();
+  final TextEditingController _replenishController = TextEditingController();
+
+  // FocusNodes
+  final FocusNode _couponNameFocus = FocusNode();
+  final FocusNode _couponBriefDescriptionFocus = FocusNode();
+  final FocusNode _couponImportanceDescriptionFocus = FocusNode();
+  final FocusNode _couponBotRequirementFocus = FocusNode();
+  final FocusNode _couponDescriptionFocus = FocusNode();
+  final FocusNode _replenishFocus = FocusNode();
+
   DateTime? _expirationDate;
-
   final _formKey = GlobalKey<FormState>();
-
-  final CouponViewModel _couponViewModel =
-      CouponViewModel(); // Instantiate ViewModel
-
+  final CouponViewModel _couponViewModel = CouponViewModel();
   final ValueNotifier<bool> _isDatePickerOpen = ValueNotifier<bool>(false);
 
   List<String> couponCheck = [];
@@ -76,29 +81,39 @@ class _CustomFabState extends State<CustomFab> {
     });
   }
 
- bool _isFormValid() {
-    return _couponViewModel.validateAllCouponFields(
-      name: _couponNameController.text,
-      briefDescription: _couponBriefDescriptionController.text,
-      importanceDescription: _couponImportanceDescriptionController.text,
-      botRequirement: _couponBotRequirementController.text,
-      description: _couponDescriptionController.text,
-      replenish: _replenishController.text, // Add replenish validation
-    ) && _expirationDate != null;
-  }
-
-
   @override
   void dispose() {
-     _isDatePickerOpen.dispose();
+    // Dispose of TextEditingControllers
     _couponNameController.dispose();
     _couponBriefDescriptionController.dispose();
     _couponImportanceDescriptionController.dispose();
     _couponBotRequirementController.dispose();
     _couponDescriptionController.dispose();
+    _replenishController.dispose();
+
+    // Dispose of FocusNodes
+    _couponNameFocus.dispose();
+    _couponBriefDescriptionFocus.dispose();
+    _couponImportanceDescriptionFocus.dispose();
+    _couponBotRequirementFocus.dispose();
+    _couponDescriptionFocus.dispose();
+    _replenishFocus.dispose();
+
+    _isDatePickerOpen.dispose();
     super.dispose();
   }
 
+  bool _isFormValid() {
+    return _couponViewModel.validateAllCouponFields(
+          name: _couponNameController.text,
+          briefDescription: _couponBriefDescriptionController.text,
+          importanceDescription: _couponImportanceDescriptionController.text,
+          botRequirement: _couponBotRequirementController.text,
+          description: _couponDescriptionController.text,
+          replenish: _replenishController.text, // Add replenish validation
+        ) &&
+        _expirationDate != null;
+  }
 
   // Submit method to validate and show errors
   void _submitCoupon() {
@@ -122,6 +137,17 @@ class _CustomFabState extends State<CustomFab> {
     setState(() {
       imgURL = path;
     });
+  }
+
+  (String, Color) calculateDaysUntilReCoupon(int repDay, int countStart) {
+    int daysLeft = repDay - countStart;
+
+    // Return red color if 3 or fewer days left
+    if (daysLeft <= 3) {
+      return ('$daysLeft days left', Colors.red);
+    }
+
+    return ('$daysLeft days left', Colors.green);
   }
 
   void _showFabOptions(BuildContext context) {
@@ -164,7 +190,7 @@ class _CustomFabState extends State<CustomFab> {
     );
   }
 
- void _showFullScreenBottomSheet(BuildContext context) {
+  void _showFullScreenBottomSheet(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomSheetHeight = screenHeight * 0.9;
 
@@ -252,6 +278,11 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _couponNameController,
+                            focusNode: _couponNameFocus,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_couponBriefDescriptionFocus);
+                            },
                             decoration: InputDecoration(
                               hintText: 'Enter coupon name',
                               filled: true,
@@ -278,6 +309,11 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _couponBriefDescriptionController,
+                            focusNode: _couponBriefDescriptionFocus,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context).requestFocus(
+                                  _couponImportanceDescriptionFocus);
+                            },
                             decoration: InputDecoration(
                               hintText: 'Enter brief coupon description',
                               filled: true,
@@ -305,9 +341,15 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _couponImportanceDescriptionController,
+                            focusNode: _couponImportanceDescriptionFocus,
                             maxLines: 3,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_couponBotRequirementFocus);
+                            },
                             decoration: InputDecoration(
-                              hintText: 'Enter importance description (optional)',
+                              hintText:
+                                  'Enter importance description (optional)',
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: OutlineInputBorder(
@@ -320,7 +362,7 @@ class _CustomFabState extends State<CustomFab> {
 
                           // Bottle Requirement Field
                           const Text(
-                            'Bottle Requirement',
+                            'Coin Requirement',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -330,19 +372,25 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _couponBotRequirementController,
+                            focusNode: _couponBotRequirementFocus,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_couponDescriptionFocus);
+                            },
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             decoration: InputDecoration(
-                              hintText: 'Enter bottle requirement',
+                              hintText: 'Enter Coin requirement',
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
-                              errorText: _couponViewModel.couponBotRequirementError,
+                              errorText:
+                                  _couponViewModel.couponBotRequirementError,
                               errorStyle: const TextStyle(color: Colors.red),
                             ),
                           ),
@@ -360,6 +408,11 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _couponDescriptionController,
+                            focusNode: _couponDescriptionFocus,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_replenishFocus);
+                            },
                             maxLines: 3,
                             decoration: InputDecoration(
                               hintText: 'Enter coupon description',
@@ -369,7 +422,8 @@ class _CustomFabState extends State<CustomFab> {
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
-                              errorText: _couponViewModel.couponDescriptionError,
+                              errorText:
+                                  _couponViewModel.couponDescriptionError,
                               errorStyle: const TextStyle(color: Colors.red),
                             ),
                           ),
@@ -377,7 +431,7 @@ class _CustomFabState extends State<CustomFab> {
 
                           // Replenish Amount Field
                           const Text(
-                            'Replenish Amount',
+                            'Replenish frequency date',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -387,12 +441,16 @@ class _CustomFabState extends State<CustomFab> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _replenishController,
+                            focusNode: _replenishFocus,
+                            onFieldSubmitted: (value) {
+                              FocusScope.of(context).unfocus();
+                            },
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             decoration: InputDecoration(
-                              hintText: 'Enter replenish amount (minimum 1)',
+                              hintText: 'Enter replenish frequency (minimum 1)',
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: OutlineInputBorder(
@@ -471,10 +529,8 @@ class _CustomFabState extends State<CustomFab> {
                                                 .trim();
                                         final replenish =
                                             _replenishController.text.trim();
-                                        final imageFile =
-                                            File(imgURL ?? '');
-                                        final expirationDate =
-                                            _expirationDate;
+                                        final imageFile = File(imgURL ?? '');
+                                        final expirationDate = _expirationDate;
 
                                         final int? botReq =
                                             int.tryParse(bot_req);
@@ -641,6 +697,8 @@ class _CustomFabState extends State<CustomFab> {
                               coupon['img_couponLink'],
                               coupon['f_desc'],
                               coupon['imp_desc'],
+                              coupon['exp_date']
+
                             );
                           },
                         );
@@ -665,10 +723,11 @@ class _CustomFabState extends State<CustomFab> {
     String imgCoupon,
     String fD,
     String impD,
+    String expD,
   ) {
     return GestureDetector(
       onTap: () => _showCouponPopup(
-          context, couponName, bD, bReq, imgCoupon, fD, impD, cId),
+          context, couponName, bD, bReq, imgCoupon, fD, impD, cId, expD),
       child: Stack(
         children: [
           Container(
@@ -719,7 +778,7 @@ class _CustomFabState extends State<CustomFab> {
                         offset: const Offset(
                             0, -4), // Adjust the position of the text
                         child: const Text(
-                          'Bottles',
+                          'Coins',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 12, // Adjust font size if needed
@@ -747,6 +806,7 @@ class _CustomFabState extends State<CustomFab> {
     String fD,
     String impD,
     String cId,
+    String expD,
   ) async {
     showDialog(
       context: context,
@@ -803,7 +863,7 @@ class _CustomFabState extends State<CustomFab> {
                                 style: const TextStyle(
                                     fontSize: 48, fontWeight: FontWeight.bold),
                               ),
-                              const Text('Bottles',
+                              const Text('Coins',
                                   style: TextStyle(fontSize: 16)),
                             ],
                           ),
@@ -822,6 +882,52 @@ class _CustomFabState extends State<CustomFab> {
                         impD,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
+                      ),const SizedBox(height: 5),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Expired Date: ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            TextSpan(
+                              text: expD,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),SizedBox(
+                        height: 5,
+                      ),
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: rewardService.fetchRewardById(cId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final (reCouponText, textColor) =
+                                calculateDaysUntilReCoupon(
+                              snapshot.data!['rep_day'] as int,
+                              snapshot.data!['countStart'] as int,
+                            );
+                            return Text(
+                              reCouponText,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensedCondensed',
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                       const SizedBox(height: 20),
 
@@ -875,8 +981,7 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              GoBack(
-                                  context); // Exit dialog without action
+                              GoBack(context); // Exit dialog without action
                             },
                             child: const Text('Exit'),
                           ),
@@ -916,13 +1021,13 @@ class _CustomFabState extends State<CustomFab> {
     });
   }
 
-
   Future<void> _selectDate(BuildContext context) async {
     _isDatePickerOpen.value = true; // Set to true when opening date picker
-    
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _expirationDate ?? DateTime.now().add(const Duration(days: 1)),
+      initialDate:
+          _expirationDate ?? DateTime.now().add(const Duration(days: 1)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
       builder: (context, child) {
@@ -947,7 +1052,6 @@ class _CustomFabState extends State<CustomFab> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

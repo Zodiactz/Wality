@@ -39,7 +39,7 @@ class _CouponCircleState extends State<CouponCircle> {
               PopOverChangePicture(onImageUploaded: _onCouponImageSelected),
           width: 250,
           height: 100,
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blue,
         );
       },
       child: ClipOval(

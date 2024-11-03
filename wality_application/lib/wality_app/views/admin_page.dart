@@ -116,6 +116,17 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  (String, Color) calculateDaysUntilReCoupon(int repDay, int countStart) {
+    int daysLeft = repDay - countStart;
+
+    // Return red color if 3 or fewer days left
+    if (daysLeft <= 3) {
+      return ('$daysLeft days left', Colors.red);
+    }
+
+    return ('$daysLeft days left', Colors.green);
+  }
+
   void _showDialogWithAutoDismiss(String title, String message) {
     showDialog(
       context: context,
@@ -270,6 +281,8 @@ class _AdminPageState extends State<AdminPage> {
     final int monthBot = user['monthBot'] ?? 0;
     final int yearBot = user['yearBot'] ?? 0;
     final int eventBot = user['eventBot'] ?? 0;
+    final int currentWcoin = user['currentWcoin'] ?? 0;
+    final int usedWcoin = user['usedWcoin'] ?? 0;
 
     showModalBottomSheet(
       context: context,
@@ -453,15 +466,39 @@ class _AdminPageState extends State<AdminPage> {
                                 _buildStatCard(
                                     'Total Milliliter', totalMl, Colors.blue),
                                 _buildStatCard(
-                                    'Total Bottles', botLiv, Colors.green),
-                                _buildStatCard(
-                                    'Daily Bottles', dayBot, Colors.pink),
+                                    'Daily Bottles', dayBot, Colors.lime),
                                 _buildStatCard(
                                     'Monthly Bottles', monthBot, Colors.purple),
                                 _buildStatCard(
                                     'Yearly Bottles', yearBot, Colors.red),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  SliverToBoxAdapter(
+                    child: _buildSection(
+                      context,
+                      'REWARD STATISTICS',
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: GridView.extent(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              maxCrossAxisExtent: 200,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 1.5,
+                              children: [
                                 _buildStatCard(
-                                    'Event Bottles', eventBot, Colors.orange),
+                                    'Total W Coins', eventBot, Colors.yellow),
+                                _buildStatCard(
+                                    'Used W Coins', usedWcoin, Colors.teal),
                               ],
                             ),
                           );
@@ -642,6 +679,7 @@ class _AdminPageState extends State<AdminPage> {
           couponData['f_desc'] ?? '',
           couponData['imp_desc'] ?? '',
           couponData['coupon_id'] ?? '',
+          couponData['exp_date'] ?? '',
         ),
         leading: Hero(
           tag: 'coupon-${couponData['coupon_id']}',
@@ -1111,7 +1149,8 @@ class _AdminPageState extends State<AdminPage> {
       String imgCoupon,
       String fD,
       String impD,
-      String cId) async {
+      String cId,
+      String expD) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1187,6 +1226,54 @@ class _AdminPageState extends State<AdminPage> {
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 5),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Expired Date: ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            TextSpan(
+                              text: expD,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: _rewardService.fetchRewardById(cId),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final (reCouponText, textColor) =
+                                calculateDaysUntilReCoupon(
+                              snapshot.data!['rep_day'] as int,
+                              snapshot.data!['countStart'] as int,
+                            );
+                            return Text(
+                              reCouponText,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensedCondensed',
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                       const SizedBox(height: 20),
 
                       // Buttons
@@ -1196,7 +1283,6 @@ class _AdminPageState extends State<AdminPage> {
                           ElevatedButton(
                             onPressed: () {
                               GoBack(context);
-                              ;
                             },
                             child: const Text('Exit'),
                           ),
