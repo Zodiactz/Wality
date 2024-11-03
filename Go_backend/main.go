@@ -899,24 +899,43 @@ func updateUserEventBot(c *fiber.Ctx) error {
 // deleteAllofThatUserQRValid
 func deleteCoupon(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Reward")
+	usersCollection := client.Database("Wality_DB").Collection("Users")
 
-	// Get the username from the URL parameter
+	// Get the coupon_id from the URL parameter
 	coupon_id := c.Params("coupon_id")
 
-	// Define the filter to match users with the specified username
+	// Define the filter to match the coupon in the Reward collection
 	filter := bson.M{"coupon_id": coupon_id}
 
+	// Delete the coupon from the Reward collection
 	result, err := collection.DeleteOne(context.Background(), filter)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	// Check if the coupon was not found
 	if result.DeletedCount == 0 {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "No Coupon with coupon_id '" + coupon_id + "' found to delete!"})
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon with coupon_id '" + coupon_id + "' deleted successfully!"})
+	// Remove the coupon_id from couponCheck and couponHistory arrays in Users collection
+	userFilter := bson.M{}
+	update := bson.M{
+		"$pull": bson.M{
+			"couponCheck":    coupon_id,
+			"couponHistory": bson.M{"coupon_id": coupon_id},
+		},
+	}
+
+	// Update all matching users
+	_, updateErr := usersCollection.UpdateMany(context.Background(), userFilter, update)
+	if updateErr != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": updateErr.Error()})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon with coupon_id '" + coupon_id + "' deleted successfully from Reward collection and removed from Users collection!"})
 }
+
 
 func updateUsername(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Users")
