@@ -20,7 +20,7 @@ class Users {
   final String realName;
   final String sID;
   final bool isAdmin;
-  final int eventMl; 
+  final int usedWcoin;
 
   Users({
     this.userId,
@@ -34,7 +34,7 @@ class Users {
     this.startFillingTime,
     required this.fillingLimit,
     this.couponCheck = const [],
-    this.couponHistory = const[ ],
+    this.couponHistory = const [],
     required this.eventBot,
     required this.dayBot,
     required this.monthBot,
@@ -42,7 +42,7 @@ class Users {
     required this.realName,
     required this.sID,
     required this.isAdmin,
-    required this.eventMl,
+    required this.usedWcoin,
   });
 
   // Convert a User instance to a map
@@ -67,38 +67,39 @@ class Users {
       'realName': realName,
       'sID': sID,
       'isAdmin': isAdmin,
-      'eventMl': eventMl,
+      'usedWcoin': usedWcoin,
     };
   }
 
   // Convert a map to a User instance
   factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
-        userId: json['user_id'],
-        // uid: json['uid'],
-        userName: json['userName'],
-        email: json['email'],
-        currentMl: json['currentMl'],
-        totalMl: json['totalMl'],
-        botLiv: json['botLiv'],
-        profileImg_link: json['profileImg_link'],
-        startFillingTime: json['startFillingTime'] != null
-            ? DateTime.parse(json['startFillingTime'])
-            : null,
-        fillingLimit: json['fillingLimit'],
-        couponCheck: json['couponCheck'] != null
-            ? List<String>.from(json['couponCheck'])
-            : [], // Default to empty list if null);
-        couponHistory: json['couponHistory'] != null
-            ? List<String>.from(json['couponHistory'])
-            : [], // Default to empty list if null);
-        eventBot: json['eventBot'],
-        dayBot: json['dayBot'],
-        monthBot: json['monthBot'],
-        yearBot: json['yearBot'],
-        realName: json['realName'],
-        sID: json['sID'],
-        isAdmin: json['isAdmin'],
-        eventMl: json['eventMl']);
+      userId: json['user_id'],
+      // uid: json['uid'],
+      userName: json['userName'],
+      email: json['email'],
+      currentMl: json['currentMl'],
+      totalMl: json['totalMl'],
+      botLiv: json['botLiv'],
+      profileImg_link: json['profileImg_link'],
+      startFillingTime: json['startFillingTime'] != null
+          ? DateTime.parse(json['startFillingTime'])
+          : null,
+      fillingLimit: json['fillingLimit'],
+      couponCheck: json['couponCheck'] != null
+          ? List<String>.from(json['couponCheck'])
+          : [], // Default to empty list if null);
+      couponHistory: json['couponHistory'] != null
+          ? List<String>.from(json['couponHistory'])
+          : [], // Default to empty list if null);
+      eventBot: json['eventBot'],
+      dayBot: json['dayBot'],
+      monthBot: json['monthBot'],
+      yearBot: json['yearBot'],
+      realName: json['realName'],
+      sID: json['sID'],
+      isAdmin: json['isAdmin'],
+      usedWcoin: json['usedWcoin'],
+    );
   }
 }

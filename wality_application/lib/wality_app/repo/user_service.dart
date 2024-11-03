@@ -82,120 +82,153 @@ class UserService {
     }
   }
 
+  Future<String?> updateUserUsedWcoin(String userId, int wCoin) async {
+    final uri = Uri.parse(
+        '$baseUrl/updateUserUsedWcoin/$userId'); // Ensure this matches your backend endpoint
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'usedWcoin': wCoin}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        return data['status'] ??
+            'Used usedWcoin updated successfully'; // Adjusted to match 'status' field
+      } else if (response.statusCode == 404) {
+        return 'User not found!'; // Added handling for 404 case
+      } else {
+        return jsonDecode(response.body)['error'] ??
+            'Unknown error occurred'; // Extract the error message if available
+      }
+    } catch (e) {
+      return 'Error updating usedWcoin: $e';
+    }
+  }
+
 // Fetch function
-Future<List<Map<String, dynamic>>?> fetchCouponHistory(String userId) async {
-  final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+  Future<List<Map<String, dynamic>>?> fetchCouponHistory(String userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
 
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    print('Raw fetched data: $data'); // Debug raw data
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print('Raw fetched data: $data'); // Debug raw data
 
-    if (data['couponHistory'] is List) {
-      List<Map<String, dynamic>> couponHistory = List<Map<String, dynamic>>.from(data['couponHistory']);
-      
-      for (var coupon in couponHistory) {
-        print('Processing coupon before date handling: $coupon'); // Debug each coupon
-        
-        if (coupon['used_at'] != null) {
-          if (coupon['used_at'] is String) {
-            try {
-              DateTime utcDate = DateTime.parse(coupon['used_at']);
-              DateTime localDate = utcDate.toLocal();
-              coupon['used_at'] = localDate.toString();
-              print('Processed date for coupon: ${coupon['used_at']}'); // Debug processed date
-            } catch (e) {
-              print('Error parsing direct date string: $e');
-              coupon['used_at'] = null;
-            }
-          } else if (coupon['used_at'] is Map && coupon['used_at']['\$date'] != null) {
-            try {
-              String dateString = coupon['used_at']['\$date'];
-              DateTime utcDate = DateTime.parse(dateString);
-              DateTime localDate = utcDate.toLocal();
-              coupon['used_at'] = localDate.toString();
-              print('Processed MongoDB date for coupon: ${coupon['used_at']}'); // Debug processed date
-            } catch (e) {
-              print('Error parsing MongoDB date: $e');
-              coupon['used_at'] = null;
+      if (data['couponHistory'] is List) {
+        List<Map<String, dynamic>> couponHistory =
+            List<Map<String, dynamic>>.from(data['couponHistory']);
+
+        for (var coupon in couponHistory) {
+          print(
+              'Processing coupon before date handling: $coupon'); // Debug each coupon
+
+          if (coupon['used_at'] != null) {
+            if (coupon['used_at'] is String) {
+              try {
+                DateTime utcDate = DateTime.parse(coupon['used_at']);
+                DateTime localDate = utcDate.toLocal();
+                coupon['used_at'] = localDate.toString();
+                print(
+                    'Processed date for coupon: ${coupon['used_at']}'); // Debug processed date
+              } catch (e) {
+                print('Error parsing direct date string: $e');
+                coupon['used_at'] = null;
+              }
+            } else if (coupon['used_at'] is Map &&
+                coupon['used_at']['\$date'] != null) {
+              try {
+                String dateString = coupon['used_at']['\$date'];
+                DateTime utcDate = DateTime.parse(dateString);
+                DateTime localDate = utcDate.toLocal();
+                coupon['used_at'] = localDate.toString();
+                print(
+                    'Processed MongoDB date for coupon: ${coupon['used_at']}'); // Debug processed date
+              } catch (e) {
+                print('Error parsing MongoDB date: $e');
+                coupon['used_at'] = null;
+              }
             }
           }
         }
+
+        print(
+            'Final processed coupon history: $couponHistory'); // Debug final data
+        return couponHistory;
       }
-      
-      print('Final processed coupon history: $couponHistory'); // Debug final data
-      return couponHistory;
+      return [];
     }
-    return [];
+    return null;
   }
-  return null;
-}
 
 // Card widget
-Widget _buildCouponCard(Map<String, dynamic> couponData) {
-  print('Received coupon data in card: $couponData'); // Debug incoming data
-  print('Used at value: ${couponData['used_at']}'); // Debug used_at specifically
+  Widget _buildCouponCard(Map<String, dynamic> couponData) {
+    print('Received coupon data in card: $couponData'); // Debug incoming data
+    print(
+        'Used at value: ${couponData['used_at']}'); // Debug used_at specifically
 
-  String formattedDate = 'No date available';
-  if (couponData['used_at'] != null && couponData['used_at'] != 'N/A') {
-    try {
-      DateTime dateTime = DateTime.parse(couponData['used_at'].toString());
-      formattedDate = DateFormat('MMM dd, yyyy • hh:mm a').format(dateTime);
-      print('Successfully formatted date: $formattedDate'); // Debug formatted date
-    } catch (e) {
-      print('Error formatting date in card: $e');
-      formattedDate = 'Date format error';
+    String formattedDate = 'No date available';
+    if (couponData['used_at'] != null && couponData['used_at'] != 'N/A') {
+      try {
+        DateTime dateTime = DateTime.parse(couponData['used_at'].toString());
+        formattedDate = DateFormat('MMM dd, yyyy • hh:mm a').format(dateTime);
+        print(
+            'Successfully formatted date: $formattedDate'); // Debug formatted date
+      } catch (e) {
+        print('Error formatting date in card: $e');
+        formattedDate = 'Date format error';
+      }
+    } else {
+      print('No valid date found in coupon data'); // Debug null/NA case
     }
-  } else {
-    print('No valid date found in coupon data'); // Debug null/NA case
-  }
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 8),
-    decoration: BoxDecoration(
-      color: Colors.amber[50],
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.amber[100]!),
-    ),
-    child: ListTile(
-      // ... rest of your existing ListTile code ...
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            couponData['b_desc'] ?? 'No description available',
-            style: TextStyle(color: Colors.grey[600]),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(
-                Icons.access_time,
-                size: 14,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(width: 4),
-              Text(
-                formattedDate,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.amber[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber[100]!),
       ),
-      // ... rest of your existing ListTile code ...
-    ),
-  );
-}
-
-
-
-
+      child: ListTile(
+        // ... rest of your existing ListTile code ...
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              couponData['b_desc'] ?? 'No description available',
+              style: TextStyle(color: Colors.grey[600]),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 14,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // ... rest of your existing ListTile code ...
+      ),
+    );
+  }
 
   Future<List<dynamic>> fetchUsers() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllUsers'));
@@ -296,6 +329,36 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
     }
     return null;
   }
+
+  Future<String?> updateUserEventBot(String userId, int eventBot) async {
+    final uri = Uri.parse(
+        '$baseUrl/updateUserEventBot/$userId'); // Ensure this matches your backend endpoint
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'eventBot': eventBot}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        return data['status'] ??
+            'eventBot updated successfully'; // Adjusted to match 'status' field
+      } else if (response.statusCode == 404) {
+        return 'User not found!'; // Added handling for 404 case
+      } else {
+        return jsonDecode(response.body)['error'] ??
+            'Unknown error occurred'; // Extract the error message if available
+      }
+    } catch (e) {
+      return 'Error updating eventBot: $e';
+    }
+  }
+
   Future<int?> fetchUserDayBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
@@ -308,6 +371,7 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
     }
     return null;
   }
+
   Future<int?> fetchUserMonthBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
@@ -320,6 +384,7 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
     }
     return null;
   }
+
   Future<int?> fetchUserYearBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
@@ -333,6 +398,18 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
     return null;
   }
 
+  Future<int?> fetchUserUsedWcoin(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['usedWcoin'];
+      }
+    } catch (e) {
+      throw Exception('Failed to load used wCoin');
+    }
+    return null;
+  }
 
   Future<DateTime?> fetchUserStartTime(String userId) async {
     try {
@@ -397,17 +474,6 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
       throw Exception('Failed to load TotalWater');
     }
     return null;
-  }
-
-  Future<int?> fetchUserEventMl(String userId) async {
-    final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return data['eventMl'];
-    } else {
-      return null;
-    }
   }
 
   Future<Map<String, dynamic>?> fetchUserData(String userId) async {
@@ -650,5 +716,4 @@ Widget _buildCouponCard(Map<String, dynamic> couponData) {
       return const AssetImage('assets/images/cat.jpg');
     }
   }
-  
 }

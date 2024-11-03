@@ -21,7 +21,6 @@ class WaterService {
   Future<bool> updateUserWater(
       String userId,
       int currentMl,
-      int eventMl,
       int botLiv,
       int totalMl,
       int limit,
@@ -33,7 +32,6 @@ class WaterService {
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currentMl': currentMl,
-      'eventMl': eventMl,
       'botLiv': botLiv,
       'totalMl': totalMl,
       'fillingLimit': limit,

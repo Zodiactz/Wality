@@ -155,7 +155,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
       dBot = userService.fetchUserDayBot(currentUserId!);
       mBot = userService.fetchUserMonthBot(currentUserId!);
       yBot = userService.fetchUserYearBot(currentUserId!);
-      eMl = userService.fetchUserEventMl(currentUserId!);
     } else {
       throw Exception("User ID is null, cannot fetch data.");
     }
@@ -242,7 +241,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
             final totalMl = (await totalWater ?? 0) + waterAmount;
             final limit = (await fillingLimit ?? 0) + waterAmount;
             var eventBot = (await eBot ?? 0);
-            var eventMl = (await eMl ?? 0) + waterAmount;
             var dayBot = (await dBot ?? 0);
             var monthBot = (await mBot ?? 0);
             var yearBot = (await yBot ?? 0);
@@ -255,14 +253,12 @@ class _QrScannerPageState extends State<QrScannerPage> {
               yearBot += currentMl ~/ 550;
               botLiv += currentMl ~/ 550;
               currentMl = currentMl % 550;
-              eventMl = eventMl % 550;
             }
 
             // Update user water details
             if (await waterService.updateUserWater(
                 currentUserId!,
                 currentMl,
-                eventMl,
                 botLiv,
                 totalMl,
                 limit,

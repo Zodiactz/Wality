@@ -22,13 +22,14 @@ class RewardService {
     String imp_desc,
     File? imageFile,
     DateTime? exp_date,
-    int rep_day
-    ) async {
-  String? uploadedImageUrl;
-  // Generate a random 6-digit qr_id
-  final random = Random();
-  final coupon_id = (random.nextInt(900000) + 100000)
-      .toString(); // Generates a 6-digit number
+    int rep_day,
+  ) async {
+    String? uploadedImageUrl;
+
+    // Generate a random 6-digit coupon ID
+    const countStart = 0;
+    final random = Random();
+    final coupon_id = (random.nextInt(900000) + 100000).toString();
 
     if (imageFile != null) {
       uploadedImageUrl = await userService.uploadImage(imageFile);
@@ -36,6 +37,9 @@ class RewardService {
         return 'Failed to upload image.';
       }
     }
+
+    // Convert exp_date to ISO8601 string if exp_date is not null
+    final expDateIso = exp_date?.toIso8601String();
 
     // Construct the request payload
     final newQRData = {
@@ -45,13 +49,15 @@ class RewardService {
       "coupon_name": coupon_name,
       "f_desc": f_desc,
       "imp_desc": imp_desc,
-      "img_couponLink": uploadedImageUrl
+      "img_couponLink": uploadedImageUrl,
+      "exp_date": expDateIso,
+      "rep_day": rep_day,
+      "countStart": countStart
     };
 
     try {
       final response = await http.post(
-        Uri.parse(
-            '$baseUrl/createCoupon'), // Replace with your backend URL endpoint for creating QR
+        Uri.parse('$baseUrl/createCoupon'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -59,57 +65,15 @@ class RewardService {
       );
 
       if (response.statusCode == 200) {
-        // Success: Return the response body if needed
+        print('show detail: ${response.body}');
         return coupon_id;
       } else {
-        // Failure: Return error message
         return 'Failed to create Coupon: ${response.body}';
       }
     } catch (e) {
-      // Exception: Return error message
       return 'Failed to create Coupon: $e';
     }
   }
-
-  // Convert exp_date to ISO8601 string
-  final expDateIso = exp_date!.toIso8601String();
-
-  // Construct the request payload
-  final newQRData = {
-    "coupon_id": coupon_id,
-    "b_desc": b_desc,
-    "bot_req": bot_req,
-    "coupon_name": coupon_name,
-    "f_desc": f_desc,
-    "imp_desc": imp_desc,
-    "img_couponLink": uploadedImageUrl,
-    "exp_date": expDateIso, 
-    "rep_day": rep_day, // Add expiration date to payload
-  };
-
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/createCoupon'), // Replace with your backend URL endpoint for creating QR
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(newQRData),
-    );
-
-    if (response.statusCode == 200) {
-      print('show detail: ${response.body}');
-      // Success: Return the response body if needed
-      return coupon_id;
-    } else {
-      // Failure: Return error message
-      return 'Failed to create Coupon: ${response.body}';
-    }
-  } catch (e) {
-    // Exception: Return error message
-    return 'Failed to create Coupon: $e';
-  }
-}
-
 
   Future<List<dynamic>> fetchRewards() async {
     final response = await http.get(Uri.parse('$baseUrl/getAllCoupons'));
@@ -143,7 +107,7 @@ class RewardService {
     }
   }
 
-    void useCoupon(BuildContext context, String couponId, String userId) async {
+  void useCoupon(BuildContext context, String couponId, String userId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
       headers: {"Content-Type": "application/json"},
@@ -159,7 +123,8 @@ class RewardService {
     }
   }
 
-   void updateCouponToHistory(BuildContext context, String couponId, String userId) async {
+  void updateCouponToHistory(
+      BuildContext context, String couponId, String userId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/updateUserCouponHistory/$userId'),
       headers: {"Content-Type": "application/json"},

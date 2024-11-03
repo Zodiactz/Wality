@@ -44,7 +44,7 @@ class _RewardPageState extends State<RewardPage> {
     super.initState();
     fetchUserCoupons();
     botAmount = userService.fetchUserEventBot(userId!);
-    _userService.fetchUserEventMl(userId).then((amount) {
+    _userService.fetchWaterAmount(userId).then((amount) {
       setState(() {
         waterAmount = amount;
       });
@@ -209,6 +209,7 @@ class _RewardPageState extends State<RewardPage> {
                                     );
                                   },
                                 ),
+                                const SizedBox(width: 5),
                                 Image.asset(
                                   'assets/images/wCoin.png',
                                   width: 55,
