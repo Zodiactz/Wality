@@ -80,90 +80,85 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   Future<void> _handlePasswordUpdate(AuthenticationViewModel authvm) async {
-    // Set loading state to true immediately
-    setState(() {
-      isLoading = true;
-    });
+  setState(() {
+    isLoading = true;
+  });
 
-    try {
-      authvm.clearErrors();
-      EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
-      final currentUser = app.currentUser;
-      final pass = passwordController.text.trim();
-      final cPass = confirmPassController.text.trim();
-      final userEmail = currentUser!.profile.email ?? '';
+  try {
+    authvm.clearErrors();
+    EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(app);
+    final currentUser = app.currentUser;
+    final pass = passwordController.text.trim();
+    final cPass = confirmPassController.text.trim();
+    final userEmail = currentUser!.profile.email ?? '';
 
-      // Clear any previous errors
-      authvm.setPasswordError(null);
-      authvm.setConfirmPasswordError(null);
+    // Clear any previous errors
+    authvm.setPasswordError(null);
+    authvm.setConfirmPasswordError(null);
 
-      final passError = authvm.validatePasswordForSignUp(pass);
-      final cPassError = authvm.validateConfirmPass(cPass, pass);
+    final passError = authvm.validatePasswordForSignUp(pass);
+    final cPassError = authvm.validateConfirmPass(cPass, pass);
 
-      if (authvm.allErrorChangePass != null) {
-        authvm.setChangePassError(authvm.allErrorChangePass);
-        showAwesomeSnackBar(
-          context,
-          "Error",
-          authvm.allErrorChangePass!,
-          ContentType.failure,
-        );
-        return;
-      }
-
-      if (authvm.passwordError != null) {
-        authvm.setPasswordError(passError);
-        showAwesomeSnackBar(
-          context,
-          "Error",
-          authvm.passwordError!,
-          ContentType.failure,
-        );
-        return;
-      }
-      if (authvm.confirmPassErrs != null) {
-        authvm.setConfirmPasswordError(passError);
-
-        showAwesomeSnackBar(
-          context,
-          "Error",
-          authvm.confirmPassErrs!,
-          ContentType.failure,
-        );
-        return;
-      }
-
-      // Try to login with the provided credentials
-      final credentials = Credentials.emailPassword(userEmail, pass);
-      await app.logIn(credentials);
-
-      // Reset password
-      await app.emailPasswordAuthProvider.resetPassword(userEmail);
-      await authProvider.resetPassword(userEmail);
-
-      // Show success dialog and navigate back to profile page
-      await _showSuccessDialogAndNavigate();
-    } catch (e) {
-      String errorMessage = 'An error occurred';
-      if (e is RealmException) {
-        errorMessage = 'Incorrect password';
-      }
+    if (authvm.allErrorChangePass != null) {
+      authvm.setChangePassError(authvm.allErrorChangePass);
       showAwesomeSnackBar(
         context,
-        'Error',
-        errorMessage,
+        "Error",
+        authvm.allErrorChangePass!,
         ContentType.failure,
       );
-    } finally {
-      // Always set loading to false when the operation is complete
-      if (mounted) {
-        // Check if widget is still mounted
-        setState(() {
-          isLoading = false;
-        });
-      }
+      return;
+    }
+
+    if (authvm.passwordError != null) {
+      authvm.setPasswordError(passError);
+      showAwesomeSnackBar(
+        context,
+        "Error",
+        authvm.passwordError!,
+        ContentType.failure,
+      );
+      return;
+    }
+    if (authvm.confirmPassErrs != null) {
+      authvm.setConfirmPasswordError(passError);
+      showAwesomeSnackBar(
+        context,
+        "Error",
+        authvm.confirmPassErrs!,
+        ContentType.failure,
+      );
+      return;
+    }
+
+    // Try to login with the provided credentials
+    final credentials = Credentials.emailPassword(userEmail, pass);
+    await app.logIn(credentials);
+
+    // Send reset password email - only call this once
+    await authProvider.resetPassword(userEmail);
+
+    // Show success dialog and navigate back to profile page
+    await _showSuccessDialogAndNavigate();
+  } catch (e) {
+    String errorMessage = 'An error occurred';
+    if (e is RealmException) {
+      errorMessage = 'Incorrect password';
+    }
+    showAwesomeSnackBar(
+      context,
+      'Error',
+      errorMessage,
+      ContentType.failure,
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
+}
 
 // New method to show dialog and handle navigation
   Future<void> _showSuccessDialogAndNavigate() async {

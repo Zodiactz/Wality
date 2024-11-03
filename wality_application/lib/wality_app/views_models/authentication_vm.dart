@@ -39,27 +39,27 @@ class AuthenticationViewModel extends ChangeNotifier {
   }
 
   void togglePasswordVisibility3() {
-    _passwordVisible2 = !_passwordVisible2;
+    _passwordVisible3 = !_passwordVisible3;
     notifyListeners();
   }
 
   void togglePasswordVisibility4() {
-    _passwordVisible2 = !_passwordVisible2;
+    _passwordVisible4 = !_passwordVisible4;
     notifyListeners();
   }
 
   void togglePasswordVisibility5() {
-    _passwordVisible2 = !_passwordVisible2;
+    _passwordVisible5 = !_passwordVisible5;
     notifyListeners();
   }
 
   void togglePasswordVisibility6() {
-    _passwordVisible2 = !_passwordVisible2;
+    _passwordVisible6 = !_passwordVisible6;
     notifyListeners();
   }
 
   void togglePasswordVisibility7() {
-    _passwordVisible2 = !_passwordVisible2;
+    _passwordVisible7 = !_passwordVisible7;
     notifyListeners();
   }
 

@@ -108,6 +108,22 @@ class AuthService {
     }
   }
 
+ static Future<bool> verifyResetToken(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/getResetPassword?token=$token'), 
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error verifying reset token: $e');
+      return false;
+    }
+  }
+
+  
+
   /// this will delete cache
   Future<void> deleteCacheDir() async {
     final cacheDir = await getTemporaryDirectory();
