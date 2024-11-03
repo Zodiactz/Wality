@@ -12,6 +12,7 @@ class Users {
   final DateTime? startFillingTime;
   final int fillingLimit;
   final List<String> couponCheck;
+  final List<String> couponHistory;
   final int eventBot;
   final int dayBot;
   final int monthBot;
@@ -33,6 +34,7 @@ class Users {
     this.startFillingTime,
     required this.fillingLimit,
     this.couponCheck = const [],
+    this.couponHistory = const[ ],
     required this.eventBot,
     required this.dayBot,
     required this.monthBot,
@@ -57,6 +59,7 @@ class Users {
       'startFillingTime': startFillingTime?.toIso8601String(),
       'fillingLimit': fillingLimit,
       'couponCheck': couponCheck,
+      'couponHistory': couponHistory,
       'eventBot': eventBot,
       'dayBot': dayBot,
       'monthBot': monthBot,
@@ -85,6 +88,9 @@ class Users {
         fillingLimit: json['fillingLimit'],
         couponCheck: json['couponCheck'] != null
             ? List<String>.from(json['couponCheck'])
+            : [], // Default to empty list if null);
+        couponHistory: json['couponHistory'] != null
+            ? List<String>.from(json['couponHistory'])
             : [], // Default to empty list if null);
         eventBot: json['eventBot'],
         dayBot: json['dayBot'],

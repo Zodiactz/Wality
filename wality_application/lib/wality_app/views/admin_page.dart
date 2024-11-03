@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:wality_application/wality_app/repo/qrValid_service.dart';
+import 'package:wality_application/wality_app/repo/reward_service.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
+import 'package:intl/intl.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:wality_application/wality_app/utils/fab.dart';
@@ -23,6 +25,7 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   final UserService _userService = UserService();
   final RealmService _realmService = RealmService();
+  final RewardService _rewardService = RewardService();
   List<dynamic> _users = [];
   List<dynamic> _filteredUsers = [];
   bool _isLoading = true;
@@ -173,22 +176,6 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       _isScanning = true;
     });
-  }
-
-  void useCoupon(String couponId, String userId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"couponCheck": couponId}),
-    );
-
-    if (response.statusCode == 200) {
-      // Close the pop-up
-      openAdminPage(context);
-    } else {
-      // Handle the error
-      throw Exception('Failed to use coupon');
-    }
   }
 
   void _onQRViewCreated(QRViewController controller) {
@@ -486,8 +473,8 @@ class _AdminPageState extends State<AdminPage> {
                       'USED COUPONS',
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: FutureBuilder<List<String>?>(
-                          future: _userService.fetchCouponCheck(userId),
+                        child: FutureBuilder<List<Map<String, dynamic>>?>(
+                          future: _userService.fetchCouponHistory(userId),
                           builder: (context, couponCheckSnapshot) {
                             if (couponCheckSnapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -495,7 +482,17 @@ class _AdminPageState extends State<AdminPage> {
                                   child: CircularProgressIndicator());
                             }
 
-                            List<String> usedCoupons =
+                            // Check if there's an error or if data is available
+                            if (couponCheckSnapshot.hasError) {
+                              print(
+                                  'Error fetching coupon history: ${couponCheckSnapshot.error}');
+                              return _buildEmptyCouponsCard();
+                            }
+
+                            print(
+                                'Coupon Check Snapshot Data: ${couponCheckSnapshot.data}'); // Print fetched data
+
+                            List<Map<String, dynamic>> usedCoupons =
                                 couponCheckSnapshot.data ?? [];
 
                             if (usedCoupons.isEmpty) {
@@ -564,96 +561,143 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  Widget _buildCouponsList(List<String> usedCoupons) {
-    return FutureBuilder<List<Map<String, dynamic>?>>(
-      future: Future.wait(
-        usedCoupons
-            .map((couponId) => _userService.fetchRewardsByCouponId(couponId)),
+Widget _buildCouponsList(List<Map<String, dynamic>> usedCoupons) {
+  return FutureBuilder<List<Map<String, dynamic>>>(
+    future: Future.wait(
+      usedCoupons.map((coupon) async {
+        // Fetch the reward by coupon ID
+        final fetchedReward = await _userService.fetchRewardsByCouponId(coupon['coupon_id']);
+        return fetchedReward; // This may return null
+      }),
+    ).then((results) => results.whereType<Map<String, dynamic>>().toList()), // Filter out nulls
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+        return _buildEmptyCouponsCard(); // Adjust this to fit your empty state design
+      }
+
+      // Filter and sort coupons
+      final sortedCoupons = snapshot.data!
+          .toList()
+        ..sort((a, b) => (a['bot_req'] ?? 0).compareTo(b['bot_req'] ?? 0));
+
+      if (sortedCoupons.isEmpty) {
+        return _buildEmptyCouponsCard(); // No coupons available
+      }
+
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: sortedCoupons.length,
+        itemBuilder: (context, index) {
+          final couponData = sortedCoupons[index];
+          return _buildCouponCard(couponData);
+        },
+      );
+    },
+  );
+}
+
+
+
+
+
+
+Widget _buildCouponCard(Map<String, dynamic> couponData) {
+  // Format the date if it exists and is valid
+  String formattedDate = 'No date available';
+  if (couponData['used_at'] != null && couponData['used_at'] != 'N/A') {
+    try {
+      DateTime dateTime = DateTime.parse(couponData['used_at']);
+      formattedDate = DateFormat('MMM dd, yyyy • hh:mm a').format(dateTime);
+    } catch (e) {
+      print('Error formatting date: $e');
+      formattedDate = 'Invalid date';
+    }
+  }
+
+  return Container(
+    margin: const EdgeInsets.only(bottom: 8),
+    decoration: BoxDecoration(
+      color: Colors.amber[50],
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.amber[100]!),
+    ),
+    child: ListTile(
+      onTap: () => _showCouponPopupForAdmin(
+        context,
+        couponData['coupon_name'] ?? '',
+        couponData['b_desc'] ?? '',
+        couponData['bot_req'] ?? 0,
+        couponData['img_couponLink'] ?? '',
+        couponData['f_desc'] ?? '',
+        couponData['imp_desc'] ?? '',
+        couponData['coupon_id'] ?? '',
       ),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return _buildEmptyCouponsCard();
-        }
-
-        final sortedCoupons = snapshot.data!
-            .whereType<Map<String, dynamic>>()
-            .toList()
-          ..sort((a, b) => (a['bot_req'] ?? 0).compareTo(b['bot_req'] ?? 0));
-
-        if (sortedCoupons.isEmpty) {
-          return _buildEmptyCouponsCard();
-        }
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: sortedCoupons.length,
-          itemBuilder: (context, index) {
-            final couponData = sortedCoupons[index];
-            return _buildCouponCard(couponData);
+      leading: Hero(
+        tag: 'coupon-${couponData['coupon_id']}',
+        child: CircleAvatar(
+          backgroundImage: NetworkImage(couponData['img_couponLink'] ?? ''),
+          backgroundColor: Colors.grey[200],
+          onBackgroundImageError: (exception, stackTrace) {
+            // Handle image loading errors
           },
-        );
-      },
-    );
-  }
-
-  Widget _buildCouponCard(Map<String, dynamic> couponData) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.amber[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber[100]!),
+        ),
       ),
-      child: ListTile(
-        onTap: () => _showCouponPopupForAdmin(
-          context,
-          couponData['coupon_name'] ?? '',
-          couponData['b_desc'] ?? '',
-          couponData['bot_req'] ?? 0,
-          couponData['img_couponLink'] ?? '',
-          couponData['f_desc'] ?? '',
-          couponData['imp_desc'] ?? '',
-          couponData['coupon_id'] ?? '',
-        ),
-        leading: Hero(
-          tag: 'coupon-${couponData['coupon_id']}',
-          child: CircleAvatar(
-            backgroundImage: NetworkImage(couponData['img_couponLink'] ?? ''),
-            backgroundColor: Colors.grey[200],
+      title: Text(
+        couponData['coupon_name'] ?? 'Unknown Coupon',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            couponData['b_desc'] ?? 'No description available',
+            style: TextStyle(color: Colors.grey[600]),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Icons.access_time,
+                size: 14,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(width: 4),
+              Text(
+                formattedDate,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
         ),
-        title: Text(
-          couponData['coupon_name'] ?? 'Unknown Coupon',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        ],
+      ),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.green[100],
+          borderRadius: BorderRadius.circular(8),
         ),
-        subtitle: Text(
-          couponData['b_desc'] ?? 'No description available',
-          style: TextStyle(color: Colors.grey[600]),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.green[100],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Text(
-            'Used',
-            style: TextStyle(
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-            ),
+        child: const Text(
+          'Used',
+          style: TextStyle(
+            color: Colors.green,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildInfoRow(String label, String value) {
     return Row(
@@ -1013,7 +1057,9 @@ class _AdminPageState extends State<AdminPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () async {
-                              useCoupon(cId, user_id);
+                              _rewardService.useCoupon(context, cId, user_id);
+                              _rewardService.updateCouponToHistory(
+                                  context, cId, user_id);
                               await qrService.deleteALLQRofThisUser(user_id);
                               openAdminPage(context);
                               _showDialogAndGoToAdmin(

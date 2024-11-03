@@ -17,6 +17,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -68,7 +69,9 @@ func main() {
 	app.Get("/getImage", getImageFromDynamicLink) //use
 	app.Post("/createCoupon", createCoupon)
 	app.Get("/getAllCoupons", getAllCoupons)
+	app.Get("/getCouponsHistoryFromUser/:user_id", getCouponsHistoryFromUser)
 	app.Post("/updateUserCouponCheck/:user_id", addCouponCheck)
+	app.Post("/updateUserCouponHistory/:user_id", addCouponHistory)
 	app.Get("/getCoupons/:user_id", getCouponsFromUser)
 	app.Post("/updateUsername/:user_id", updateUsername)
 	app.Post("/updateEmail/:user_id", updateUserEmail)
@@ -695,6 +698,63 @@ func addCouponCheck(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Coupon added to user successfully!"})
 }
 
+func addCouponHistory(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct for the request body
+    var requestBody struct {
+        CouponID string `json:"coupon_id"`
+    }
+
+    // Parse the request body into the struct
+    if err := c.BodyParser(&requestBody); err != nil {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Load the Asia/Bangkok timezone
+    bangkokTime, err := time.LoadLocation("Asia/Bangkok")
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to load timezone"})
+    }
+
+    // Get current time in Bangkok timezone
+    currentDateTime := time.Now().In(bangkokTime)
+
+    // Create a new entry with the coupon ID and current date-time
+    // Use primitive.DateTime to preserve timezone information
+    couponEntry := bson.M{
+        "coupon_id": requestBody.CouponID,
+        "used_at": primitive.NewDateTimeFromTime(currentDateTime),
+    }
+
+    // Define the filter and update
+    filter := bson.M{"user_id": user_id}
+    update := bson.M{
+        "$addToSet": bson.M{
+            "couponHistory": couponEntry,
+        },
+    }
+
+    // Perform the update operation
+    result, err := collection.UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Check if a document was matched and updated
+    if result.MatchedCount == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+    }
+
+    // Return the response with the actual Bangkok time
+    return c.Status(http.StatusOK).JSON(fiber.Map{
+        "status": "Coupon added to user history successfully!",
+        "timestamp": currentDateTime.Format(time.RFC3339),
+    })
+}
+
+
 func getCouponsFromUser(c *fiber.Ctx) error {
 	collection := client.Database("Wality_DB").Collection("Users")
 	user_id := c.Params("user_id")
@@ -716,6 +776,47 @@ func getCouponsFromUser(c *fiber.Ctx) error {
 	// Return the couponCheck array
 	return c.Status(http.StatusOK).JSON(fiber.Map{"couponCheck": user.CouponCheck})
 }
+
+func getCouponsHistoryFromUser(c *fiber.Ctx) error {
+    collection := client.Database("Wality_DB").Collection("Users")
+    user_id := c.Params("user_id")
+
+    // Define a struct to hold the user document
+    var user struct {
+        CouponHistory []struct {
+            CouponID string             `bson:"coupon_id" json:"coupon_id"`
+            UsedAt   primitive.DateTime `bson:"used_at" json:"used_at"`
+        } `bson:"couponHistory" json:"couponHistory"`
+    }
+
+    // Find the user by user_id
+    err := collection.FindOne(context.Background(), bson.M{"user_id": user_id}).Decode(&user)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            return c.Status(http.StatusNotFound).JSON(fiber.Map{"status": "User not found!"})
+        }
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    // Convert UsedAt DateTime to local time
+    bangkokTime, err := time.LoadLocation("Asia/Bangkok")
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to load timezone"})
+    }
+
+    // Prepare the response
+    couponHistory := make([]map[string]interface{}, len(user.CouponHistory))
+    for i, coupon := range user.CouponHistory {
+        couponHistory[i] = map[string]interface{}{
+            "coupon_id": coupon.CouponID,
+            "used_at":   coupon.UsedAt.Time().In(bangkokTime).Format(time.RFC3339), // Convert to local time
+        }
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{"couponHistory": couponHistory})
+}
+
+
 
 // deleteAllofThatUserQRValid
 func deleteCoupon(c *fiber.Ctx) error {

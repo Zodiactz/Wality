@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
+import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/material.dart';
 
@@ -29,10 +30,44 @@ class RewardService {
   final coupon_id = (random.nextInt(900000) + 100000)
       .toString(); // Generates a 6-digit number
 
-  if (imageFile != null) {
-    uploadedImageUrl = await userService.uploadImage(imageFile);
-    if (uploadedImageUrl == null) {
-      return 'Failed to upload image.';
+    if (imageFile != null) {
+      uploadedImageUrl = await userService.uploadImage(imageFile);
+      if (uploadedImageUrl == null) {
+        return 'Failed to upload image.';
+      }
+    }
+
+    // Construct the request payload
+    final newQRData = {
+      "coupon_id": coupon_id,
+      "b_desc": b_desc,
+      "bot_req": bot_req,
+      "coupon_name": coupon_name,
+      "f_desc": f_desc,
+      "imp_desc": imp_desc,
+      "img_couponLink": uploadedImageUrl
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+            '$baseUrl/createCoupon'), // Replace with your backend URL endpoint for creating QR
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(newQRData),
+      );
+
+      if (response.statusCode == 200) {
+        // Success: Return the response body if needed
+        return coupon_id;
+      } else {
+        // Failure: Return error message
+        return 'Failed to create Coupon: ${response.body}';
+      }
+    } catch (e) {
+      // Exception: Return error message
+      return 'Failed to create Coupon: $e';
     }
   }
 
@@ -105,6 +140,38 @@ class RewardService {
     } else {
       throw Exception(
           'Failed to load rewards, status code: ${response.statusCode}');
+    }
+  }
+
+    void useCoupon(BuildContext context, String couponId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"couponCheck": couponId}),
+    );
+
+    if (response.statusCode == 200) {
+      // Close the pop-up
+      openAdminPage(context);
+    } else {
+      // Handle the error
+      throw Exception('Failed to use coupon');
+    }
+  }
+
+   void updateCouponToHistory(BuildContext context, String couponId, String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/updateUserCouponHistory/$userId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"couponHistory": couponId}),
+    );
+
+    if (response.statusCode == 200) {
+      // Close the pop-up
+      openAdminPage(context);
+    } else {
+      // Handle the error
+      throw Exception('Failed to use coupon');
     }
   }
 

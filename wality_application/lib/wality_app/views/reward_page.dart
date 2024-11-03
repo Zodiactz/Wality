@@ -38,23 +38,6 @@ class _RewardPageState extends State<RewardPage> {
   final UserService userService = UserService();
   final RealmService _realmService = RealmService();
 
-  void useCoupon(String couponId, String userId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/updateUserCouponCheck/$userId'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"couponCheck": couponId}),
-    );
-
-    if (response.statusCode == 200) {
-      // Close the pop-up
-      await fetchUserCoupons(); // Fetch updated coupons
-      GoBack(context);
-    } else {
-      // Handle the error
-      throw Exception("Failed to use coupon");
-    }
-  }
-
   @override
   void initState() {
     final userId = _realmService.getCurrentUserId();
@@ -181,17 +164,17 @@ class _RewardPageState extends State<RewardPage> {
               // Bottom info panel styled like ranking page
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: const Color.fromARGB(255, 47, 133, 141).withOpacity(1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(5),
                 child: Column(
                   children: [
                     const Text(
-                      'You saved bottles of this event',
+                      'Your W Coin',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -205,7 +188,7 @@ class _RewardPageState extends State<RewardPage> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Column(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -226,19 +209,11 @@ class _RewardPageState extends State<RewardPage> {
                                     );
                                   },
                                 ),
-                                const SizedBox(
-                                    height:
-                                        4), // Add a small gap between the texts
-                                Text(
-                                  ' / ${waterAmount ?? 0} ML',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
-                                    height: 0.9, // Adjust this as needed
-                                  ),
-                                  textAlign: TextAlign.center,
+                                Image.asset(
+                                  'assets/images/wCoin.png',
+                                  width: 55,
+                                  height: 55,
+                                  fit: BoxFit.cover,
                                 ),
                               ],
                             )
@@ -248,10 +223,10 @@ class _RewardPageState extends State<RewardPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'This event will end on 1/1/2025',
+                      'W Coin can be collected from filling up the water!',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16,
+                        fontSize: 12,
                         fontFamily: 'RobotoCondensed',
                       ),
                     ),
