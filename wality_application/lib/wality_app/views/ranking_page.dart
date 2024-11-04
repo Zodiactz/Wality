@@ -237,7 +237,7 @@ class _RankingPageState extends State<RankingPage> {
                         fit: BoxFit.cover,
                       )
                     : Image.asset(
-                        'assets/images/cat.jpg',
+                        'assets/images/cat.png',
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,

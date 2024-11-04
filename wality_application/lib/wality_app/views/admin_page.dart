@@ -112,7 +112,7 @@ class _AdminPageState extends State<AdminPage> {
     if (profileImgLink != null && profileImgLink.isNotEmpty) {
       return NetworkImage(profileImgLink);
     } else {
-      return const AssetImage('assets/images/cat.jpg');
+      return const AssetImage('assets/images/cat.png');
     }
   }
 
@@ -235,6 +235,7 @@ class _AdminPageState extends State<AdminPage> {
               String fD = couponData['f_desc'] ?? '';
               String impD = couponData['imp_desc'] ?? '';
               String cId = couponData['coupon_id'] ?? '';
+              String auAdmin = couponData['authorizedBy'] ?? '';
 
               // Fetch username based on user ID
               usernameFuture = await _userService.fetchUsername(user_id);
@@ -680,6 +681,7 @@ class _AdminPageState extends State<AdminPage> {
           couponData['imp_desc'] ?? '',
           couponData['coupon_id'] ?? '',
           couponData['exp_date'] ?? '',
+          couponData['authorizedBy'] ?? '',
         ),
         leading: Hero(
           tag: 'coupon-${couponData['coupon_id']}',
@@ -1150,7 +1152,12 @@ class _AdminPageState extends State<AdminPage> {
       String fD,
       String impD,
       String cId,
-      String expD) async {
+      String expD,
+      String byAdmin) async {
+    // Parse the string into a DateTime object
+    DateTime dateTime = DateTime.parse(expD);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    String formattedTime = DateFormat('HH:mm').format(dateTime);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1226,20 +1233,59 @@ class _AdminPageState extends State<AdminPage> {
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
+                      Center(
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'This coupon is Authorized By',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
+                              TextSpan(
+                                text: byAdmin,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                       const SizedBox(height: 5),
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(
+                            const TextSpan(
                               text: 'Expired Date: ',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
                             TextSpan(
-                              text: expD,
+                              text: formattedDate,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const TextSpan(
+                              text: 'Expired Time: ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            TextSpan(
+                              text: formattedTime,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontFamily: 'RobotoCondensed',
@@ -1249,7 +1295,8 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(
+
+                      const SizedBox(
                         height: 5,
                       ),
                       FutureBuilder<Map<String, dynamic>>(

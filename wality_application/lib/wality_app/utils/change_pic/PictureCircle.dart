@@ -51,7 +51,8 @@ class _PicturecircleState extends State<Picturecircle> {
         // Show the popup for selecting a picture
         showPopover(
           context: context,
-          bodyBuilder: (context) => PopOverChangePicture(onImageUploaded: _onImageUploaded),
+          bodyBuilder: (context) =>
+              PopOverChangePicture(onImageUploaded: _onImageUploaded),
           width: 250,
           height: 100,
           backgroundColor: Colors.blue,
@@ -73,7 +74,7 @@ class _PicturecircleState extends State<Picturecircle> {
                     fit: BoxFit.cover,
                   ))
             : Image.asset(
-                'assets/images/cat.jpg',
+                'assets/images/cat.png',
                 width: 96,
                 height: 96,
                 fit: BoxFit.cover,

@@ -23,6 +23,7 @@ class RewardService {
     File? imageFile,
     DateTime? exp_date,
     int rep_day,
+    String adminName,
   ) async {
     String? uploadedImageUrl;
 
@@ -52,7 +53,8 @@ class RewardService {
       "img_couponLink": uploadedImageUrl,
       "exp_date": expDateIso,
       "rep_day": rep_day,
-      "countStart": countStart
+      "countStart": countStart,
+      "authorizedBy": adminName
     };
 
     try {
@@ -75,7 +77,7 @@ class RewardService {
     }
   }
 
-   Future<Map<String, dynamic>> fetchRewardById(String couponId) async {
+  Future<Map<String, dynamic>> fetchRewardById(String couponId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/getCoupon/$couponId'),
     );

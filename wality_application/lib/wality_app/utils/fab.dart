@@ -1,7 +1,9 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/reward_service.dart';
+import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 import 'package:wality_application/wality_app/utils/change_pic/CouponCircle.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
@@ -9,6 +11,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:http/http.dart' as http;
+import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'dart:convert';
 
 import 'package:wality_application/wality_app/views_models/coupon_vm.dart';
@@ -49,10 +52,14 @@ class _CustomFabState extends State<CustomFab> {
   List<String> couponCheck = [];
   bool isLoading = true;
   Future<int?>? botAmount;
+  Future<String?>? adminRealName;
   int? waterAmount;
   String? imgURL;
   final RewardService rewardService = RewardService();
   List<dynamic> rewards = [];
+  final UserService userService = UserService();
+  final RealmService realmService = RealmService();
+  String? currentUserId;
 
   @override
   void initState() {
@@ -79,6 +86,8 @@ class _CustomFabState extends State<CustomFab> {
       _couponViewModel.setDescriptionError(_couponViewModel
           .validateDescription(_couponDescriptionController.text));
     });
+    currentUserId = realmService.getCurrentUserId();
+    adminRealName = userService.fetchRealName(currentUserId!);
   }
 
   @override
@@ -536,17 +545,19 @@ class _CustomFabState extends State<CustomFab> {
                                             int.tryParse(bot_req);
                                         final int? replenishAmount =
                                             int.tryParse(replenish);
+                                        final adminName =
+                                            await adminRealName ?? '';
 
                                         await rewardService.createCoupon(
-                                          coupon_name,
-                                          botReq ?? 0,
-                                          b_desc,
-                                          f_desc,
-                                          imp_desc,
-                                          imageFile,
-                                          expirationDate,
-                                          replenishAmount ?? 1,
-                                        );
+                                            coupon_name,
+                                            botReq ?? 0,
+                                            b_desc,
+                                            f_desc,
+                                            imp_desc,
+                                            imageFile,
+                                            expirationDate,
+                                            replenishAmount ?? 1,
+                                            adminName);
 
                                         _clearFields();
                                         openAdminPage(context);
@@ -689,17 +700,15 @@ class _CustomFabState extends State<CustomFab> {
                           itemBuilder: (context, index) {
                             final coupon = sortedCoupon[index];
                             return _buildRewardItem(
-                              context,
-                              coupon['coupon_id'],
-                              coupon['coupon_name'],
-                              coupon['b_desc'],
-                              coupon['bot_req'],
-                              coupon['img_couponLink'],
-                              coupon['f_desc'],
-                              coupon['imp_desc'],
-                              coupon['exp_date']
-
-                            );
+                                context,
+                                coupon['coupon_id'],
+                                coupon['coupon_name'],
+                                coupon['b_desc'],
+                                coupon['bot_req'],
+                                coupon['img_couponLink'],
+                                coupon['f_desc'],
+                                coupon['imp_desc'],
+                                coupon['exp_date']);
                           },
                         );
                       },
@@ -882,7 +891,8 @@ class _CustomFabState extends State<CustomFab> {
                         impD,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
-                      ),const SizedBox(height: 5),
+                      ),
+                      const SizedBox(height: 5),
                       Text.rich(
                         TextSpan(
                           children: [
@@ -904,7 +914,8 @@ class _CustomFabState extends State<CustomFab> {
                           ],
                         ),
                         textAlign: TextAlign.center,
-                      ),SizedBox(
+                      ),
+                      SizedBox(
                         height: 5,
                       ),
                       FutureBuilder<Map<String, dynamic>>(

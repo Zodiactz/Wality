@@ -713,7 +713,7 @@ class UserService {
     if (profileImgLink != null && profileImgLink.isNotEmpty) {
       return NetworkImage(profileImgLink);
     } else {
-      return const AssetImage('assets/images/cat.jpg');
+      return const AssetImage('assets/images/cat.png');
     }
   }
 }

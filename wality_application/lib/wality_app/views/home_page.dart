@@ -332,7 +332,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             screenWidth * 0.15,
                                                         fit: BoxFit.contain,
                                                       ),
-                                                      Text(
+                                                      const Text(
                                                         "Bottles",
                                                         style: TextStyle(
                                                           fontSize: 24,
@@ -384,7 +384,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             screenWidth * 0.15,
                                                         fit: BoxFit.contain,
                                                       ),
-                                                      Text(
+                                                      const Text(
                                                         "Lives",
                                                         style: TextStyle(
                                                           fontSize: 24,
@@ -408,7 +408,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           // Total Amount text
                                           Text(
                                             'Total: ${totalAmount ?? 0} ML',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,

@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
+import 'package:wality_application/wality_app/views_models/animation_vm.dart';
 
 class WaterChecking extends StatefulWidget {
   final int? sentCurrentWater;
   final int? sentCurrentBottle;
   final int? sentWaterAmount;
 
-  const WaterChecking({super.key, 
+  const WaterChecking({
+    super.key,
     this.sentCurrentWater,
     this.sentCurrentBottle,
     this.sentWaterAmount,
@@ -38,6 +40,7 @@ class _WaterCheckingState extends State<WaterChecking>
   late Animation<double> _fillLevelAnimation;
   late AnimationController _splashController;
   late Animation<double> _splashAnimation;
+  late AnimationViewModel animationvm;
 
   @override
   void initState() {
@@ -154,6 +157,8 @@ class _WaterCheckingState extends State<WaterChecking>
 
   void showWaterFilledPopup(BuildContext context) {
     String formattedWaterAmount = '';
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     if (totalWaterFilled >= 1000) {
       int liters = totalWaterFilled ~/ 1000;
       int remainingMl = totalWaterFilled % 1000;
@@ -181,13 +186,73 @@ class _WaterCheckingState extends State<WaterChecking>
             ),
             textAlign: TextAlign.center,
           ),
-          content: Text(
-            "You have filled $formattedWaterAmount & saved $savedCount plastic bottle${savedCount > 1 ? 's' : ''} and helped a turtle.",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+          content: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Adjust the size of the column
+              children: [
+                Image.memory(
+                  animationvm.gifBytes!,
+                  width: screenWidth * 0.15,
+                  height: screenWidth * 0.15,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 8), // Add spacing between lines
+                Text(
+                  "You have filled $formattedWaterAmount${savedCount > 0 ? " and saved $savedCount plastic bottle${savedCount > 1 ? 's' : ''}" : ""}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (savedCount > 0) ...[
+                  Image.memory(
+                    animationvm.gifBytes2!,
+                    width: screenWidth * 0.15,
+                    height: screenWidth * 0.15,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 8), // Add spacing between lines
+                  Text(
+                    "You have saved $savedCount marine lives!",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Image.asset(
+                    'assets/images/wCoin.png',
+                    width: screenWidth * 0.15,
+                    height: screenWidth * 0.15,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 8), // Add spacing between lines
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "You got ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              "$savedCount W Coin${savedCount > 1 ? 's' : ''}!",
+                          style: const TextStyle(
+                            color: Colors.yellow,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ]
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
           actions: [
             Center(
@@ -200,7 +265,7 @@ class _WaterCheckingState extends State<WaterChecking>
                   ),
                 ),
                 onPressed: () {
-                 openHomePage(context);
+                  openHomePage(context);
                 },
                 child: const Text(
                   'OK',
