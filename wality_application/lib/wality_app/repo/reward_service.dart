@@ -138,11 +138,11 @@ class RewardService {
   }
 
   void updateCouponToHistory(
-      BuildContext context, String couponId, String userId) async {
+      BuildContext context, String couponId, String userId, String adminName) async {
     final response = await http.post(
       Uri.parse('$baseUrl/updateUserCouponHistory/$userId'),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"couponHistory": couponId}),
+      body: jsonEncode({"coupon_id": couponId, "adminName":adminName}),
     );
 
     if (response.statusCode == 200) {

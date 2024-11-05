@@ -718,6 +718,7 @@ func addCouponHistory(c *fiber.Ctx) error {
     // Define a struct for the request body
     var requestBody struct {
         CouponID string `json:"coupon_id"`
+		AdminName string `json:"adminName"`
     }
 
     // Parse the request body into the struct
@@ -739,7 +740,9 @@ func addCouponHistory(c *fiber.Ctx) error {
     couponEntry := bson.M{
         "coupon_id": requestBody.CouponID,
         "used_at": primitive.NewDateTimeFromTime(currentDateTime),
+		"authorizedBy": requestBody.AdminName,
     }
+	
 
     // Define the filter and update
     filter := bson.M{"user_id": user_id}
