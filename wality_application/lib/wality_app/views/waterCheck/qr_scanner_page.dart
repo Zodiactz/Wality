@@ -73,8 +73,20 @@ class _QrScannerPageState extends State<QrScannerPage> {
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(message),
+           backgroundColor: const Color(0xFF003545),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),),
+          content: Text(message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),),
           actions: const <Widget>[
             // No action buttons to ensure the dialog cannot be dismissed
           ],
@@ -88,16 +100,47 @@ class _QrScannerPageState extends State<QrScannerPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                GoBack(context);
-                // Resume scanning after dialog is dismissed
-                controller?.resumeCamera();
-              },
+          backgroundColor: const Color(0xFF003545),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          actions: [
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 26, 121, 150),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  GoBack(context);
+                  // Resume scanning after dialog is dismissed
+                  GoBack(context);
+                  // Resume scanning after dialog is dismissed
+                  controller?.resumeCamera();
+                },
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -111,25 +154,54 @@ class _QrScannerPageState extends State<QrScannerPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                GoBack(context);
-                // Resume scanning after dialog is dismissed
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WaterChecking(
-                      sentCurrentWater: sentCurrentWaterGo,
-                      sentCurrentBottle: sentCurrentBottleGo,
-                      sentWaterAmount: sentWaterAmountGo,
-                    ),
+          backgroundColor: const Color(0xFF003545),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          actions: [
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 26, 121, 150),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                );
-              },
+                ),
+                onPressed: () {
+                  GoBack(context);
+                  // Resume scanning after dialog is dismissed
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WaterChecking(
+                        sentCurrentWater: sentCurrentWaterGo,
+                        sentCurrentBottle: sentCurrentBottleGo,
+                        sentWaterAmount: sentWaterAmountGo,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -256,16 +328,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
             }
 
             // Update user water details
-            if (await waterService.updateUserWater(
-                currentUserId!,
-                currentMl,
-                botLiv,
-                totalMl,
-                limit,
-                eventBot,
-                dayBot,
-                monthBot,
-                yearBot)) {
+            if (await waterService.updateUserWater(currentUserId!, currentMl,
+                botLiv, totalMl, limit, eventBot, dayBot, monthBot, yearBot)) {
               waterService.updateWaterStatus(scanData.code ?? '', "active");
 
               // Update filling time if the time difference is more than 1 hour or is null
