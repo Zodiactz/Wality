@@ -193,7 +193,7 @@ class _WaterCheckingState extends State<WaterChecking>
                 Image.memory(
                   animationvm.gifBytes!,
                   width: screenWidth * 0.15,
-                  height: screenWidth * 0.15,
+                  height: screenHeight * 0.15,
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 8), // Add spacing between lines
@@ -209,7 +209,7 @@ class _WaterCheckingState extends State<WaterChecking>
                   Image.memory(
                     animationvm.gifBytes2!,
                     width: screenWidth * 0.15,
-                    height: screenWidth * 0.15,
+                    height: screenHeight * 0.15,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 8), // Add spacing between lines
@@ -224,7 +224,7 @@ class _WaterCheckingState extends State<WaterChecking>
                   Image.asset(
                     'assets/images/wCoin.png',
                     width: screenWidth * 0.15,
-                    height: screenWidth * 0.15,
+                    height: screenHeight * 0.15,
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 8), // Add spacing between lines
