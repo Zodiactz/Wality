@@ -42,67 +42,67 @@ class _WaterCheckingState extends State<WaterChecking>
   late Animation<double> _splashAnimation;
   late AnimationViewModel animationvm;
 
-  @override
-  void initState() {
-    super.initState();
-    mlSaved = widget.sentCurrentWater ?? 0;
-    savedCount = widget.sentCurrentBottle ?? 0;
-    totalAmountToFill = widget.sentWaterAmount ?? 0;
+ @override
+void initState() {
+  super.initState();
+  animationvm = AnimationViewModel(this);
+  mlSaved = widget.sentCurrentWater ?? 0;
+  savedCount = widget.sentCurrentBottle ?? 0;
+  totalAmountToFill = widget.sentWaterAmount ?? 0;
+  
+  _waveAnimationController = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  )..repeat(reverse: true);
 
-    _waveAnimationController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
+  _fillLevelController = AnimationController(
+    duration: const Duration(milliseconds: 300),
+    vsync: this,
+  );
 
-    _fillLevelController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
+  _fillLevelAnimation = Tween<double>(begin: 0.0, end: mlSaved / maxMl)
+      .animate(_fillLevelController);
 
-    _fillLevelAnimation = Tween<double>(begin: 0.0, end: mlSaved / maxMl)
-        .animate(_fillLevelController);
+  _splashController = AnimationController(
+    duration: const Duration(milliseconds: 1500),
+    vsync: this,
+  );
 
-    _splashController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _splashAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+  _splashAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    CurvedAnimation(
       parent: _splashController,
       curve: Curves.easeOutQuart,
-    ))
-          ..addStatusListener((status) {
-            if (status == AnimationStatus.completed) {
-              setState(() {
-                if (mlSaved == maxMl) {
-                  savedCount += 1;
-                }
+    ),
+  )..addStatusListener((status) {
+    if (status == AnimationStatus.completed) {
+      setState(() {
+        if (mlSaved == maxMl) {
+          savedCount += 1;
+        }
 
-                totalWaterFilled += mlSaved; // Update the total water filled
-                mlSaved = 0;
-                _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0)
-                    .animate(_fillLevelController);
-                fillCount++;
+        totalWaterFilled += mlSaved;
+        mlSaved = 0;
+        _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0)
+            .animate(_fillLevelController);
+        fillCount++;
 
-                if (remainingAmount > 0) {
-                  totalAmountToFill = remainingAmount;
-                  remainingAmount = 0;
-                  _isFillingStopped = false;
-                  startWaterFilling();
-                } else {
-                  // Show the popup after filling is complete
-                  showWaterFilledPopup(context);
-                }
-              });
-              _splashController.reset();
-            }
-          });
+        if (remainingAmount > 0) {
+          totalAmountToFill = remainingAmount;
+          remainingAmount = 0;
+          _isFillingStopped = false;
+          startWaterFilling();
+        } else {
+          showWaterFilledPopup(context);
+        }
+      });
+      _splashController.reset();
+    }
+  });
 
-    initialTotalAmountToFill =
-        totalAmountToFill; // Store the initial input amount
-    startWaterFilling();
-  }
+  initialTotalAmountToFill = totalAmountToFill;
+  startWaterFilling();
+}
+
 
   @override
   void dispose() {
@@ -156,47 +156,48 @@ class _WaterCheckingState extends State<WaterChecking>
   }
 
   void showWaterFilledPopup(BuildContext context) {
-    String formattedWaterAmount = '';
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (totalWaterFilled >= 1000) {
-      int liters = totalWaterFilled ~/ 1000;
-      int remainingMl = totalWaterFilled % 1000;
-      formattedWaterAmount =
-          '$liters L${remainingMl > 0 ? ' and $remainingMl ml' : ''}';
-    } else {
-      formattedWaterAmount = '$totalWaterFilled ml';
-    }
+  String formattedWaterAmount = '';
+  final screenHeight = MediaQuery.of(context).size.height;
+  final screenWidth = MediaQuery.of(context).size.width;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor:
-              const Color(0xFF003545), // Match popup color with background
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+  if (totalWaterFilled >= 1000) {
+    int liters = totalWaterFilled ~/ 1000;
+    int remainingMl = totalWaterFilled % 1000;
+    formattedWaterAmount =
+        '$liters L${remainingMl > 0 ? ' and $remainingMl ml' : ''}';
+  } else {
+    formattedWaterAmount = '$totalWaterFilled ml';
+  }
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF003545),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          'Congratulations!',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          title: const Text(
-            'Congratulations!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          content: Center(
+          textAlign: TextAlign.center,
+        ),
+        content: SingleChildScrollView( // Make content scrollable if necessary
+          child: Center(
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Adjust the size of the column
+              mainAxisSize: MainAxisSize.min, // Adjusts to fit content
               children: [
                 Image.memory(
                   animationvm.gifBytes!,
-                  width: screenWidth * 0.15,
-                  height: screenWidth * 0.15,
+                  width: screenWidth * 0.3, // Responsive width
+                  height: screenHeight * 0.15, // Responsive height
                   fit: BoxFit.contain,
                 ),
-                const SizedBox(height: 8), // Add spacing between lines
+                const SizedBox(height: 8),
                 Text(
                   "You have filled $formattedWaterAmount${savedCount > 0 ? " and saved $savedCount plastic bottle${savedCount > 1 ? 's' : ''}" : ""}",
                   style: const TextStyle(
@@ -206,13 +207,14 @@ class _WaterCheckingState extends State<WaterChecking>
                   textAlign: TextAlign.center,
                 ),
                 if (savedCount > 0) ...[
+                  const SizedBox(height: 8), // Add spacing
                   Image.memory(
                     animationvm.gifBytes2!,
-                    width: screenWidth * 0.15,
-                    height: screenWidth * 0.15,
+                    width: screenWidth * 0.3, // Responsive width
+                    height: screenHeight * 0.15, // Responsive height
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 8), // Add spacing between lines
+                  const SizedBox(height: 8),
                   Text(
                     "You have saved $savedCount marine lives!",
                     style: const TextStyle(
@@ -223,11 +225,11 @@ class _WaterCheckingState extends State<WaterChecking>
                   ),
                   Image.asset(
                     'assets/images/wCoin.png',
-                    width: screenWidth * 0.15,
-                    height: screenWidth * 0.15,
+                    width: screenWidth * 0.3, // Responsive width
+                    height: screenHeight * 0.15, // Responsive height
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 8), // Add spacing between lines
+                  const SizedBox(height: 8),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -239,8 +241,7 @@ class _WaterCheckingState extends State<WaterChecking>
                           ),
                         ),
                         TextSpan(
-                          text:
-                              "$savedCount W Coin${savedCount > 1 ? 's' : ''}!",
+                          text: "$savedCount W Coin${savedCount > 1 ? 's' : ''}!",
                           style: const TextStyle(
                             color: Colors.yellow,
                             fontSize: 18,
@@ -250,36 +251,37 @@ class _WaterCheckingState extends State<WaterChecking>
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ]
+                ],
               ],
             ),
           ),
-          actions: [
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(
-                      255, 26, 121, 150), // Matching button color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 26, 121, 150),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onPressed: () {
-                  openHomePage(context);
-                },
-                child: const Text(
-                  'OK',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+              ),
+              onPressed: () {
+                openHomePage(context);
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white,
                 ),
               ),
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

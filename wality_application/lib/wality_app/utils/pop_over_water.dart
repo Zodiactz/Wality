@@ -21,7 +21,7 @@ class PopOverForWater extends StatelessWidget {
             color: Colors.blue[500],
             child: const Center(
               child: Text(
-                'Water checking',
+                'Water Clearness Reader',
                 style: TextStyle(
                   color: Colors.white, // Text color
                   fontSize: 16, // Font size
@@ -44,7 +44,7 @@ class PopOverForWater extends StatelessWidget {
             color: Colors.blue[300],
             child: const Center(
               child: Text(
-                'QR code scanner',
+                'QR Collect Scanner',
                 style: TextStyle(
                   color: Colors.white, // Text color
                   fontSize: 16, // Font size

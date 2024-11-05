@@ -235,6 +235,7 @@ class _AdminPageState extends State<AdminPage> {
               String fD = couponData['f_desc'] ?? '';
               String impD = couponData['imp_desc'] ?? '';
               String cId = couponData['coupon_id'] ?? '';
+              String expD = couponData['exp_date'] ?? '';
               String auAdmin = couponData['authorizedBy'] ?? '';
 
               // Fetch username based on user ID
@@ -252,6 +253,7 @@ class _AdminPageState extends State<AdminPage> {
                 cId,
                 usernameFuture ?? '',
                 user_id,
+                expD
               );
             } else {
               _showDialog(
@@ -1007,97 +1009,184 @@ class _AdminPageState extends State<AdminPage> {
       String impD,
       String cId,
       String userName,
-      String user_id) async {
+      String user_id,
+      String expD) async {
+          DateTime dateTime = DateTime.parse(expD);
+  String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
     showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Fixed Header
+                  Row(
                     children: [
-                      // Image and coupon details
-                      Row(
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(imgCoupon),
+                        radius: 37,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              couponName,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              bD,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
                         children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(imgCoupon),
-                            radius: 37,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  couponName,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  bD,
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600]),
-                                ),
-                              ],
+                          Text(
+                            '$bReq',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
                             ),
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                '$bReq',
-                                style: const TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
-                              ),
-                              const Text('Bottles',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
+                          const Text(
+                            'Coins',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'RobotoCondensed',
+                            ),
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                  const Divider(thickness: 1, color: Colors.grey),
+
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 5),
+                          Text(
+                            fD,
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                          Text(
+                            impD,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          FutureBuilder<Map<String, dynamic>>(
+                            future: _rewardService.fetchRewardById(cId),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final (reCouponText, textColor) =
+                                    calculateDaysUntilReCoupon(
+                                  snapshot.data!['rep_day'] as int,
+                                  snapshot.data!['countStart'] as int,
+                                );
+                                return Text(
+                                  reCouponText,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensedCondensed',
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          const SizedBox(height: 5),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'Expired Date: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: formattedDate,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Fixed Footer
+                  Column(
+                    children: [
                       const Divider(thickness: 1, color: Colors.grey),
-                      const SizedBox(height: 5),
-
-                      // Coupon description
-                      Text(
-                        fD,
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(fontSize: 16),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'This coupon is going to be used by',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
                       ),
                       Text(
-                        impD,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Warning message
-                      Text(
-                        'This Coupon is going to be used by \n $userName',
+                        userName,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -1125,205 +1214,210 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              openAdminPage(context);
-                              ;
+                              GoBack(context);
                             },
-                            child: const Text('Exit'),
+                            child: const Text(
+                              'Exit',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
 
-  Future<void> _showCouponPopupForAdmin(
-      BuildContext context,
-      String couponName,
-      String bD,
-      int bReq,
-      String imgCoupon,
-      String fD,
-      String impD,
-      String cId,
-      String expD,
-      String byAdmin) async {
-    // Parse the string into a DateTime object
-    DateTime dateTime = DateTime.parse(expD);
-    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-    String formattedTime = DateFormat('HH:mm').format(dateTime);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+    Future<void> _showCouponPopupForAdmin(
+    BuildContext context,
+    String couponName,
+    String bD,
+    int bReq,
+    String imgCoupon,
+    String fD,
+    String impD,
+    String cId,
+    String expD,
+    String byAdmin) async {
+  DateTime dateTime = DateTime.parse(expD);
+  String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Fixed Header
+                  Row(
                     children: [
-                      // Image and coupon details
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(imgCoupon),
-                            radius: 37,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  couponName,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  bD,
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                '$bReq',
-                                style: const TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
-                              ),
-                              const Text('Bottles',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                        ],
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(imgCoupon),
+                        radius: 37,
                       ),
-                      const Divider(thickness: 1, color: Colors.grey),
-                      const SizedBox(height: 5),
-
-                      // Coupon description
-                      Text(
-                        fD,
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        impD,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Center(
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'This coupon is Authorized By',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                              TextSpan(
-                                text: byAdmin,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text.rich(
-                        TextSpan(
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const TextSpan(
-                              text: 'Expired Date: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                fontFamily: 'RobotoCondensed',
-                              ),
-                            ),
-                            TextSpan(
-                              text: formattedDate,
+                            Text(
+                              couponName,
                               style: const TextStyle(
-                                fontSize: 18,
-                                fontFamily: 'RobotoCondensed',
-                              ),
-                            ),
-                            const TextSpan(
-                              text: 'Expired Time: ',
-                              style: TextStyle(
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
-                            TextSpan(
-                              text: formattedTime,
-                              style: const TextStyle(
-                                fontSize: 18,
+                            const SizedBox(height: 5),
+                            Text(
+                              bD,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
+                      Column(
+                        children: [
+                          Text(
+                            '$bReq',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                          const Text(
+                            'Coins',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 1, color: Colors.grey),
 
-                      const SizedBox(
-                        height: 5,
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 5),
+                          Text(
+                            fD,
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                          Text(
+                            impD,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoCondensed',
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          FutureBuilder<Map<String, dynamic>>(
+                            future: _rewardService.fetchRewardById(cId),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final (reCouponText, textColor) =
+                                    calculateDaysUntilReCoupon(
+                                  snapshot.data!['rep_day'] as int,
+                                  snapshot.data!['countStart'] as int,
+                                );
+                                return Text(
+                                  reCouponText,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensedCondensed',
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          const SizedBox(height: 5),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'Expired Date: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: formattedDate,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      FutureBuilder<Map<String, dynamic>>(
-                        future: _rewardService.fetchRewardById(cId),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final (reCouponText, textColor) =
-                                calculateDaysUntilReCoupon(
-                              snapshot.data!['rep_day'] as int,
-                              snapshot.data!['countStart'] as int,
-                            );
-                            return Text(
-                              reCouponText,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensedCondensed',
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
+                    ),
+                  ),
+
+                  // Fixed Footer
+                  Column(
+                    children: [
+                      const Divider(thickness: 1, color: Colors.grey),
+                      const SizedBox(height: 10),
+                      Text(
+                        'This coupon is authorized by $byAdmin',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoCondensed',
+                        ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -1331,18 +1425,27 @@ class _AdminPageState extends State<AdminPage> {
                             onPressed: () {
                               GoBack(context);
                             },
-                            child: const Text('Exit'),
+                            child: const Text(
+                              'Exit',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
 }

@@ -311,18 +311,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
+                                          // Inside the _HomePageState class
+// Replace the existing Row widget with this updated version
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                CrossAxisAlignment
+                                                    .center, // Changed to center
                                             children: [
                                               // Bottle
                                               if (animationvm.gifBytes2 != null)
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: screenWidth * 0.1),
+                                                Container(
+                                                  width: screenWidth *
+                                                      0.3, // Fixed width container
                                                   child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Image.memory(
                                                         animationvm.gifBytes!,
@@ -350,9 +356,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 const CircularProgressIndicator(),
 
                                               // Bottle Amount
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 16),
+                                              Container(
+                                                width: screenWidth *
+                                                    0.3, // Fixed width container
                                                 child: Text(
                                                   bottleAmount != null
                                                       ? '$bottleAmount'
@@ -365,16 +371,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                     fontFamily:
                                                         'RobotoCondensed',
                                                   ),
-                                                  textAlign: TextAlign.center,
+                                                  textAlign: TextAlign
+                                                      .center, // Center align the text
                                                 ),
                                               ),
 
                                               // Turtle
                                               if (animationvm.gifBytes != null)
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: screenWidth * 0.1),
+                                                Container(
+                                                  width: screenWidth *
+                                                      0.3, // Fixed width container
                                                   child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Image.memory(
                                                         animationvm.gifBytes2!,
