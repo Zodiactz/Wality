@@ -254,6 +254,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           hintText: "Password",
                           obscureText: !authvm.passwordVisible4,
                           focusNode: passwordFocusNode,
+                          onFieldSubmitted: (value) {
+                                      FocusScope.of(context)
+                                          .requestFocus(confirmPassFocusNode);
+                                    },
                           suffixIcon: IconButton(
                             icon: Icon(authvm.passwordVisible4
                                 ? Icons.visibility

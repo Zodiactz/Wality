@@ -14,6 +14,8 @@ class TextFormFieldAuthen extends StatefulWidget {
   final double height;
   final Function(String)? onFieldSubmitted;
   final Color borderColor;
+  final Function(PointerDownEvent)? onTapOutside;
+  final bool enableInteractiveSelection;
 
   const TextFormFieldAuthen({
     super.key,
@@ -27,6 +29,8 @@ class TextFormFieldAuthen extends StatefulWidget {
     this.height = 40.0,
     this.onFieldSubmitted,
     this.borderColor = Colors.grey,
+    this.onTapOutside,
+    this.enableInteractiveSelection = true,
   });
 
   @override
@@ -119,6 +123,8 @@ class _TextFormFieldAuthenState extends State<TextFormFieldAuthen> {
       controller: widget.controller,
       obscureText: widget.obscureText,
       focusNode: widget.focusNode,
+      enableInteractiveSelection: widget.enableInteractiveSelection,
+      onTapOutside: widget.onTapOutside,
       onFieldSubmitted: (value) {
         widget.onFieldSubmitted?.call(value);
         _resetBorderColor();
