@@ -483,7 +483,10 @@ class _CustomFabState extends State<CustomFab> {
                           ),
                           const SizedBox(height: 8),
                           GestureDetector(
-                            onTap: () => _selectDate(context),
+                            onTap: () {
+                              _selectDate(context);
+                              FocusScope.of(context).unfocus();
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 15),
@@ -1032,8 +1035,12 @@ class _CustomFabState extends State<CustomFab> {
     });
   }
 
+  // Update the _selectDate method
   Future<void> _selectDate(BuildContext context) async {
-    _isDatePickerOpen.value = true; // Set to true when opening date picker
+    // Unfocus any currently focused field to hide the keyboard
+    FocusScope.of(context).unfocus();
+
+    _isDatePickerOpen.value = true;
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -1055,7 +1062,11 @@ class _CustomFabState extends State<CustomFab> {
       },
     );
 
-    _isDatePickerOpen.value = false; // Set to false when closing date picker
+    _isDatePickerOpen.value = false;
+
+    Future.delayed(const Duration(milliseconds: 1), () {
+    FocusScope.of(context).unfocus();
+  });
 
     if (picked != null && picked != _expirationDate) {
       setState(() {
