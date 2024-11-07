@@ -145,7 +145,6 @@ class WaterCheckingPage extends StatelessWidget {
             );
           },
         ),
-        
       ),
     );
   }

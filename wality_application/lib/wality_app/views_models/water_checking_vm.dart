@@ -17,7 +17,7 @@ class WaterCheckingViewModel extends ChangeNotifier {
   Future<void> _loadModel() async {
     await Tflite.loadModel(
       model: "assets/model/best_float32.tflite",
-      labels: "assets/model/label.txt",  // Updated to reflect new labels source
+      labels: "assets/model/label.txt",
     );
   }
 
@@ -36,7 +36,7 @@ class WaterCheckingViewModel extends ChangeNotifier {
   }
 
   Future<void> detectImage(File image) async {
-    var recognitionsList = await Tflite.detectObjectOnImage(  // Updated to use object detection
+    var recognitionsList = await Tflite.detectObjectOnImage(
       path: image.path,
       model: "YOLO",
       threshold: 0.05,
@@ -47,9 +47,9 @@ class WaterCheckingViewModel extends ChangeNotifier {
 
     recognitions = recognitionsList?.map((recognition) {
       return WaterQualityRecognition(
-        label: recognition['detectedClass'],  // Using detected object class
+        label: recognition['detectedClass'],
         confidence: recognition['confidenceInClass'],
-        x: recognition['rect']['x'],  // Coordinates of detected object
+        x: recognition['rect']['x'],
         y: recognition['rect']['y'],
         w: recognition['rect']['w'],
         h: recognition['rect']['h'],
