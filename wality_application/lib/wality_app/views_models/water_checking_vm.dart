@@ -8,10 +8,6 @@ class WaterCheckingViewModel extends ChangeNotifier {
   File image;
   List<WaterQualityRecognition> recognitions = [];
   String filteredResults = "";
-  String waterClarityStatus = "";
-  String turbidityLevel = "around 0";
-  String accuracy = "0%";
-  bool isGoodWater = false;
 
   WaterCheckingViewModel(this.image) {
     _loadModel();
@@ -40,7 +36,7 @@ class WaterCheckingViewModel extends ChangeNotifier {
   }
 
   Future<void> detectImage(File image) async {
-    var recognitionsList = await Tflite.detectObjectOnImage(
+    var recognitionsList = await Tflite.detectObjectOnImage(  // Updated to use object detection
       path: image.path,
       model: "YOLO",
       threshold: 0.05,
@@ -51,62 +47,25 @@ class WaterCheckingViewModel extends ChangeNotifier {
 
     recognitions = recognitionsList?.map((recognition) {
       return WaterQualityRecognition(
-        label: recognition['detectedClass'],
+        label: recognition['detectedClass'],  // Using detected object class
         confidence: recognition['confidenceInClass'],
-        x: recognition['rect']['x'],
+        x: recognition['rect']['x'],  // Coordinates of detected object
         y: recognition['rect']['y'],
         w: recognition['rect']['w'],
         h: recognition['rect']['h'],
       );
     }).toList() ?? [];
 
-    // Filter and interpret results
     filteredResults = recognitions
         .where((recognition) => recognition.confidence! > 0.7)
         .map((recognition) =>
             "${recognition.label}: ${(recognition.confidence! * 100).toStringAsFixed(2)}% (x: ${recognition.x}, y: ${recognition.y})")
         .join("\n");
 
-    interpretResults();
+    if (filteredResults.isEmpty) {
+      filteredResults = "No results above 70% confidence";
+    }
 
     notifyListeners();
-  }
-
-  void interpretResults() {
-    bool detectedPaperGlass = recognitions.any((r) => r.label == 'Paper_Glass');
-    WaterQualityRecognition? ntuRecognition = recognitions.firstWhere(
-      (r) => r.label.startsWith('NTU_'),
-      orElse: () => WaterQualityRecognition(label: '', confidence: 0.0),
-    );
-
-    if (ntuRecognition != null && ntuRecognition.label.isNotEmpty) {
-      int ntuValue = int.parse(ntuRecognition.label.split('_')[1]);
-      turbidityLevel = "around $ntuValue";
-      accuracy = "${(ntuRecognition.confidence! * 100).toStringAsFixed(2)}%";
-      
-      // Update clarity and icon based on NTU and paper detection
-      if (detectedPaperGlass && ntuValue >= 0 && ntuValue <= 5) {
-        isGoodWater = true;
-        waterClarityStatus = "The Water has a good clearness!";
-      } else if (detectedPaperGlass && ntuValue > 5 && ntuValue <= 20) {
-        isGoodWater = false;
-        waterClarityStatus = "The Water is not clear enough!";
-      } else if (detectedPaperGlass && ntuValue == 0) {
-        waterClarityStatus = "Empty Paper Glass Detected";
-      }
-    } else {
-      turbidityLevel = "No NTU detected";
-      waterClarityStatus = detectedPaperGlass ? "Empty Paper Glass Detected" : "No Water Detected";
-    }
-  }
-
-  // Getter to check if Paper Glass is detected
-  bool get isPaperGlassDetected {
-    return recognitions.any((recognition) => recognition.label == 'Paper_Glass');
-  }
-
-  // Getter to check if Water (NTU) is detected
-  bool get isWaterDetected {
-    return recognitions.any((recognition) => recognition.label.startsWith('NTU_'));
   }
 }
