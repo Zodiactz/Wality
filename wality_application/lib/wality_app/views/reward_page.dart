@@ -602,158 +602,163 @@ class _RewardPageState extends State<RewardPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    child: Container(
-                        padding: const EdgeInsets.all(16),
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.8,
-                          maxWidth: MediaQuery.of(context).size.width * 0.9,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'QR Code for Scanning',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 20),
-
-                            // Display appropriate icon based on coupon status
-                            if (couponIsActive)
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 150.0,
-                              )
-                            else if (qrCodeExpire)
-                              const Icon(
-                                Icons.close_rounded,
-                                color: Color.fromARGB(255, 187, 14, 14),
-                                size: 200.0,
-                              )
-                            else
-                              QrImageView(
-                                data: qr_id,
-                                version: QrVersions.auto,
-                                size: 200.0,
+        return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: Container(
+                          padding: const EdgeInsets.all(16),
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(context).size.height * 0.8,
+                            maxWidth: MediaQuery.of(context).size.width * 0.9,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'QR Code for Scanning',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
                               ),
-
-                            const SizedBox(height: 20),
-
-                            // StreamBuilder to monitor coupon status
-                            StreamBuilder<Map<String, dynamic>?>(
-                              stream: _checkCouponStatusStream(qr_id),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    flutter_async.ConnectionState.waiting) {
-                                  return const CircularProgressIndicator();
-                                }
-
-                                // Prioritize the expired coupon case immediately
-                                if (snapshot.hasError) {
-                                  final error = snapshot.error;
-                                  if (error == 'expired') {
-                                    if (!qrCodeExpire) {
-                                      qrCodeExpire = true;
+                              const SizedBox(height: 20),
+          
+                              // Display appropriate icon based on coupon status
+                              if (couponIsActive)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 150.0,
+                                )
+                              else if (qrCodeExpire)
+                                const Icon(
+                                  Icons.close_rounded,
+                                  color: Color.fromARGB(255, 187, 14, 14),
+                                  size: 200.0,
+                                )
+                              else
+                                QrImageView(
+                                  data: qr_id,
+                                  version: QrVersions.auto,
+                                  size: 200.0,
+                                ),
+          
+                              const SizedBox(height: 20),
+          
+                              // StreamBuilder to monitor coupon status
+                              StreamBuilder<Map<String, dynamic>?>(
+                                stream: _checkCouponStatusStream(qr_id),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      flutter_async.ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  }
+          
+                                  // Prioritize the expired coupon case immediately
+                                  if (snapshot.hasError) {
+                                    final error = snapshot.error;
+                                    if (error == 'expired') {
+                                      if (!qrCodeExpire) {
+                                        qrCodeExpire = true;
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          setState(() {});
+                                        });
+                                      }
+                                      return const Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'QR Code has expired.',
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }
+          
+                                  // Handle used coupon case
+                                  if (!snapshot.hasData ||
+                                      snapshot.data == null) {
+                                    if (!couponIsActive && !qrCodeExpire) {
+                                      couponIsActive = true;
                                       WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
+                                          .addPostFrameCallback((_) async {
                                         setState(() {});
+                                        _showDialogSuccess('Coupon Used!',
+                                            'Coupon used successfully!');
+                                        await fetchUserCoupons();
+                                        GoBack(context);
                                       });
                                     }
-                                    return const Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'QR Code has expired.',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
+          
+                                    return const Text(
+                                      'Coupon used successfully.',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     );
                                   }
-                                }
-
-                                // Handle used coupon case
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  if (!couponIsActive && !qrCodeExpire) {
-                                    couponIsActive = true;
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) async {
-                                      setState(() {});
-                                      _showDialogSuccess('Coupon Used!',
-                                          'Coupon used successfully!');
-                                      await fetchUserCoupons();
-                                      GoBack(context);
-                                    });
-                                  }
-
-                                  return const Text(
-                                    'Coupon used successfully.',
+          
+                                  // Check if the coupon is expired and display "Invalid" if so
+                                  return Text(
+                                    qrCodeExpire
+                                        ? 'Qr code has expired!!!'
+                                        : 'Coupon is still valid: $couponName',
                                     style: TextStyle(
-                                      color: Colors.green,
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          qrCodeExpire ? Colors.red : Colors.blue,
                                     ),
                                   );
-                                }
-
-                                // Check if the coupon is expired and display "Invalid" if so
-                                return Text(
-                                  qrCodeExpire
-                                      ? 'Qr code has expired'
-                                      : 'Coupon is still valid: $couponName',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color:
-                                        qrCodeExpire ? Colors.red : Colors.blue,
-                                  ),
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton(
-                                    onPressed: () async {
-                                      GoBack(context);
-                                      await qrService
-                                          .deleteALLQRofThisUser(userId!);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                    ),
-                                    child: const Text('Exit',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ))),
-                              ],
-                            ),
-                          ],
-                        )),
-                  );
-                },
-              ),
-            );
-          },
+                                },
+                              ),
+          
+                              const SizedBox(height: 20),
+          
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        GoBack(context);
+                                        await qrService
+                                            .deleteALLQRofThisUser(userId!);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                      ),
+                                      child: const Text('Exit',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ))),
+                                ],
+                              ),
+                            ],
+                          )),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         );
       },
     );

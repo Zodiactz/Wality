@@ -72,24 +72,31 @@ class _QrScannerPageState extends State<QrScannerPage> {
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext context) {
-        return AlertDialog(
-           backgroundColor: const Color(0xFF003545),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: const Color(0xFF003545),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+            content: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+            actions: const <Widget>[
+              // No action buttons to ensure the dialog cannot be dismissed
+            ],
           ),
-          title: Text(title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-            ),),
-          content: Text(message,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-            ),),
-          actions: const <Widget>[
-            // No action buttons to ensure the dialog cannot be dismissed
-          ],
         );
       },
     );
@@ -99,50 +106,53 @@ class _QrScannerPageState extends State<QrScannerPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF003545),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: const Color(0xFF003545),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-          content: Text(
-            message,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+            title: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
             ),
-          ),
-          actions: [
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 26, 121, 150),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            content: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+            actions: [
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 26, 121, 150),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  GoBack(context);
-                  // Resume scanning after dialog is dismissed
-                  GoBack(context);
-                  // Resume scanning after dialog is dismissed
-                  controller?.resumeCamera();
-                },
-                child: const Text(
-                  'OK',
-                  style: TextStyle(
-                    color: Colors.white,
+                  onPressed: () {
+                    GoBack(context);
+                    // Resume scanning after dialog is dismissed
+                    GoBack(context);
+                    // Resume scanning after dialog is dismissed
+                    controller?.resumeCamera();
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -153,57 +163,60 @@ class _QrScannerPageState extends State<QrScannerPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF003545),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: const Color(0xFF003545),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-          content: Text(
-            message,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+            title: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
             ),
-          ),
-          actions: [
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 26, 121, 150),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  GoBack(context);
-                  // Resume scanning after dialog is dismissed
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WaterChecking(
-                        sentCurrentWater: sentCurrentWaterGo,
-                        sentCurrentBottle: sentCurrentBottleGo,
-                        sentWaterAmount: sentWaterAmountGo,
-                      ),
+            content: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+            actions: [
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 26, 121, 150),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
-                child: const Text(
-                  'OK',
-                  style: TextStyle(
-                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    GoBack(context);
+                    // Resume scanning after dialog is dismissed
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WaterChecking(
+                          sentCurrentWater: sentCurrentWaterGo,
+                          sentCurrentBottle: sentCurrentBottleGo,
+                          sentWaterAmount: sentWaterAmountGo,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -244,24 +257,41 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            flex: 5,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                borderColor: Colors.white,
-                borderRadius: 10,
-                borderLength: 30,
-                borderWidth: 10,
-                cutOutSize: 300,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: QRView(
+                    key: qrKey,
+                    onQRViewCreated: _onQRViewCreated,
+                    overlay: QrScannerOverlayShape(
+                      borderColor: Colors.white,
+                      borderRadius: 10,
+                      borderLength: 30,
+                      borderWidth: 10,
+                      cutOutSize: 300,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 40, // Adjust as needed for padding
+              left: 16,
+              child: IconButton(
+                icon: Icon(Icons.chevron_left, color: Colors.white,size: 32,),
+                onPressed: () {
+                  GoBack(context);
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -140,307 +140,312 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return ChangeNotifierProvider(
-      create: (context) => AnimationViewModel(this),
-      child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
-        builder: (context, animationvm, watervm, child) {
-          return RefreshIndicator(
-              onRefresh: refreshData,
-              child: Stack(
-                children: [
-                  // Your existing Positioned.fill widget
-                  Positioned.fill(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: screenHeight * 0.07),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF0083AB), Color(0xFF003545)],
-                            stops: [0.0, 1],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(55),
-                            bottomRight: Radius.circular(55),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: ChangeNotifierProvider(
+        create: (context) => AnimationViewModel(this),
+        child: Consumer2<AnimationViewModel, WaterSaveViewModel>(
+          builder: (context, animationvm, watervm, child) {
+            return RefreshIndicator(
+                onRefresh: refreshData,
+                child: Stack(
+                  children: [
+                    // Your existing Positioned.fill widget
+                    Positioned.fill(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: screenHeight * 0.07),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF0083AB), Color(0xFF003545)],
+                              stops: [0.0, 1],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(55),
+                              bottomRight: Radius.circular(55),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SafeArea(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: screenHeight * 0.01),
-                        Padding(
-                          padding: EdgeInsets.only(left: screenWidth * 0.05),
-                          // FutureBuilder widget to display the username
-                          child: FutureBuilder<String?>(
-                            future: usernameFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  flutter_async.ConnectionState.waiting) {
-                                return const Text(
-                                  'Loading...',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Text(
-                                  'Error',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else if (snapshot.hasData) {
-                                return Text(
-                                  'Hello, ${snapshot.data}!',
-                                  style: const TextStyle(
-                                    fontSize: 36,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              } else {
-                                return const Text(
-                                  'Username not found',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed-Thin',
-                                  ),
-                                );
-                              }
-                            },
+                    SafeArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: screenHeight * 0.01),
+                          Padding(
+                            padding: EdgeInsets.only(left: screenWidth * 0.05),
+                            // FutureBuilder widget to display the username
+                            child: FutureBuilder<String?>(
+                              future: usernameFuture,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    flutter_async.ConnectionState.waiting) {
+                                  return const Text(
+                                    'Loading...',
+                                    style: TextStyle(
+                                      fontSize: 36,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed-Thin',
+                                    ),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return const Text(
+                                    'Error',
+                                    style: TextStyle(
+                                      fontSize: 36,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed-Thin',
+                                    ),
+                                  );
+                                } else if (snapshot.hasData) {
+                                  return Text(
+                                    'Hello, ${snapshot.data}!',
+                                    style: const TextStyle(
+                                      fontSize: 36,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed-Thin',
+                                    ),
+                                  );
+                                } else {
+                                  return const Text(
+                                    'Username not found',
+                                    style: TextStyle(
+                                      fontSize: 36,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed-Thin',
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: screenHeight * 0.01),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Circle
-                                      Container(
-                                        width: screenWidth * 0.7,
-                                        height: screenWidth * 0.7,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.3),
-                                              blurRadius: 10,
-                                              offset: const Offset(5, 5),
-                                            ),
-                                          ],
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: screenWidth * 0.03,
-                                          ),
-                                        ),
-                                      ),
-                                      ClipOval(
-                                        child: SizedBox(
-                                          width: screenWidth * 0.65,
-                                          height: screenWidth * 0.65,
-                                          child: AnimatedBuilder(
-                                            animation: animationvm
-                                                .waveAnimationController!,
-                                            builder: (context, child) {
-                                              return CustomPaint(
-                                                painter: WavePainter(
-                                                  animationvm
-                                                      .waveAnimationController!
-                                                      .value,
-                                                  waterAmount?.toDouble() ??
-                                                      0, // Pass the actual water amount
-                                                  watervm.water.maxMl
-                                                      .toDouble(), // Pass the maximum water amount
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          '${waterAmount ?? 0}/${watervm.water.maxMl}ml',
-                                          style: TextStyle(
-                                            fontSize: screenWidth * 0.06,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'RobotoCondensed',
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: screenHeight * 0.01),
-                                const Text(
-                                  'You saved',
-                                  style: TextStyle(
-                                    fontSize: 35,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: screenHeight * 0.08),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          // Inside the _HomePageState class
-// Replace the existing Row widget with this updated version
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment
-                                                    .center, // Changed to center
-                                            children: [
-                                              // Bottle
-                                              if (animationvm.gifBytes2 != null)
-                                                Container(
-                                                  width: screenWidth *
-                                                      0.3, // Fixed width container
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Image.memory(
-                                                        animationvm.gifBytes!,
-                                                        width:
-                                                            screenWidth * 0.15,
-                                                        height:
-                                                            screenWidth * 0.15,
-                                                        fit: BoxFit.contain,
-                                                      ),
-                                                      const Text(
-                                                        "Bottles",
-                                                        style: TextStyle(
-                                                          fontSize: 24,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontFamily:
-                                                              'RobotoCondensed',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                              else
-                                                const CircularProgressIndicator(),
-
-                                              // Bottle Amount
-                                              Container(
-                                                width: screenWidth *
-                                                    0.3, // Fixed width container
-                                                child: Text(
-                                                  bottleAmount != null
-                                                      ? '$bottleAmount'
-                                                      : '?',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        screenWidth * 0.13,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily:
-                                                        'RobotoCondensed',
-                                                  ),
-                                                  textAlign: TextAlign
-                                                      .center, // Center align the text
-                                                ),
+                          Expanded(
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: screenHeight * 0.01),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Circle
+                                        Container(
+                                          width: screenWidth * 0.7,
+                                          height: screenWidth * 0.7,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color:
+                                                    Colors.black.withOpacity(0.3),
+                                                blurRadius: 10,
+                                                offset: const Offset(5, 5),
                                               ),
-
-                                              // Turtle
-                                              if (animationvm.gifBytes != null)
-                                                Container(
-                                                  width: screenWidth *
-                                                      0.3, // Fixed width container
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Image.memory(
-                                                        animationvm.gifBytes2!,
-                                                        width:
-                                                            screenWidth * 0.15,
-                                                        height:
-                                                            screenWidth * 0.15,
-                                                        fit: BoxFit.contain,
-                                                      ),
-                                                      const Text(
-                                                        "Lives",
-                                                        style: TextStyle(
-                                                          fontSize: 24,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontFamily:
-                                                              'RobotoCondensed',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                              else
-                                                const CircularProgressIndicator(),
                                             ],
-                                          ),
-                                          SizedBox(
-                                              height: screenHeight *
-                                                  0.02), // Add spacing between the rows
-                                          // Total Amount text
-                                          Text(
-                                            'Total: ${totalAmount ?? 0} ML',
-                                            style: const TextStyle(
+                                            border: Border.all(
                                               color: Colors.white,
-                                              fontSize: 20,
+                                              width: screenWidth * 0.03,
+                                            ),
+                                          ),
+                                        ),
+                                        ClipOval(
+                                          child: SizedBox(
+                                            width: screenWidth * 0.65,
+                                            height: screenWidth * 0.65,
+                                            child: AnimatedBuilder(
+                                              animation: animationvm
+                                                  .waveAnimationController!,
+                                              builder: (context, child) {
+                                                return CustomPaint(
+                                                  painter: WavePainter(
+                                                    animationvm
+                                                        .waveAnimationController!
+                                                        .value,
+                                                    waterAmount?.toDouble() ??
+                                                        0, // Pass the actual water amount
+                                                    watervm.water.maxMl
+                                                        .toDouble(), // Pass the maximum water amount
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            '${waterAmount ?? 0}/${watervm.water.maxMl}ml',
+                                            style: TextStyle(
+                                              fontSize: screenWidth * 0.06,
+                                              color: Colors.white,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'RobotoCondensed',
                                             ),
-                                            textAlign: TextAlign.center,
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  SizedBox(height: screenHeight * 0.01),
+                                  const Text(
+                                    'You saved',
+                                    style: TextStyle(
+                                      fontSize: 35,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: screenHeight * 0.08),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // Inside the _HomePageState class
+      // Replace the existing Row widget with this updated version
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .center, // Changed to center
+                                              children: [
+                                                // Bottle
+                                                if (animationvm.gifBytes2 != null)
+                                                  Container(
+                                                    width: screenWidth *
+                                                        0.3, // Fixed width container
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Image.memory(
+                                                          animationvm.gifBytes!,
+                                                          width:
+                                                              screenWidth * 0.15,
+                                                          height:
+                                                              screenWidth * 0.15,
+                                                          fit: BoxFit.contain,
+                                                        ),
+                                                        const Text(
+                                                          "Bottles",
+                                                          style: TextStyle(
+                                                            fontSize: 24,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                'RobotoCondensed',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                else
+                                                  const CircularProgressIndicator(),
+      
+                                                // Bottle Amount
+                                                Container(
+                                                  width: screenWidth *
+                                                      0.3, // Fixed width container
+                                                  child: Text(
+                                                    bottleAmount != null
+                                                        ? '$bottleAmount'
+                                                        : '?',
+                                                    style: TextStyle(
+                                                      fontSize:
+                                                          screenWidth * 0.13,
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily:
+                                                          'RobotoCondensed',
+                                                    ),
+                                                    textAlign: TextAlign
+                                                        .center, // Center align the text
+                                                  ),
+                                                ),
+      
+                                                // Turtle
+                                                if (animationvm.gifBytes != null)
+                                                  Container(
+                                                    width: screenWidth *
+                                                        0.3, // Fixed width container
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Image.memory(
+                                                          animationvm.gifBytes2!,
+                                                          width:
+                                                              screenWidth * 0.15,
+                                                          height:
+                                                              screenWidth * 0.15,
+                                                          fit: BoxFit.contain,
+                                                        ),
+                                                        const Text(
+                                                          "Lives",
+                                                          style: TextStyle(
+                                                            fontSize: 24,
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                'RobotoCondensed',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                else
+                                                  const CircularProgressIndicator(),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                                height: screenHeight *
+                                                    0.02), // Add spacing between the rows
+                                            // Total Amount text
+                                            Text(
+                                              'Total: ${totalAmount ?? 0} ML',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'RobotoCondensed',
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ));
-        },
+                  ],
+                ));
+          },
+        ),
       ),
     );
   }

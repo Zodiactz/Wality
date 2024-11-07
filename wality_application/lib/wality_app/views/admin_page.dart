@@ -876,7 +876,44 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     if (_isScanning) {
-      return Scaffold(
+      return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: QRView(
+                    key: qrKey,
+                    onQRViewCreated: _onQRViewCreated,
+                    overlay: QrScannerOverlayShape(
+                      borderColor: Colors.white,
+                      borderRadius: 10,
+                      borderLength: 30,
+                      borderWidth: 10,
+                      cutOutSize: 300,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 40, // Adjust as needed for padding
+              left: 16,
+              child: IconButton(
+                icon: Icon(Icons.chevron_left, color: Colors.white,size: 32,),
+                onPressed: () {
+                  GoBack(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+      /*return Scaffold(
         appBar: AppBar(
           title: const Text('Scan QR Code'),
           leading: IconButton(
@@ -902,7 +939,7 @@ class _AdminPageState extends State<AdminPage> {
             ),
           ],
         ),
-      );
+      );*/
     }
 
     return Scaffold(

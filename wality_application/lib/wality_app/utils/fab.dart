@@ -155,8 +155,10 @@ class _CustomFabState extends State<CustomFab> {
     if (daysLeft <= 3) {
       return ('$daysLeft days left', Colors.red);
     }
+    print(daysLeft);
 
     return ('$daysLeft days left', Colors.green);
+    
   }
 
   void _showFabOptions(BuildContext context) {
