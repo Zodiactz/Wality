@@ -13,6 +13,7 @@ class WaterCheckingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+
     return ChangeNotifierProvider(
       create: (_) => WaterCheckingViewModel(image),
       child: Scaffold(
@@ -51,7 +52,7 @@ class WaterCheckingPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontFamily: 'RobotoCondensed',
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -82,7 +83,6 @@ class WaterCheckingPage extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 320, top: 150),
                   child: Center(
                     child: SingleChildScrollView(
-                      // Added to make content scrollable
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -98,211 +98,210 @@ class WaterCheckingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          SizedBox( // Make the button full width
+                          SizedBox(
                             child: ElevatedButton(
                               onPressed: () {
+                                // Set up message and image path based on clarity and detection status
+                                String resultMessage =
+                                    watercheckingvm.waterClarityStatus;
+                                String imagePath =
+                                    ''; // Initialize imagePath with a default value
+
+                                // Determine the image path based on detection results
+                                if (resultMessage ==
+                                    "Empty Paper Glass Detected") {
+                                  imagePath = 'assets/images/No_water.png';
+                                } else if (resultMessage ==
+                                    "No Water Detected") {
+                                  imagePath = '';
+                                } else if (watercheckingvm.isGoodWater) {
+                                  imagePath = 'assets/images/Good_water.png';
+                                } else {
+                                  imagePath = 'assets/images/Bad_water.png';
+                                }
+
+                                // Build dialog
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return Dialog(
-                                        shape: RoundedRectangleBorder(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                      ),
+                                      elevation: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(20.0),
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xFF0083AB),
+                                              Colors.white,
+                                            ],
+                                          ),
                                         ),
-                                        elevation: 8,
-                                        child: Container(
-                                            padding: const EdgeInsets.all(20),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0),
-                                              gradient: const LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: [
-                                                  Color(0xFF0083AB),
-                                                  Colors.white,
-                                                ],
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10),
+                                              child: const Text(
+                                                "Water Clearness Result",
+                                                style: TextStyle(
+                                                  fontSize: 28,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                  fontFamily: 'RobotoCondensed',
+                                                ),
                                               ),
                                             ),
-                                            child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  // Title
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 10),
-                                                    child: const Text(
-                                                      "Water Clearness Result",
-                                                      style: TextStyle(
-                                                        fontSize: 28,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                            SingleChildScrollView(
+                                              child: Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 20),
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      decoration: BoxDecoration(
                                                         color: Colors.white,
-                                                        fontFamily:
-                                                            'RobotoCondensed',
+                                                        shape: BoxShape.circle,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                    0.1),
+                                                            spreadRadius: 2,
+                                                            blurRadius: 5,
+                                                            offset:
+                                                                const Offset(
+                                                                    0, 3),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Image.asset(
+                                                        imagePath, // This will now always be assigned a value
+                                                        width:
+                                                            screenWidth * 0.2,
+                                                        height:
+                                                            screenWidth * 0.2,
+                                                        fit: BoxFit.contain,
                                                       ),
                                                     ),
-                                                  ),
-
-                                                  // Content
-                                                  SingleChildScrollView(
-                                                    child: Container(
-                                                      margin: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 20),
+                                                    const SizedBox(height: 20),
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                    0.1),
+                                                            spreadRadius: 1,
+                                                            blurRadius: 3,
+                                                            offset:
+                                                                const Offset(
+                                                                    0, 2),
+                                                          ),
+                                                        ],
+                                                      ),
                                                       child: Column(
                                                         children: [
-                                                          // Image with decoration
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(15),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color:
-                                                                  Colors.white,
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                          0.1),
-                                                                  spreadRadius:
-                                                                      2,
-                                                                  blurRadius: 5,
-                                                                  offset:
-                                                                      const Offset(
-                                                                          0, 3),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            child: Image.asset(
-                                                              'assets/images/Good_water.png',
-                                                              width:
-                                                                  screenWidth *
-                                                                      0.2,
-                                                              height:
-                                                                  screenWidth *
-                                                                      0.2,
-                                                              fit: BoxFit
-                                                                  .contain,
+                                                          Text(
+                                                            resultMessage,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style:
+                                                                const TextStyle(
+                                                              color: Color(
+                                                                  0xFF0083AB),
+                                                              fontSize: 22,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontFamily:
+                                                                  'RobotoCondensed',
                                                             ),
                                                           ),
-
                                                           const SizedBox(
-                                                              height: 20),
-
-                                                          // Result text with custom container
+                                                              height: 10),
+                                                          if (watercheckingvm
+                                                              .turbidityLevel
+                                                              .isNotEmpty)
+                                                            Text(
+                                                              watercheckingvm
+                                                                  .turbidityLevel,
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .black87,
+                                                                fontSize: 18,
+                                                                fontFamily:
+                                                                    'RobotoCondensed',
+                                                              ),
+                                                            ),
+                                                          const SizedBox(
+                                                              height: 15),
                                                           Container(
                                                             padding:
                                                                 const EdgeInsets
-                                                                    .all(15),
+                                                                    .symmetric(
+                                                              horizontal: 20,
+                                                              vertical: 8,
+                                                            ),
                                                             decoration:
                                                                 BoxDecoration(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: const Color(
+                                                                  0xFF0083AB),
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
-                                                                          15),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                          0.1),
-                                                                  spreadRadius:
-                                                                      1,
-                                                                  blurRadius: 3,
-                                                                  offset:
-                                                                      const Offset(
-                                                                          0, 2),
-                                                                ),
-                                                              ],
+                                                                          20),
                                                             ),
-                                                            child: Column(
-                                                              children: [
-                                                                const Text(
-                                                                  'The Water has a good clearness!',
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Color(
-                                                                        0xFF0083AB),
-                                                                    fontSize:
-                                                                        22,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontFamily:
-                                                                        'RobotoCondensed',
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    height: 10),
-                                                                const Text(
-                                                                  'The turbidity value of this water is around 0',
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .black87,
-                                                                    fontSize:
-                                                                        18,
-                                                                    fontFamily:
-                                                                        'RobotoCondensed',
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    height: 15),
-                                                                Container(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .symmetric(
-                                                                    horizontal:
-                                                                        20,
-                                                                    vertical: 8,
-                                                                  ),
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: const Color(
-                                                                        0xFF0083AB),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            20),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    'Accuracy: 90%',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontSize:
-                                                                          18,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontFamily:
-                                                                          'RobotoCondensed',
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                            child: Text(
+                                                              "Accuracy: ${watercheckingvm.accuracy}",
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontFamily:
+                                                                    'RobotoCondensed',
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                  )
-                                                ])));
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
                                   },
                                 );
                               },
