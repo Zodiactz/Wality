@@ -11,6 +11,8 @@ class WaterCheckingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     return ChangeNotifierProvider(
       create: (_) => WaterCheckingViewModel(image),
       child: Scaffold(
@@ -45,11 +47,11 @@ class WaterCheckingPage extends StatelessWidget {
                   padding: EdgeInsets.only(right: 50),
                   child: Center(
                     child: Text(
-                      'WaterQulityCheck',
+                      'Clearness Reader',
                       style: TextStyle(
                         fontSize: 24,
                         fontFamily: 'RobotoCondensed',
-                        color: Colors.black,
+                        color: Color.fromARGB(255, 255, 255, 255),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -79,65 +81,253 @@ class WaterCheckingPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 320, top: 150),
                   child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 340,
-                          height: 250,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            image: DecorationImage(
-                              image: FileImage(watercheckingvm.image),
-                              fit: BoxFit.cover,
+                    child: SingleChildScrollView(
+                      // Added to make content scrollable
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 340,
+                            height: 250,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20.0),
+                              image: DecorationImage(
+                                image: FileImage(watercheckingvm.image),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text("Water Quality Results"),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        Text(watercheckingvm.filteredResults),
-                                      ],
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: const Text('Confirm'),
-                                      onPressed: () {
-                                        ConfirmAtWaterChecking(context);
-                                      },
-                                    ),
-                                  ],
+                          const SizedBox(height: 12),
+                          SizedBox( // Make the button full width
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                        elevation: 8,
+                                        child: Container(
+                                            padding: const EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              gradient: const LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [
+                                                  Color(0xFF0083AB),
+                                                  Colors.white,
+                                                ],
+                                              ),
+                                            ),
+                                            child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  // Title
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 10),
+                                                    child: const Text(
+                                                      "Water Clearness Result",
+                                                      style: TextStyle(
+                                                        fontSize: 28,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.white,
+                                                        fontFamily:
+                                                            'RobotoCondensed',
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  // Content
+                                                  SingleChildScrollView(
+                                                    child: Container(
+                                                      margin: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 20),
+                                                      child: Column(
+                                                        children: [
+                                                          // Image with decoration
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(15),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.1),
+                                                                  spreadRadius:
+                                                                      2,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0, 3),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Image.asset(
+                                                              'assets/images/Good_water.png',
+                                                              width:
+                                                                  screenWidth *
+                                                                      0.2,
+                                                              height:
+                                                                  screenWidth *
+                                                                      0.2,
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            ),
+                                                          ),
+
+                                                          const SizedBox(
+                                                              height: 20),
+
+                                                          // Result text with custom container
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(15),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.1),
+                                                                  spreadRadius:
+                                                                      1,
+                                                                  blurRadius: 3,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0, 2),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Column(
+                                                              children: [
+                                                                const Text(
+                                                                  'The Water has a good clearness!',
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Color(
+                                                                        0xFF0083AB),
+                                                                    fontSize:
+                                                                        22,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontFamily:
+                                                                        'RobotoCondensed',
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 10),
+                                                                const Text(
+                                                                  'The turbidity value of this water is around 0',
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .black87,
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontFamily:
+                                                                        'RobotoCondensed',
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 15),
+                                                                Container(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .symmetric(
+                                                                    horizontal:
+                                                                        20,
+                                                                    vertical: 8,
+                                                                  ),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: const Color(
+                                                                        0xFF0083AB),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            20),
+                                                                  ),
+                                                                  child:
+                                                                      const Text(
+                                                                    'Accuracy: 90%',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontFamily:
+                                                                          'RobotoCondensed',
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                ])));
+                                  },
                                 );
                               },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF342056),
-                            fixedSize: const Size(300, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF342056),
+                                minimumSize: Size(screenWidth * 0.8, 50),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'Confirm',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'RobotoCondensed',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                          child: const Text(
-                            'Confirm',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'RobotoCondensed',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -4,10 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:tflite_v2/tflite_v2.dart';
 import 'package:wality_application/wality_app/models/waterquality.dart';
 
+
 class WaterCheckingViewModel extends ChangeNotifier {
   File image;
   List<WaterQualityRecognition> recognitions = [];
   String filteredResults = "";
+  
 
   WaterCheckingViewModel(this.image) {
     _loadModel();
@@ -36,30 +38,24 @@ class WaterCheckingViewModel extends ChangeNotifier {
   }
 
   Future<void> detectImage(File image) async {
-    var recognitionsList = await Tflite.detectObjectOnImage(
+    var recognitionsList = await Tflite.runModelOnImage(
       path: image.path,
-      model: "YOLO",
+      numResults: 6,
       threshold: 0.05,
       imageMean: 127.5,
       imageStd: 127.5,
-      asynch: true,
     );
 
     recognitions = recognitionsList?.map((recognition) {
       return WaterQualityRecognition(
-        label: recognition['detectedClass'],
-        confidence: recognition['confidenceInClass'],
-        x: recognition['rect']['x'],
-        y: recognition['rect']['y'],
-        w: recognition['rect']['w'],
-        h: recognition['rect']['h'],
+        label: recognition['label'],
+        confidence: recognition['confidence'],
       );
     }).toList() ?? [];
 
     filteredResults = recognitions
         .where((recognition) => recognition.confidence! > 0.7)
-        .map((recognition) =>
-            "${recognition.label}: ${(recognition.confidence! * 100).toStringAsFixed(2)}% (x: ${recognition.x}, y: ${recognition.y})")
+        .map((recognition) => "${recognition.label}: ${(recognition.confidence! * 100).toStringAsFixed(2)}%")
         .join("\n");
 
     if (filteredResults.isEmpty) {
