@@ -12,16 +12,9 @@ class WaterCheckingViewModel extends ChangeNotifier {
   
 
   WaterCheckingViewModel(this.image) {
-    _loadModel();
     detectImage(image);
   }
-
-  Future<void> _loadModel() async {
-    await Tflite.loadModel(
-      model: "assets/model/best_float32.tflite",
-      labels: "assets/model/label.txt",
-    );
-  }
+   
 
   Future<void> pickImage() async {
     try {
@@ -38,20 +31,6 @@ class WaterCheckingViewModel extends ChangeNotifier {
   }
 
   Future<void> detectImage(File image) async {
-    var recognitionsList = await Tflite.runModelOnImage(
-      path: image.path,
-      numResults: 6,
-      threshold: 0.05,
-      imageMean: 127.5,
-      imageStd: 127.5,
-    );
-
-    recognitions = recognitionsList?.map((recognition) {
-      return WaterQualityRecognition(
-        label: recognition['label'],
-        confidence: recognition['confidence'],
-      );
-    }).toList() ?? [];
 
     filteredResults = recognitions
         .where((recognition) => recognition.confidence! > 0.7)
