@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -95,6 +97,11 @@ func main() {
 
 	// New route for image upload
 	app.Post("/uploadImage", uploadImage)
+
+	//Upload AI image
+	// Handle Roboflow inference request
+	app.Post("/runRoboflow", runRoboflowInference)
+
 
 	// Start the server
 	log.Fatal(app.Listen(":8080"))
@@ -1215,6 +1222,91 @@ func updateUserIdByEmail(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"status": "Water updated successfully!"})
 }
+
+
+// runRoboflowInference handles the Roboflow workflow inference request with image URL
+func runRoboflowInference(c *fiber.Ctx) error {
+    // Extract image URL from the request body
+    var requestBody struct {
+        ImageURL string `json:"image_url"` // URL of the image to send to Roboflow
+    }
+    
+    if err := c.BodyParser(&requestBody); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "Invalid request body",
+        })
+    }
+
+    // Prepare the request body for Roboflow API
+    data := map[string]interface{}{
+        "api_key": "G0Aiyz9rnxZVeRTWMV2p", // Your Roboflow API key
+        "inputs": map[string]interface{}{
+            "image": map[string]interface{}{
+                "type":  "url",
+                "value": requestBody.ImageURL, // The image URL passed in the request body
+            },
+        },
+    }
+    
+    jsonData, err := json.Marshal(data)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to prepare request data",
+        })
+    }
+
+    // Create the request to Roboflow API
+    req, err := http.NewRequest("POST", "https://detect.roboflow.com/infer/workflows/kmutt-ai/ntureader", bytes.NewReader(jsonData))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to create request",
+        })
+    }
+
+    // Set necessary headers
+    req.Header.Set("Content-Type", "application/json")
+
+    // Make the request
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to make request to Roboflow",
+        })
+    }
+    defer resp.Body.Close()
+
+    // Read the response
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to read response",
+        })
+    }
+
+    // Parse the response
+    var result map[string]interface{}
+    if err := json.Unmarshal(body, &result); err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "Failed to parse response",
+        })
+    }
+
+    // Check if the result contains predictions
+    if predictions, ok := result["outputs"].([]interface{}); ok && len(predictions) > 0 {
+        return c.JSON(fiber.Map{
+            "message":    "Predictions found",
+            "predictions": predictions,
+        })
+    }
+
+    // If no predictions, return a no result message
+    return c.JSON(fiber.Map{
+        "message": "No predictions found for the image. Please try a different image.",
+    })
+}
+
+
 
 
 
