@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 
+import '../../repo/user_service.dart';
+
 class WaterCheckingPage extends StatelessWidget {
   final File image;
 
@@ -118,7 +120,7 @@ class WaterCheckingPage extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 16),
       child: ElevatedButton(
-        onPressed: () => _showResultDialog(context),
+        onPressed: () => _handleImageUploadAndShowResult(context),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white.withOpacity(0.2),
           foregroundColor: Colors.white,
@@ -139,176 +141,211 @@ class WaterCheckingPage extends StatelessWidget {
       ),
     );
   }
+Future<void> _handleImageDeletion(BuildContext context, String imageURL) async {
+    final userService = UserService();
+    await userService.deleteImageFromFirebase(imageURL);
+    openHomePage(context);
+  }
 
-  void _showResultDialog(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  void _showErrorDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          elevation: 8,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF0083AB),
-                  Colors.white,
-                ],
-              ),
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Failed to process the image. Please try again.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Title
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: const Text(
-                    "Water Clearness Result",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFamily: 'RobotoCondensed',
-                    ),
-                  ),
-                ),
-
-                // Content
-                SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        // Image with decoration
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Image.asset(
-                            'assets/images/Good_water.png',
-                            width: screenWidth * 0.2,
-                            height: screenWidth * 0.2,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Result text with custom container
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 3,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              const Text(
-                                'The Water has a good clearness!',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Color(0xFF0083AB),
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'The turbidity value of this water is around 0',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 18,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0083AB),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Text(
-                                  'Accuracy: 90%',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Exit Button
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () {
-                            openHomePage(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0083AB),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 3,
-                          ),
-                          child: const Text(
-                            'Exit',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'RobotoCondensed',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
+          ],
         );
       },
     );
   }
+
+
+  Future<void> _handleImageUploadAndShowResult(BuildContext context) async {
+  // Show loading dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+    },
+  );
+
+  try {
+    final userService = UserService();
+    final uploadedUrl = await userService.uploadImage(image);
+
+    // Close loading dialog
+    Navigator.pop(context);
+
+    if (uploadedUrl != null) {
+      // Call the inference method with the uploaded image URL
+      final inferenceResult = await userService.runRoboflowInference(uploadedUrl);
+      print(uploadedUrl);
+
+      if (inferenceResult != null && inferenceResult['outputs'] != null) {
+        // Show the inference results in the result dialog
+        _showResultDialog(context, uploadedUrl,inferenceResult);
+        print (inferenceResult);
+      } else {
+        // Show error dialog if inference fails
+        _showErrorDialog(context);
+      }
+    } else {
+      _showErrorDialog(context);
+    }
+  } catch (e) {
+    Navigator.pop(context);
+    _showErrorDialog(context);
+  }
+}
+
+
+  void _showResultDialog(BuildContext context, String uploadedUrl, Map<String, dynamic> inferenceResult) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  String resultText = inferenceResult['resultText'] ?? 'No result available';
+  String accuracy = inferenceResult['accuracy'] != null ? 'Accuracy: ${inferenceResult['accuracy']}%' : '';
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        elevation: 8,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.0),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF0083AB),
+                Colors.white,
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Title
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: const Text(
+                  "Water Clearness Result",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontFamily: 'RobotoCondensed',
+                  ),
+                ),
+              ),
+              // Content
+              SingleChildScrollView(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 20),
+                  child: Column(
+                    children: [
+                      // Result text with custom container
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 3,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              resultText,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF0083AB),
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0083AB),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                accuracy,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Exit Button
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Delete the image and navigate
+                          _handleImageDeletion(context, uploadedUrl);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0083AB),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 3,
+                        ),
+                        child: const Text(
+                          'Exit',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 }
