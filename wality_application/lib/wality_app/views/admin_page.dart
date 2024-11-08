@@ -648,172 +648,171 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Widget _buildCouponCard(Map<String, dynamic> couponData) {
-  // Format the date if it exists and is valid
-  final usedAtDate = couponData['used_at'];
-  final displayDate = usedAtDate != null
-      ? DateFormat('dd/MM/yyyy').format(DateTime.parse(usedAtDate))
-      : "No date available";
-  final displayTime = usedAtDate != null
-      ? DateFormat('HH:mm').format(DateTime.parse(usedAtDate))
-      : "No time available";
+    // Format the date if it exists and is valid
+    final usedAtDate = couponData['used_at'];
+    final displayDate = usedAtDate != null
+        ? DateFormat('dd/MM/yyyy').format(DateTime.parse(usedAtDate))
+        : "No date available";
+    final displayTime = usedAtDate != null
+        ? DateFormat('HH:mm').format(DateTime.parse(usedAtDate))
+        : "No time available";
 
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    elevation: 2,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-      side: BorderSide(color: Colors.amber[100]!),
-    ),
-    color: Colors.amber[50],
-    child: InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => _showCouponPopupForAdmin(
-        context,
-        couponData['coupon_name'] ?? '',
-        couponData['b_desc'] ?? '',
-        couponData['bot_req'] ?? 0,
-        couponData['img_couponLink'] ?? '',
-        couponData['f_desc'] ?? '',
-        couponData['imp_desc'] ?? '',
-        couponData['coupon_id'] ?? '',
-        couponData['exp_date'] ?? '',
-        couponData['authorizedBy'] ?? 'Unknown',
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.amber[100]!),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Leading Image
-            Hero(
-              tag: 'coupon-${couponData['coupon_id']}',
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    image: DecorationImage(
-                      image: NetworkImage(couponData['img_couponLink'] ?? ''),
-                      fit: BoxFit.cover,
-                      onError: (error, stackTrace) {},
+      color: Colors.amber[50],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _showCouponPopupForAdmin(
+          context,
+          couponData['coupon_name'] ?? '',
+          couponData['b_desc'] ?? '',
+          couponData['bot_req'] ?? 0,
+          couponData['img_couponLink'] ?? '',
+          couponData['f_desc'] ?? '',
+          couponData['imp_desc'] ?? '',
+          couponData['coupon_id'] ?? '',
+          couponData['exp_date'] ?? '',
+          couponData['authorizedBy'] ?? 'Unknown',
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Leading Image
+              Hero(
+                tag: 'coupon-${couponData['coupon_id']}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      image: DecorationImage(
+                        image: NetworkImage(couponData['img_couponLink'] ?? ''),
+                        fit: BoxFit.cover,
+                        onError: (error, stackTrace) {},
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title and Status
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          couponData['coupon_name'] ?? 'Unknown Coupon',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green[100],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Used',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  
-                  // Description
-                  Text(
-                    couponData['b_desc'] ?? 'No description available',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  // Date and Time
-                  Wrap(
-                    spacing: 16,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            displayDate,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            displayTime,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  
-                  // Authorized By
+              const SizedBox(width: 12),
 
-                ],
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title and Status
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            couponData['coupon_name'] ?? 'Unknown Coupon',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Used',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Description
+                    Text(
+                      couponData['b_desc'] ?? 'No description available',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Date and Time
+                    Wrap(
+                      spacing: 16,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              displayDate,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              displayTime,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    // Authorized By
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildInfoRow(String label, String value) {
     return Row(
@@ -879,69 +878,46 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     if (_isScanning) {
       return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 5,
-                  child: QRView(
-                    key: qrKey,
-                    onQRViewCreated: _onQRViewCreated,
-                    overlay: QrScannerOverlayShape(
-                      borderColor: Colors.white,
-                      borderRadius: 10,
-                      borderLength: 30,
-                      borderWidth: 10,
-                      cutOutSize: 300,
+        onWillPop: () async => false,
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Column(
+                children: <Widget>[
+                  Expanded(
+                    flex: 5,
+                    child: QRView(
+                      key: qrKey,
+                      onQRViewCreated: _onQRViewCreated,
+                      overlay: QrScannerOverlayShape(
+                        borderColor: Colors.white,
+                        borderRadius: 10,
+                        borderLength: 30,
+                        borderWidth: 10,
+                        cutOutSize: 300,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Positioned(
-              top: 40, // Adjust as needed for padding
-              left: 16,
-              child: IconButton(
-                icon: Icon(Icons.chevron_left, color: Colors.white,size: 32,),
-                onPressed: () {
-                  GoBack(context);
-                },
+                ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-      /*return Scaffold(
-        appBar: AppBar(
-          title: const Text('Scan QR Code'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _isScanning = false),
+              Positioned(
+                top: 40, // Adjust as needed for padding
+                left: 16,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.chevron_left,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  onPressed: () {
+                    openAdminPage(context);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              flex: 5,
-              child: QRView(
-                key: qrKey,
-                onQRViewCreated: _onQRViewCreated,
-                overlay: QrScannerOverlayShape(
-                  borderColor: Colors.white,
-                  borderRadius: 10,
-                  borderLength: 30,
-                  borderWidth: 10,
-                  cutOutSize: 300,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );*/
+      );
     }
 
     return Scaffold(

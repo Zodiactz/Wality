@@ -9,11 +9,6 @@ import 'package:wality_application/wality_app/utils/change_pic/CouponCircle.dart
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'dart:io';
 import 'dart:async';
-import 'package:flutter/src/widgets/async.dart' as flutter_async;
-import 'package:http/http.dart' as http;
-import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
-import 'dart:convert';
-
 import 'package:wality_application/wality_app/views_models/coupon_vm.dart';
 
 class CustomFab extends StatefulWidget {
