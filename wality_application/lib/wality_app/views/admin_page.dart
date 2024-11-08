@@ -11,6 +11,8 @@ import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:intl/intl.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:wality_application/wality_app/utils/fab.dart';
@@ -1102,6 +1104,8 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  
+
   Future<void> _showCouponPopup(
       BuildContext context,
       String couponName,
@@ -1291,52 +1295,64 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         const SizedBox(height: 20),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                usedWcoin =
-                                    _userService.fetchUserUsedWcoin(user_id);
-                                currentWcoin =
-                                    _userService.fetchUserEventBot(user_id);
-                                final userCurrentWcoin =
-                                    await currentWcoin ?? 0;
-                                final adminRealName = await adminName ?? '';
-                                final beforeSumWcoin = await usedWcoin ?? 0;
-                                final sumUserEventBot = userCurrentWcoin - bReq;
-                                final sumUsedWcoin = beforeSumWcoin + bReq;
-                                _rewardService.useCoupon(context, cId, user_id);
-                                _userService.updateUserEventBot(
-                                    user_id, sumUserEventBot);
-                                _rewardService.updateCouponToHistory(
-                                    context, cId, user_id, adminRealName);
-                                _userService.updateUserUsedWcoin(
-                                    user_id, sumUsedWcoin);
-                                await qrService.deleteALLQRofThisUser(user_id);
-                                openAdminPage(context);
-                                _showDialogAndGoToAdmin(
-                                    'Success!', 'This coupon is activated');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue),
-                              child: const Text('Authorize coupon'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                GoBack(context);
-                              },
-                              child: const Text(
-                                'Exit',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    ElevatedButton(
+      onPressed: () async {
+        try {
+          usedWcoin = userService.fetchUserUsedWcoin(user_id);
+          currentWcoin = userService.fetchUserEventBot(user_id);
+          
+          final userCurrentWcoin = await currentWcoin ?? 0;
+          final adminRealName = await adminName ?? '';
+          final beforeSumWcoin = await usedWcoin ?? 0;
+          final sumUserEventBot = userCurrentWcoin - bReq;
+          final sumUsedWcoin = beforeSumWcoin + bReq;
+
+          _rewardService.useCoupon(context, cId, user_id);
+          _userService.updateUserEventBot(user_id, sumUserEventBot);
+          _rewardService.updateCouponToHistory(context, cId, user_id, adminRealName);
+          _userService.updateUserUsedWcoin(user_id, sumUsedWcoin);
+          await qrService.deleteALLQRofThisUser(user_id);
+          
+          showAwesomeSnackBar(
+            context,
+            'Success',
+            'This coupon is activated',
+            ContentType.success
+          );
+          
+          openAdminPage(context);
+        } catch (e) {
+          showAwesomeSnackBar(
+            context,
+            'Error',
+            'This coupon is invalid',
+            ContentType.failure
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue
+      ),
+      child: const Text('Authorize coupon'),
+    ),
+    ElevatedButton(
+      onPressed: () {
+        GoBack(context);
+      },
+      child: const Text(
+        'Exit',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'RobotoCondensed',
+        ),
+      ),
+    ),
+  ],
+)
                       ],
                     ),
                   ],
