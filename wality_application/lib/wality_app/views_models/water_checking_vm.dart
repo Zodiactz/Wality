@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tflite_v2/tflite_v2.dart';
+//import 'package:tflite_v2/tflite_v2.dart';
 import 'package:wality_application/wality_app/models/waterquality.dart';
 
 class WaterCheckingViewModel extends ChangeNotifier {

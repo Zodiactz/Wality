@@ -493,6 +493,8 @@ class _AdminPageState extends State<AdminPage> {
                                     'Total W Coins', eventBot, Colors.yellow),
                                 _buildStatCard(
                                     'Used W Coins', usedWcoin, Colors.teal),
+                                _buildStatCard(
+                                    'Total water use', usedWcoin*550, Colors.orange),
                               ],
                             ),
                           );

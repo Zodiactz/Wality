@@ -4,11 +4,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/constant.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/material.dart';
 
 final UserService userService = UserService();

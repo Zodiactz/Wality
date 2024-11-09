@@ -317,8 +317,8 @@ class _CustomFabState extends State<CustomFab> {
                             controller: _couponBriefDescriptionController,
                             focusNode: _couponBriefDescriptionFocus,
                             onFieldSubmitted: (_) {
-                              FocusScope.of(context).requestFocus(
-                                  _couponImportanceDescriptionFocus);
+                              FocusScope.of(context)
+                                  .requestFocus(_couponBotRequirementFocus);
                             },
                             decoration: InputDecoration(
                               hintText: 'Enter brief coupon description',
@@ -331,37 +331,6 @@ class _CustomFabState extends State<CustomFab> {
                               errorText:
                                   _couponViewModel.couponBriefDescriptionError,
                               errorStyle: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Importance Description Field
-                          const Text(
-                            'Importance Description',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF342056),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _couponImportanceDescriptionController,
-                            focusNode: _couponImportanceDescriptionFocus,
-                            maxLines: 3,
-                            onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .requestFocus(_couponBotRequirementFocus);
-                            },
-                            decoration: InputDecoration(
-                              hintText:
-                                  'Enter importance description (optional)',
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -401,7 +370,6 @@ class _CustomFabState extends State<CustomFab> {
                             ),
                           ),
                           const SizedBox(height: 16),
-
                           // Coupon Description Field
                           const Text(
                             'Coupon Description',
@@ -416,8 +384,8 @@ class _CustomFabState extends State<CustomFab> {
                             controller: _couponDescriptionController,
                             focusNode: _couponDescriptionFocus,
                             onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .requestFocus(_replenishFocus);
+                              FocusScope.of(context).requestFocus(
+                                  _couponImportanceDescriptionFocus);
                             },
                             maxLines: 3,
                             decoration: InputDecoration(
@@ -431,6 +399,36 @@ class _CustomFabState extends State<CustomFab> {
                               errorText:
                                   _couponViewModel.couponDescriptionError,
                               errorStyle: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Highlight Description Field
+                          const Text(
+                            'Highlight Description',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF342056),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _couponImportanceDescriptionController,
+                            focusNode: _couponImportanceDescriptionFocus,
+                            maxLines: 3,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_replenishFocus);
+                            },
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Enter highlight texts in the description (optional)',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),

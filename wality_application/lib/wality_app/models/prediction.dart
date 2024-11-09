@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 class Prediction {
   final int width;
   final int height;
