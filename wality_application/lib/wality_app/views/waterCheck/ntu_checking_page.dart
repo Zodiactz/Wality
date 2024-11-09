@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 
@@ -18,42 +19,46 @@ class WaterCheckingPage extends StatelessWidget {
 
     return ChangeNotifierProvider(
       create: (_) => WaterCheckingViewModel(image),
-      child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF0083AB), Color(0xFF003545)],
-            ),
-          ),
-          child: SafeArea(
-            child: Consumer<WaterCheckingViewModel>(
-              builder: (context, watercheckingvm, child) {
-                return Column(
-                  children: [
-                    _buildAppBar(context),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 24),
-                              _buildImageContainer(watercheckingvm),
-                              const SizedBox(height: 24),
-                              _buildConfirmButton(context, screenWidth),
-                            ],
+      child: Consumer<WaterCheckingViewModel>(
+        builder: (context, watercheckingvm, child) {
+          return LoadingOverlay(
+            isLoading: watercheckingvm.isLoading,
+            child: Scaffold(
+              body: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF0083AB), Color(0xFF003545)],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      _buildAppBar(context),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 24),
+                                _buildImageContainer(watercheckingvm),
+                                const SizedBox(height: 24),
+                                _buildConfirmButton(context, screenWidth),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -142,7 +147,9 @@ class WaterCheckingPage extends StatelessWidget {
       ),
     );
   }
-Future<void> _handleImageDeletion(BuildContext context, String imageURL) async {
+
+  Future<void> _handleImageDeletion(
+      BuildContext context, String imageURL) async {
     final userService = UserService();
     await userService.deleteImageFromFirebase(imageURL);
     openHomePage(context);
@@ -166,188 +173,251 @@ Future<void> _handleImageDeletion(BuildContext context, String imageURL) async {
     );
   }
 
+   Future<void> _handleImageUploadAndShowResult(BuildContext context) async {
+    final viewModel = Provider.of<WaterCheckingViewModel>(context, listen: false);
+    viewModel.setLoading(true);
 
-  Future<void> _handleImageUploadAndShowResult(BuildContext context) async {
-  // Show loading dialog
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-        ),
-      );
-    },
-  );
+    try {
+      final userService = UserService();
+      final uploadedUrl = await userService.uploadImage(image);
 
-  try {
-    final userService = UserService();
-    final uploadedUrl = await userService.uploadImage(image);
+      if (uploadedUrl != null) {
+        final inferenceResult = await userService.runRoboflowInference(uploadedUrl);
+        print(uploadedUrl);
 
-    // Close loading dialog
-    Navigator.pop(context);
+        viewModel.setLoading(false);
 
-    if (uploadedUrl != null) {
-      // Call the inference method with the uploaded image URL
-      final inferenceResult = await userService.runRoboflowInference(uploadedUrl);
-      print(uploadedUrl);
-
-      if (inferenceResult != null && inferenceResult['outputs'] != null) {
-        // Show the inference results in the result dialog
-        _showResultDialog(context, uploadedUrl,inferenceResult);
-        print (inferenceResult);
+        if (inferenceResult != null && inferenceResult['outputs'] != null) {
+          final ntuLevel = _extractNtuLevel(inferenceResult);
+          _showResultDialog(context, uploadedUrl, ntuLevel);
+        } else {
+          _showErrorDialog(context);
+        }
       } else {
-        // Show error dialog if inference fails
+        viewModel.setLoading(false);
         _showErrorDialog(context);
       }
-    } else {
+    } catch (e) {
+      viewModel.setLoading(false);
       _showErrorDialog(context);
     }
-  } catch (e) {
-    Navigator.pop(context);
-    _showErrorDialog(context);
   }
-}
 
+  String _extractNtuLevel(Map<String, dynamic> inferenceResult) {
+    try {
+      if (inferenceResult['outputs'] != null &&
+          inferenceResult['outputs'].isNotEmpty) {
+        final outputs = inferenceResult['outputs'][0];
+        print(outputs);
 
-  void _showResultDialog(BuildContext context, String uploadedUrl, Map<String, dynamic> inferenceResult) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  String resultText = inferenceResult['resultText'] ?? 'No result available';
-  String accuracy = inferenceResult['accuracy'] != null ? 'Accuracy: ${inferenceResult['accuracy']}%' : '';
+        if (outputs['predictions'] != null &&
+            outputs['predictions']['predictions'] is List) {
+          final predictions = outputs['predictions']['predictions'];
+          print(predictions);
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        elevation: 8,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.0),
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF0083AB),
-                Colors.white,
-              ],
+          // Sort predictions by confidence in descending order
+          predictions.sort((a, b) =>
+              (b['confidence'] as num).compareTo(a['confidence'] as num));
+
+          // Look for NTU class in predictions
+          for (var prediction in predictions) {
+            if (prediction['class'].toString().startsWith('NTU_')) {
+              // Extract the number after 'NTU_'
+              return prediction['class'].toString().replaceAll('NTU_', '');
+            }
+          }
+        }
+      }
+      print("No NTU prediction found in result: $inferenceResult");
+      return 'N/A';
+    } catch (e) {
+      print("Error extracting NTU level: $e");
+      print("Result structure: $inferenceResult");
+      return 'N/A';
+    }
+  }
+
+  void _showResultDialog(
+      BuildContext context, String uploadedUrl, String ntuLevel) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Determine the result image, text, and colors based on the NTU level
+    String resultImage;
+    String resultText;
+    Color resultTextColor;
+    List<Color> gradientColors; // Add gradient colors variable
+
+    if (ntuLevel == 'N/A') {
+      resultImage = 'assets/images/No_water.png';
+      resultText = 'Water not detected!';
+      resultTextColor = Colors.grey;
+      gradientColors = const [Colors.grey, Colors.white];
+    } else {
+      // Convert ntuLevel to double for comparison
+      double ntuValue = double.tryParse(ntuLevel) ?? 0;
+
+      if (ntuValue > 5) {
+        resultImage = 'assets/images/Bad_water.png';
+        resultText = 'The water has a bad clearness!';
+        resultTextColor = Colors.red;
+        gradientColors = const [
+          Colors.red,
+          Colors.white
+        ]; // Red gradient for bad results
+      } else {
+        resultImage = 'assets/images/Good_water.png';
+        resultText = "The water has a good clearness!";
+        resultTextColor = const Color(0xFF0083AB);
+        gradientColors = const [
+          Color(0xFF0083AB),
+          Colors.white
+        ]; // Blue gradient for good results
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
             ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: const Text(
-                  "Water Clearness Result",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'RobotoCondensed',
-                  ),
+            elevation: 8,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: gradientColors, // Use dynamic gradient colors
                 ),
               ),
-              // Content
-              SingleChildScrollView(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
-                    children: [
-                      // Result text with custom container
-                      Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: const Offset(0, 2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: const Text(
+                      "Water Clearness Result",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontFamily: 'RobotoCondensed',
+                      ),
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              resultText,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFF0083AB),
-                                fontSize: 22,
+                            child: Image.asset(
+                              resultImage,
+                              width: screenWidth * 0.2,
+                              height: screenWidth * 0.2,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  resultText,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: resultTextColor,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "The turbidity of the water is around $ntuLevel NTU",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 22,
+                                    fontFamily: 'RobotoCondensed',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () {
+                              _handleImageDeletion(context, uploadedUrl);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  resultTextColor, // Use the result color for the button
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 3,
+                            ),
+                            child: const Text(
+                              'Exit',
+                              style: TextStyle(
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
-                            const SizedBox(height: 15),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0083AB),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                accuracy,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'RobotoCondensed',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      // Exit Button
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Delete the image and navigate
-                          _handleImageDeletion(context, uploadedUrl);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0083AB),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 40,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 3,
-                        ),
-                        child: const Text(
-                          'Exit',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoCondensed',
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
+  }
 }
 }
 class WaterTutorialPopup extends StatefulWidget {
