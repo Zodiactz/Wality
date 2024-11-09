@@ -273,8 +273,8 @@ class _RewardPageState extends State<RewardPage> {
     bool isUsed = couponCheck.contains(cId);
 
     return GestureDetector(
-      onTap: () => _showCouponPopup(
-              context, couponName, bD, bReq, imgCoupon, fD, impD, cId, expD),
+      onTap: () => _showCouponPopup(context, couponName, bD, bReq, imgCoupon,
+          fD, impD, cId, expD, isUsed),
       child: Stack(
         alignment: Alignment.center, // Center align elements in the stack
         children: [
@@ -358,238 +358,244 @@ class _RewardPageState extends State<RewardPage> {
 
   //Coupon popup
   Future<void> _showCouponPopup(
-    BuildContext context,
-    String couponName,
-    String bD,
-    int bReq,
-    String imgCoupon,
-    String fD,
-    String impD,
-    String cId,
-    String expD) async {
-  DateTime dateTime = DateTime.parse(expD);
-  String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-  bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
+      BuildContext context,
+      String couponName,
+      String bD,
+      int bReq,
+      String imgCoupon,
+      String fD,
+      String impD,
+      String cId,
+      String expD,
+      bool isUsed) async {
+    DateTime dateTime = DateTime.parse(expD);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.8,
-                maxWidth: MediaQuery.of(context).size.width * 0.9,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Fixed Header
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(imgCoupon),
-                        radius: 37,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Fixed Header
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(imgCoupon),
+                          radius: 37,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                couponName,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                bD,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
                           children: [
                             Text(
-                              couponName,
+                              '$bReq',
                               style: const TextStyle(
-                                fontSize: 20,
+                                fontSize: 48,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
-                            const SizedBox(height: 5),
-                            Text(
-                              bD,
+                            const Text(
+                              'Coins',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey[600],
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            '$bReq',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'RobotoCondensed',
-                            ),
-                          ),
-                          const Text(
-                            'Coins',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'RobotoCondensed',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Divider(thickness: 1, color: Colors.grey),
-
-                  // Scrollable Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 5),
-                          Text(
-                            fD,
-                            textAlign: TextAlign.start,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'RobotoCondensed',
-                            ),
-                          ),
-                          Text(
-                            impD,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'RobotoCondensed',
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          FutureBuilder<Map<String, dynamic>>(
-                            future: _rewardService.fetchRewardById(cId),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final (reCouponText, textColor) =
-                                    calculateDaysUntilReCoupon(
-                                  snapshot.data!['rep_day'] as int,
-                                  snapshot.data!['countStart'] as int,
-                                );
-                                return Text(
-                                  reCouponText,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensedCondensed',
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Expired Date: ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: formattedDate,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ),
+                    const Divider(thickness: 1, color: Colors.grey),
 
-                  // Fixed Footer
-                  Column(
-                    children: [
-                      const Divider(thickness: 1, color: Colors.grey),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Coupon will generate QR code for scanning',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoCondensed',
+                    // Scrollable Content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 5),
+                            Text(
+                              fD,
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            Text(
+                              impD,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _rewardService.fetchRewardById(cId),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final (reCouponText, textColor) =
+                                      calculateDaysUntilReCoupon(
+                                    snapshot.data!['rep_day'] as int,
+                                    snapshot.data!['countStart'] as int,
+                                  );
+                                  return Text(
+                                    reCouponText,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensedCondensed',
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                            const SizedBox(height: 5),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Expired Date: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: formattedDate,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (hasEnoughBottles) {
-                                await qrService.deleteALLQRofThisUser(userId!);
-                                final qr_id = await qrService.createQR(userId!, cId);
-                                if (qr_id != null) {
-                                  GoBack(context);
-                                  _showCouponPopupQR(context, qr_id, couponName);
-                                  await fetchUserCoupons();
+                    ),
+
+                    // Fixed Footer
+                    Column(
+                      children: [
+                        const Divider(thickness: 1, color: Colors.grey),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Coupon will generate QR code for scanning',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                if (hasEnoughBottles || !isUsed) {
+                                  await qrService
+                                      .deleteALLQRofThisUser(userId!);
+                                  final qr_id =
+                                      await qrService.createQR(userId!, cId);
+                                  if (qr_id != null) {
+                                    GoBack(context);
+                                    _showCouponPopupQR(
+                                        context, qr_id, couponName);
+                                    await fetchUserCoupons();
+                                  }
                                 }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: hasEnoughBottles ? Colors.blue : Colors.grey,
-                            ),
-                            child: const Text(
-                              'Use Coupon',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed',
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: hasEnoughBottles
+                                    ? Colors.blue
+                                    : Colors.grey,
+                              ),
+                              child: const Text(
+                                'Use Coupon',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
                               ),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              GoBack(context);
-                            },
-                            child: const Text(
-                              'Exit',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensed',
+                            ElevatedButton(
+                              onPressed: () {
+                                GoBack(context);
+                              },
+                              child: const Text(
+                                'Exit',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _showCouponPopupQR(
       BuildContext context, String qr_id, String couponName) async {
@@ -601,9 +607,9 @@ class _RewardPageState extends State<RewardPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+          onWillPop: () async {
+            return false;
+          },
           child: StatefulBuilder(
             builder: (context, setState) {
               return Dialog(
@@ -629,7 +635,7 @@ class _RewardPageState extends State<RewardPage> {
                                     fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 20),
-          
+
                               // Display appropriate icon based on coupon status
                               if (couponIsActive)
                                 const Icon(
@@ -649,9 +655,9 @@ class _RewardPageState extends State<RewardPage> {
                                   version: QrVersions.auto,
                                   size: 200.0,
                                 ),
-          
+
                               const SizedBox(height: 20),
-          
+
                               // StreamBuilder to monitor coupon status
                               StreamBuilder<Map<String, dynamic>?>(
                                 stream: _checkCouponStatusStream(qr_id),
@@ -660,7 +666,7 @@ class _RewardPageState extends State<RewardPage> {
                                       flutter_async.ConnectionState.waiting) {
                                     return const CircularProgressIndicator();
                                   }
-          
+
                                   // Prioritize the expired coupon case immediately
                                   if (snapshot.hasError) {
                                     final error = snapshot.error;
@@ -687,7 +693,7 @@ class _RewardPageState extends State<RewardPage> {
                                       );
                                     }
                                   }
-          
+
                                   // Handle used coupon case
                                   if (!snapshot.hasData ||
                                       snapshot.data == null) {
@@ -702,7 +708,7 @@ class _RewardPageState extends State<RewardPage> {
                                         GoBack(context);
                                       });
                                     }
-          
+
                                     return const Text(
                                       'Coupon used successfully.',
                                       style: TextStyle(
@@ -712,7 +718,7 @@ class _RewardPageState extends State<RewardPage> {
                                       ),
                                     );
                                   }
-          
+
                                   // Check if the coupon is expired and display "Invalid" if so
                                   return Text(
                                     qrCodeExpire
@@ -720,17 +726,19 @@ class _RewardPageState extends State<RewardPage> {
                                         : 'Coupon is still valid: $couponName',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color:
-                                          qrCodeExpire ? Colors.red : Colors.blue,
+                                      color: qrCodeExpire
+                                          ? Colors.red
+                                          : Colors.blue,
                                     ),
                                   );
                                 },
                               ),
-          
+
                               const SizedBox(height: 20),
-          
+
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   ElevatedButton(
                                       onPressed: () async {
