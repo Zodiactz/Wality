@@ -273,9 +273,7 @@ class _RewardPageState extends State<RewardPage> {
     bool isUsed = couponCheck.contains(cId);
 
     return GestureDetector(
-      onTap: () => isUsed
-          ? null
-          : _showCouponPopup(
+      onTap: () => _showCouponPopup(
               context, couponName, bD, bReq, imgCoupon, fD, impD, cId, expD),
       child: Stack(
         alignment: Alignment.center, // Center align elements in the stack
