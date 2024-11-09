@@ -25,7 +25,7 @@ import 'package:wality_application/wality_app/views_models/setting_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
 import 'package:wality_application/wality_app/views_models/water_save_vm.dart';
 import 'package:flutter/rendering.dart';
-import 'package:wality_application/wality_app/views/tutorial.dart';// Import this line
+import 'package:wality_application/wality_app/views/tutorial.dart'; // Import this line
 
 void main() {
   debugPaintSizeEnabled = false;

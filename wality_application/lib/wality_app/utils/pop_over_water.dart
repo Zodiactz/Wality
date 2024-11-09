@@ -19,7 +19,6 @@ class PopOverForWater extends StatelessWidget {
           barrierDismissible: false,
           builder: (context) => WaterTutorialPopup(
             onComplete: () {
-              Navigator.pop(context);
               openWaterCheckingPage(context);
             },
           ),

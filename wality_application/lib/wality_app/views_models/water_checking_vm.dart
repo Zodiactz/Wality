@@ -10,17 +10,13 @@ class WaterCheckingViewModel extends ChangeNotifier {
   String filteredResults = "";
   bool _isLoading = false;
 
-  WaterCheckingViewModel(this.image) {
-    detectImage(image);
-  }
-   
+  WaterCheckingViewModel(this.image) {}
 
   bool get isLoading => _isLoading;
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
-
 
   Future<void> pickImage() async {
     try {
@@ -29,41 +25,10 @@ class WaterCheckingViewModel extends ChangeNotifier {
           await picker.pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
         image = File(pickedFile.path);
-        detectImage(image);
         notifyListeners();
       }
     } catch (e) {
       throw Exception('Error picking image: $e');
     }
-  }
-
-  Future<void> detectImage(File image) async {
-    var recognitionsList = await Tflite.runModelOnImage(
-      path: image.path,
-      numResults: 6,
-      threshold: 0.05,
-      imageMean: 127.5,
-      imageStd: 127.5,
-    );
-
-    recognitions = recognitionsList?.map((recognition) {
-          return WaterQualityRecognition(
-            label: recognition['label'],
-            confidence: recognition['confidence'],
-          );
-        }).toList() ??
-        [];
-
-    filteredResults = recognitions
-        .where((recognition) => recognition.confidence! > 0.7)
-        .map((recognition) =>
-            "${recognition.label}: ${(recognition.confidence! * 100).toStringAsFixed(2)}%")
-        .join("\n");
-
-    if (filteredResults.isEmpty) {
-      filteredResults = "No results above 70% confidence";
-    }
-
-    notifyListeners();
   }
 }
