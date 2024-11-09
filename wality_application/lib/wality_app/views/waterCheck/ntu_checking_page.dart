@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'package:wality_application/wality_app/views_models/water_checking_vm.dart';
+import 'dart:convert';
 
 import '../../repo/user_service.dart';
 
@@ -390,14 +391,19 @@ class WaterCheckingPage extends StatelessWidget {
 
       if (uploadedUrl != null) {
         final inferenceResult =
-            await userService.runRoboflowInference(uploadedUrl);
+            await userService.runRoboflowInferenceShowImg(uploadedUrl);
         print(uploadedUrl);
 
         viewModel.setLoading(false);
 
         if (inferenceResult != null && inferenceResult['outputs'] != null) {
           final ntuLevel = _extractNtuLevel(inferenceResult);
-          _showResultDialog(context, uploadedUrl, ntuLevel);
+
+          // Extract the Base64 image from the inference result
+          String? base64Image = _extractBase64Image(inferenceResult);
+
+          // Pass the Base64 image to the dialog
+          _showResultDialog(context, uploadedUrl, ntuLevel, base64Image!);
         } else {
           _showErrorDialog(context);
           print("1: $inferenceResult");
@@ -410,30 +416,34 @@ class WaterCheckingPage extends StatelessWidget {
     } catch (e) {
       viewModel.setLoading(false);
       _showErrorDialog(context);
-      print("3: $viewModel");
+      print("3: $e");
     }
   }
 
   String _extractNtuLevel(Map<String, dynamic> inferenceResult) {
     try {
-      if (inferenceResult['outputs'] != null &&
+      // Check if 'outputs' exists and is a non-empty list
+      if (inferenceResult.containsKey('outputs') &&
+          inferenceResult['outputs'] is List &&
           inferenceResult['outputs'].isNotEmpty) {
         final outputs = inferenceResult['outputs'][0];
-        print(outputs);
+        print("Outputs: $outputs");
 
-        if (outputs['predictions'] != null &&
+        // Check if 'predictions' exists and is a list within the 'outputs'
+        if (outputs.containsKey('predictions') &&
+            outputs['predictions'] is Map &&
             outputs['predictions']['predictions'] is List) {
           final predictions = outputs['predictions']['predictions'];
-          print(predictions);
+          print("Predictions: $predictions");
 
-          // Check for paperglass
+          // Check for 'paperglass' class in predictions
           bool hasPaperglass = predictions.any((prediction) {
             return prediction['class'].toString().toLowerCase() ==
                     'paper_glass' ||
                 prediction['class'].toString().toLowerCase() == 'paperglass';
           });
 
-          // If no paperglass is found
+          // If no paperglass is found, return specific message
           if (!hasPaperglass) {
             return 'NO_PAPERGLASS';
           }
@@ -442,19 +452,21 @@ class WaterCheckingPage extends StatelessWidget {
           predictions.sort((a, b) =>
               (b['confidence'] as num).compareTo(a['confidence'] as num));
 
-          // Look for NTU class in predictions
+          // Look for NTU class in sorted predictions
           for (var prediction in predictions) {
             String className = prediction['class'].toString();
             if (className.startsWith('NTU_')) {
-              // Extract the number after 'NTU_'
+              // Extract the NTU value after 'NTU_'
               return className.replaceAll('NTU_', '');
             }
           }
 
-          // If paperglass is found but no NTU value is present
+          // If paperglass is found but no NTU class is present
           return 'WATER_NOT_DETECTED';
         }
       }
+
+      // Log if no valid predictions were found
       print("No valid predictions found in result: $inferenceResult");
       return 'N/A';
     } catch (e) {
@@ -464,8 +476,28 @@ class WaterCheckingPage extends StatelessWidget {
     }
   }
 
-  void _showResultDialog(
-      BuildContext context, String uploadedUrl, String ntuLevel) {
+  String? _extractBase64Image(Map<String, dynamic> inferenceResult) {
+    try {
+      if (inferenceResult['outputs'] != null &&
+          inferenceResult['outputs'].isNotEmpty) {
+        final outputs = inferenceResult['outputs'][0];
+
+        // Check if the 'bounding_box_visualization' field exists
+        if (outputs['bounding_box_visualization'] != null &&
+            outputs['bounding_box_visualization']['value'] != null) {
+          return outputs['bounding_box_visualization']['value'];
+        }
+      }
+      print("No Base64 image found in result: $inferenceResult");
+      return null;
+    } catch (e) {
+      print("Error extracting Base64 image: $e");
+      return null;
+    }
+  }
+
+  void _showResultDialog(BuildContext context, String uploadedUrl,
+      String ntuLevel, String? base64Image) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     // Determine the result image, text, and colors based on the NTU level
@@ -475,24 +507,20 @@ class WaterCheckingPage extends StatelessWidget {
     List<Color> gradientColors;
     String turbidityText;
 
-    // First check for NO_PAPERGLASS
+    // Assign values based on NTU level
     if (ntuLevel == 'NO_PAPERGLASS') {
       resultImage = 'assets/images/Not_found.png';
       resultText = 'Invalid Image!';
       resultTextColor = Colors.grey;
       gradientColors = const [Colors.grey, Colors.white];
       turbidityText = "There isn't paperglass with water in this photo";
-    }
-    // Check for WATER_NOT_DETECTED (paperglass found but no NTU value)
-    else if (ntuLevel == 'WATER_NOT_DETECTED') {
+    } else if (ntuLevel == 'WATER_NOT_DETECTED') {
       resultImage = 'assets/images/No_water.png';
       resultText = 'Water not detected!';
       resultTextColor = Colors.grey;
       gradientColors = const [Colors.grey, Colors.white];
       turbidityText = "Water clarity could not be determined";
-    }
-    // Finally, handle valid NTU values
-    else {
+    } else {
       double ntuValue = double.tryParse(ntuLevel) ?? 0;
       if (ntuValue > 5) {
         resultImage = 'assets/images/Bad_water.png';
@@ -508,147 +536,173 @@ class WaterCheckingPage extends StatelessWidget {
       turbidityText = "The turbidity of the water is around $ntuLevel NTU";
     }
 
+    // Decode the base64 image (if available)
+    final imageBytes = base64Image != null ? base64Decode(base64Image) : null;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            return false;
-          },
-          child: Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            elevation: 8,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: gradientColors,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: const Text(
-                      "Water Clearness Result",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: 'RobotoCondensed',
-                      ),
-                    ),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 8,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              bool showImage = false;
+
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: gradientColors,
                   ),
-                  SingleChildScrollView(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Water Clearness Result",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'RobotoCondensed',
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Display Result Image
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
                             ),
-                            child: Image.asset(
-                              resultImage,
-                              width: screenWidth * 0.2,
-                              height: screenWidth * 0.2,
-                              fit: BoxFit.contain,
+                          ],
+                        ),
+                        child: Image.asset(
+                          resultImage,
+                          width: screenWidth * 0.3,
+                          height: screenWidth * 0.3,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Display Turbidity Text and Toggle Image Button
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 3,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Container(
-                            padding: const EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 1,
-                                  blurRadius: 3,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  resultText,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: resultTextColor,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  turbidityText,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 22,
-                                    fontFamily: 'RobotoCondensed',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () {
-                              _handleImageDeletion(context, uploadedUrl);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: resultTextColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 3,
-                            ),
-                            child: const Text(
-                              'Exit',
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              resultText,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 18,
+                                color: resultTextColor,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 15),
+                            Text(
+                              turbidityText,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            // Show/Hide Image Button
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  showImage = !showImage;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child:
+                                  Text(showImage ? 'Hide Image' : 'Show Image'),
+                            ),
+                            if (showImage && imageBytes != null)
+                              Column(
+                                children: [
+                                  const SizedBox(height: 20),
+                                  Image.memory(
+                                    imageBytes,
+                                    width: screenWidth * 0.8,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 24),
+                      // Exit Button
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _handleImageDeletion(context, uploadedUrl);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: resultTextColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'Exit',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoCondensed',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         );
       },
     );
   }
 }
-

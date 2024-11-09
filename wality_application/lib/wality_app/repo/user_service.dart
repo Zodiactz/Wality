@@ -684,6 +684,42 @@ class UserService {
     }
   }
 
+    Future<Map<String, dynamic>?> runRoboflowInferenceShowImg(String imageUrl) async {
+    try {
+      final apiUrl = roboflowUrl;
+      final apiKey = 'G0Aiyz9rnxZVeRTWMV2p';
+
+      // Prepare the payload for the request
+      final payload = {
+        "api_key": apiKey,
+        "inputs": {
+          "image": {
+            "type": "url",
+            "value": imageUrl,
+          },
+        },
+      };
+
+      // Send the HTTP request
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+
+      // Check if the response was successful
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Roboflow API error: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Failed to make Roboflow inference request: $e');
+      return null;
+    }
+  }
+
 }
 
  
