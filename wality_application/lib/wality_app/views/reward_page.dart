@@ -371,6 +371,7 @@ class _RewardPageState extends State<RewardPage> {
     DateTime dateTime = DateTime.parse(expD);
     String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
     bool hasEnoughBottles = await userBotMoreThanEventBot(bReq);
+    print("This is is Used: $isUsed");
 
     showDialog(
       context: context,
@@ -541,7 +542,7 @@ class _RewardPageState extends State<RewardPage> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
-                                if (hasEnoughBottles || !isUsed) {
+                                if (hasEnoughBottles && !isUsed) {
                                   await qrService
                                       .deleteALLQRofThisUser(userId!);
                                   final qr_id =
@@ -555,7 +556,7 @@ class _RewardPageState extends State<RewardPage> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: hasEnoughBottles
+                                backgroundColor: hasEnoughBottles && !isUsed
                                     ? Colors.blue
                                     : Colors.grey,
                               ),

@@ -10,6 +10,7 @@ import 'package:wality_application/wality_app/utils/navigator_utils.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:wality_application/wality_app/views_models/coupon_vm.dart';
+import 'package:intl/src/intl/date_format.dart';
 
 class CustomFab extends StatefulWidget {
   const CustomFab({super.key});
@@ -153,7 +154,6 @@ class _CustomFabState extends State<CustomFab> {
     print(daysLeft);
 
     return ('$daysLeft days left', Colors.green);
-    
   }
 
   void _showFabOptions(BuildContext context) {
@@ -817,6 +817,9 @@ class _CustomFabState extends State<CustomFab> {
     String cId,
     String expD,
   ) async {
+    DateTime dateTime = DateTime.parse(expD);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -826,180 +829,208 @@ class _CustomFabState extends State<CustomFab> {
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                    maxWidth: MediaQuery.of(context).size.width * 0.9,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Image and coupon details
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(imgCoupon),
-                            radius: 37,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  couponName,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  bD,
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
+              return Container(
+                padding: const EdgeInsets.all(16),
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Fixed Header
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(imgCoupon),
+                          radius: 37,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '$bReq',
+                                couponName,
                                 style: const TextStyle(
-                                    fontSize: 48, fontWeight: FontWeight.bold),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'RobotoCondensed',
+                                ),
                               ),
-                              const Text('Coins',
-                                  style: TextStyle(fontSize: 16)),
+                              const SizedBox(height: 5),
+                              Text(
+                                bD,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                  fontFamily: 'RobotoCondensed',
+                                ),
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                      const Divider(thickness: 1, color: Colors.grey),
-                      const SizedBox(height: 5),
-
-                      // Coupon description
-                      Text(
-                        fD,
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        impD,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 5),
-                      Text.rich(
-                        TextSpan(
+                        ),
+                        Column(
                           children: [
-                            TextSpan(
-                              text: 'Expired Date: ',
+                            Text(
+                              '$bReq',
                               style: const TextStyle(
+                                fontSize: 48,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
-                            TextSpan(
-                              text: expD,
-                              style: const TextStyle(
-                                fontSize: 18,
+                            const Text(
+                              'Coins',
+                              style: TextStyle(
+                                fontSize: 16,
                                 fontFamily: 'RobotoCondensed',
                               ),
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      FutureBuilder<Map<String, dynamic>>(
-                        future: rewardService.fetchRewardById(cId),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final (reCouponText, textColor) =
-                                calculateDaysUntilReCoupon(
-                              snapshot.data!['rep_day'] as int,
-                              snapshot.data!['countStart'] as int,
-                            );
-                            return Text(
-                              reCouponText,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'RobotoCondensedCondensed',
+                      ],
+                    ),
+                    const Divider(thickness: 1, color: Colors.grey),
+
+                    // Scrollable Content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 5),
+                            Text(
+                              fD,
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'RobotoCondensed',
                               ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
+                            ),
+                            Text(
+                              impD,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'RobotoCondensed',
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: rewardService.fetchRewardById(cId),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final (reCouponText, textColor) =
+                                      calculateDaysUntilReCoupon(
+                                    snapshot.data!['rep_day'] as int,
+                                    snapshot.data!['countStart'] as int,
+                                  );
+                                  return Text(
+                                    reCouponText,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensedCondensed',
+                                    ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                            const SizedBox(height: 5),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Expired Date: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: formattedDate,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                    ),
 
-                      // Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              // Show a loading indicator if desired
+                    // Fixed Footer
+                    Column(
+                      children: [
+                        const Divider(thickness: 1, color: Colors.grey),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                // Show a loading indicator if desired
 
-                              try {
-                                // Attempt to delete the coupon
-                                await rewardService.deleteCoupon(
-                                    cId, imgCoupon);
+                                try {
+                                  // Attempt to delete the coupon
+                                  await rewardService.deleteCoupon(
+                                      cId, imgCoupon);
 
-                                // Close the dialog once the coupon is deleted successfully
-                                Navigator.of(context).pop();
+                                  // Close the dialog once the coupon is deleted successfully
+                                  Navigator.of(context).pop();
 
-                                // Refresh the coupon list asynchronously
-                                await refreshCouponList();
+                                  // Refresh the coupon list asynchronously
+                                  await refreshCouponList();
 
-                                // Update the widget's state after refreshing the list
-                                setState(() {});
+                                  // Update the widget's state after refreshing the list
+                                  setState(() {});
 
-                                showAwesomeSnackBar(
-                                  context,
-                                  "Success",
-                                  "Success! Coupon Deleted!",
-                                  ContentType.success,
-                                );
+                                  showAwesomeSnackBar(
+                                    context,
+                                    "Success",
+                                    "Success! Coupon Deleted!",
+                                    ContentType.success,
+                                  );
 
-                                // Navigate back to the admin page after the success message
-                                openAdminPage(context);
-                              } catch (e) {
-                                // Handle errors and close the dialog
-                                openAdminPage(context);
-                                print("This is error: $e");
+                                  // Navigate back to the admin page after the success message
+                                  openAdminPage(context);
+                                } catch (e) {
+                                  // Handle errors and close the dialog
+                                  openAdminPage(context);
+                                  print("This is error: $e");
 
-                                // Show error message
+                                  // Show error message
 
-                                showAwesomeSnackBar(
-                                  context,
-                                  "Error",
-                                  "Failed to delete coupon!",
-                                  ContentType.success,
-                                );
-                              }
-                            },
-                            child: const Text('Delete Coupon'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              GoBack(context); // Exit dialog without action
-                            },
-                            child: const Text('Exit'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                                  showAwesomeSnackBar(
+                                    context,
+                                    "Error",
+                                    "Failed to delete coupon!",
+                                    ContentType.success,
+                                  );
+                                }
+                              },
+                              child: const Text('Delete Coupon'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                GoBack(context); // Exit dialog without action
+                              },
+                              child: const Text('Exit'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               );
             },
@@ -1062,8 +1093,8 @@ class _CustomFabState extends State<CustomFab> {
     _isDatePickerOpen.value = false;
 
     Future.delayed(const Duration(milliseconds: 1), () {
-    FocusScope.of(context).unfocus();
-  });
+      FocusScope.of(context).unfocus();
+    });
 
     if (picked != null && picked != _expirationDate) {
       setState(() {
