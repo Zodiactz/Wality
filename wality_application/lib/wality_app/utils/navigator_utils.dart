@@ -147,3 +147,7 @@ void OpenAdminPage(BuildContext context) async {
 void OpenResetPasswordPage(BuildContext context) async {
   Navigator.pushNamed(context, '/resetpass');
 }
+
+void OpenTutorialPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/tutorial');
+}

@@ -356,7 +356,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 16),
+                      padding: const EdgeInsets.only(top: 10, left: 16),
                       child: Column(
                         children: [
                           const SizedBox(
@@ -413,6 +413,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 return const SizedBox.shrink();
                               }
                             },
+                          ),
+                           const SizedBox(
+                            height: 12,
+                          ),
+                          profilevm.buildDivider(),
+                          const SizedBox(height: 12),
+                          profilevm.buildProfileOption(
+                            context,
+                            icon: Icons.book,
+                            title: 'Tutorial',
+                            onTap: () => OpenTutorialPage(context),
                           ),
                           const SizedBox(
                             height: 12,

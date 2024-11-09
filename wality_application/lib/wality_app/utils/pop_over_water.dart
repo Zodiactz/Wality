@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wality_application/wality_app/utils/navigator_utils.dart';
-import 'package:wality_application/wality_app/views/waterCheck/ntu_checking_page.dart';
+import 'package:wality_application/wality_app/utils/water_tutorial_for_cam.dart';
 
 class PopOverForWater extends StatelessWidget {
   const PopOverForWater({super.key});
