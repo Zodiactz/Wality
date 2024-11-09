@@ -419,7 +419,7 @@ class WaterCheckingPage extends StatelessWidget {
     );
   }
 }
-}
+
 class WaterTutorialPopup extends StatefulWidget {
   final VoidCallback onComplete;
   
