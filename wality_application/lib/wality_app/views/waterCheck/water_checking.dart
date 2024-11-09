@@ -215,9 +215,9 @@ class _WaterCheckingState extends State<WaterChecking>
                 child: Column(
                   mainAxisSize: MainAxisSize.min, // Adjusts to fit content
                   children: [
-                    Text(
+                    const Text(
                       "Now, You just save:",
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),

@@ -52,7 +52,6 @@ class RewardService {
       "exp_date": expDateIso,
       "rep_day": rep_day,
       "countStart": countStart,
-      "authorizedBy": adminName
     };
 
     try {
