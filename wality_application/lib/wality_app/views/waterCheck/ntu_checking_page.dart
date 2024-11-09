@@ -367,22 +367,24 @@ class _WaterTutorialPopupState extends State<WaterTutorialPopup> {
   bool _doNotShowAgain = false;
   int _currentPage = 0;
 
- final List<TutorialStep> _tutorialSteps = [
+  final List<TutorialStep> _tutorialSteps = [
     TutorialStep(
       image: 'assets/images/clearPhoto.png',
       title: 'Take a Clear Photo',
-      description:
-          "Position your device camera directly above the water sample. **Use camera flashlight when take a photo. Make sure there isn't any reflection**",
+      description: 'Position your device camera directly above the water sample.',
+      highlightedText: 'Use camera flashlight when taking a photo.\nMake sure there isn\'t any reflection!',
     ),
     TutorialStep(
       image: 'assets/images/waterAnalyze.png',
       title: 'Analyze Water',
       description: 'Our AI will analyze the water clarity and provide NTU measurements.',
+      highlightedText: '',
     ),
     TutorialStep(
       image: 'assets/images/waterCheck.png',
       title: 'View Results',
       description: 'Get detailed results about water clarity and recommendations.',
+      highlightedText: '',
     ),
   ];
 
@@ -436,68 +438,137 @@ class _WaterTutorialPopupState extends State<WaterTutorialPopup> {
   }
 
   Widget _buildTutorialPage(TutorialStep step) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 2,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 160, // Reduced from 180
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Image.asset(
+                step.image,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 16), // Reduced from 24
+            Text(
+              step.title,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'RobotoCondensed',
+              ),
+            ),
+            const SizedBox(height: 12), // Reduced from 16
+            Text(
+              step.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white.withOpacity(0.9),
+                fontFamily: 'RobotoCondensed',
+              ),
+            ),
+            if (step.highlightedText.isNotEmpty) ...[
+              const SizedBox(height: 12), // Reduced from 16
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Reduced vertical padding
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.15),
+                      Colors.white.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Image.asset(
-              step.image,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            step.title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'RobotoCondensed',
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            step.description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
-              fontFamily: 'RobotoCondensed',
-            ),
-          ),
-        ],
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.cyan.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        step.highlightedText,
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.3, // Reduced from 1.4
+                          color: Colors.white.withOpacity(0.95),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: const Offset(0, 1),
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 8), // Added bottom padding
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildPageIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _tutorialSteps.length,
-        (index) => Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          height: 8,
-          width: 8,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _currentPage == index
-                ? Colors.white
-                : Colors.white.withOpacity(0.4),
+    return Container(
+      padding: const EdgeInsets.only(bottom: 8), // Added padding
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          _tutorialSteps.length,
+          (index) => Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            height: 8,
+            width: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _currentPage == index
+                  ? Colors.white
+                  : Colors.white.withOpacity(0.4),
+            ),
           ),
         ),
       ),
@@ -506,8 +577,9 @@ class _WaterTutorialPopupState extends State<WaterTutorialPopup> {
 
   Widget _buildBottomSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20), // Adjusted padding
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -529,7 +601,7 @@ class _WaterTutorialPopupState extends State<WaterTutorialPopup> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8), // Reduced from 10
           ElevatedButton(
             onPressed: () async {
               await _setTutorialSeen();
@@ -568,10 +640,12 @@ class TutorialStep {
   final String image;
   final String title;
   final String description;
+  final String highlightedText;
 
   TutorialStep({
     required this.image,
     required this.title,
     required this.description,
+    required this.highlightedText,
   });
 }
