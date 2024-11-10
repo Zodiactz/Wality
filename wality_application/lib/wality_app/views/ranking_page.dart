@@ -118,6 +118,7 @@ class _RankingPageState extends State<RankingPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -133,7 +134,7 @@ class _RankingPageState extends State<RankingPage> {
             children: [
               _buildAppBar(context),
               _buildFilterDropdown(),
-              if (!_isLoading && _users.isNotEmpty) _buildUserRank(),
+              _buildUserRank(), // Always show user rank
               Expanded(
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -205,24 +206,28 @@ class _RankingPageState extends State<RankingPage> {
 
   Widget _buildUserRank() {
     return FutureBuilder<String?>(
-      future: _userService.fetchUsername(currentUserId!), // Fetch the username
+      future: _userService.fetchUsername(currentUserId ?? ''),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.connectionState == flutter_async.ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show loading indicator while fetching
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         // Find the current user by matching the user ID
-        final currentUser = _users.firstWhere(
-            (user) => user['user_id'] == currentUserId,
-            orElse: () =>
-                {getBottleKey(): 0}); // Default to the chosen key with 0
+        final currentUser = currentUserId != null
+            ? _users.firstWhere(
+                (user) => user['user_id'] == currentUserId,
+                orElse: () => {getBottleKey(): 0},
+              )
+            : {getBottleKey(): 0};
 
-        // Use the correct key based on the selected filter
         final bottleKey = getBottleKey();
         final hasRank = currentUser[bottleKey] > 0;
-        final userRank = hasRank
-            ? _users.indexOf(currentUser) + 1
-            : 0; // Adjusted for rank calculation
+        final userRank = hasRank ? _users.indexOf(currentUser) + 1 : 0;
 
         return Container(
           padding: const EdgeInsets.all(16),
@@ -248,9 +253,10 @@ class _RankingPageState extends State<RankingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(snapshot.data ?? 'Username',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 18)),
+                    Text(
+                      snapshot.data ?? 'Username',
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                     Text(
                       hasRank ? '${currentUser[bottleKey]} Bottles' : 'No rank',
                       style:

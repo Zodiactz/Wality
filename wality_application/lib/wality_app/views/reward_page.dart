@@ -75,7 +75,7 @@ class _RewardPageState extends State<RewardPage> {
 
   Future<void> fetchUserCoupons() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/getCoupons/$userId'));
+        await http.get(Uri.parse('$baseUrl/getCoupons/$userId'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

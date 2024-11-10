@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
-import 'package:wality_application/wality_app/repo/reward_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:wality_application/wality_app/utils/LoadingOverlay.dart';
 import 'package:wality_application/wality_app/utils/awesome_snack_bar.dart';

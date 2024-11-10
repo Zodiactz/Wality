@@ -575,7 +575,7 @@ class _CustomFabState extends State<CustomFab> {
                                             adminName);
 
                                         _clearFields();
-                                        openAdminPage(context);
+                                        GoBack(context);
 
                                         showAwesomeSnackBar(
                                           context,
