@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -102,7 +101,6 @@ func main() {
 	//Upload AI image
 	// Handle Roboflow inference request
 	app.Post("/runRoboflow", runRoboflowInference)
-	app.Post("/runRoboflowTest", runRoboflowInferenceTest)
 
 
 	// Start the server
@@ -158,43 +156,14 @@ func uploadImage(c *fiber.Ctx) error {
 func uploadToFirebaseStorage(fileName string, file multipart.File) (string, error) {
 	ctx := context.Background()
 
-	// Read the first 512 bytes to detect content type
-	buffer := make([]byte, 512)
-	_, err := file.Read(buffer)
-	if err != nil && err != io.EOF {
-		return "", fmt.Errorf("failed to read file header: %v", err)
-	}
-
-	// Reset the file reader to the beginning
-	_, err = file.Seek(0, 0)
-	if err != nil {
-		return "", fmt.Errorf("failed to reset file reader: %v", err)
-	}
-
-	// Get file extension and convert to lowercase
-	ext := strings.ToLower(filepath.Ext(fileName))
-	
-	// Detect content type
-	contentType := http.DetectContentType(buffer)
-	
-	// Special handling for HEIC/HEIF files since they might not be detected correctly
-	if ext == ".heic" || ext == ".heif" {
-		contentType = "image/heic"
-	}
-
-	// Validate that it's an image file
-	if !isValidImageType(contentType) {
-		return "", fmt.Errorf("invalid image type: %s", contentType)
-	}
-
-	// Generate a unique identifier
+	// Generate a unique identifier (could be timestamp, UUID, or random string)
 	uniqueID := generateRandomString(8)
 	uniqueFileName := fmt.Sprintf("%s-%s", uniqueID, fileName)
 
 	// Create an object in the bucket with the unique filename
 	object := bucket.Object(uniqueFileName)
 	writer := object.NewWriter(ctx)
-	writer.ContentType = contentType
+	writer.ContentType = "image/jpeg" // Set appropriate content type for your image
 
 	// Write file data to Firebase Storage
 	if _, err := io.Copy(writer, file); err != nil {
@@ -208,30 +177,9 @@ func uploadToFirebaseStorage(fileName string, file multipart.File) (string, erro
 	}
 
 	// Get the public URL of the uploaded image
-	imageURL := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", 
-		"walityfirebase.appspot.com", 
-		url.QueryEscape(uniqueFileName))
+	imageURL := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", "walityfirebase.appspot.com", url.QueryEscape(uniqueFileName))
 
 	return imageURL, nil
-}
-
-// isValidImageType checks if the content type is a valid image format
-func isValidImageType(contentType string) bool {
-	validTypes := map[string]bool{
-		"image/jpeg":     true,
-		"image/jpg":      true,
-		"image/png":      true,
-		"image/gif":      true,
-		"image/bmp":      true,
-		"image/webp":     true,
-		"image/svg+xml":  true,
-		"image/tiff":     true,
-		"image/x-icon":   true,
-		"image/heic":     true,
-		"image/heif":     true,
-	}
-	
-	return validTypes[contentType]
 }
 
 func extractImageNameFromURL(imageURL string) (string, error) {
@@ -1309,87 +1257,6 @@ func runRoboflowInference(c *fiber.Ctx) error {
 
     // Create the request to Roboflow API
     req, err := http.NewRequest("POST", "https://detect.roboflow.com/infer/workflows/kmutt-ai/ntureader", bytes.NewReader(jsonData))
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to create request",
-        })
-    }
-
-    // Set necessary headers
-    req.Header.Set("Content-Type", "application/json")
-
-    // Make the request
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to make request to Roboflow",
-        })
-    }
-    defer resp.Body.Close()
-
-    // Read the response
-    body, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to read response",
-        })
-    }
-
-    // Parse the response
-    var result map[string]interface{}
-    if err := json.Unmarshal(body, &result); err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to parse response",
-        })
-    }
-
-    // Check if the result contains predictions
-    if predictions, ok := result["outputs"].([]interface{}); ok && len(predictions) > 0 {
-        return c.JSON(fiber.Map{
-            "message":    "Predictions found",
-            "predictions": predictions,
-        })
-    }
-
-    // If no predictions, return a no result message
-    return c.JSON(fiber.Map{
-        "message": "No predictions found for the image. Please try a different image.",
-    })
-}
-
-func runRoboflowInferenceTest(c *fiber.Ctx) error {
-    // Extract image URL from the request body
-    var requestBody struct {
-        ImageURL string `json:"image_url"` // URL of the image to send to Roboflow
-    }
-    
-    if err := c.BodyParser(&requestBody); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "Invalid request body",
-        })
-    }
-
-    // Prepare the request body for Roboflow API
-    data := map[string]interface{}{
-        "api_key": "G0Aiyz9rnxZVeRTWMV2p", // Your Roboflow API key
-        "inputs": map[string]interface{}{
-            "image": map[string]interface{}{
-                "type":  "url",
-                "value": requestBody.ImageURL, // The image URL passed in the request body
-            },
-        },
-    }
-    
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to prepare request data",
-        })
-    }
-
-    // Create the request to Roboflow API
-    req, err := http.NewRequest("POST", "https://detect.roboflow.com/infer/workflows/kmutt-ai/custom-workflow-qjz", bytes.NewReader(jsonData))
     if err != nil {
         return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
             "error": "Failed to create request",

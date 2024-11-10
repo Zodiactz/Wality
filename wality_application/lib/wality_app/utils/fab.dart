@@ -1,7 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:wality_application/wality_app/repo/realm_service.dart';
 import 'package:wality_application/wality_app/repo/reward_service.dart';
 import 'package:wality_application/wality_app/repo/user_service.dart';
@@ -52,7 +51,6 @@ class _CustomFabState extends State<CustomFab> {
   Future<String?>? adminRealName;
   int? waterAmount;
   String? imgURL;
-  final String defaultImagePath = 'assets/images/coupon_lnwza.png';
   final RewardService rewardService = RewardService();
   List<dynamic> rewards = [];
   final UserService userService = UserService();
@@ -196,21 +194,6 @@ class _CustomFabState extends State<CustomFab> {
         );
       },
     );
-  }
-
-  
-  Future<File> getImageFile() async {
-    if (imgURL != null) {
-      return File(imgURL!);
-    } else {
-      // Create a temporary file from the asset
-      final byteData = await rootBundle.load(defaultImagePath);
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/default_coupon_image.png';
-      final tempFile = File(tempPath);
-      await tempFile.writeAsBytes(byteData.buffer.asUint8List());
-      return tempFile;
-    }
   }
 
   void _showFullScreenBottomSheet(BuildContext context) {
@@ -553,7 +536,7 @@ class _CustomFabState extends State<CustomFab> {
                                                 .trim();
                                         final replenish =
                                             _replenishController.text.trim();
-                                        final imageFile = await getImageFile();
+                                        final imageFile = File(imgURL ?? '');
                                         final expirationDate = _expirationDate;
 
                                         final int? botReq =
