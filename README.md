@@ -1,4 +1,4 @@
-# **Wality**
+# Wality
 Capstone project
 
 # How to run the application
