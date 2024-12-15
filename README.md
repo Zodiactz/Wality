@@ -19,3 +19,6 @@ Clone the repository from GitHub to access the code:
 
 ```bash
 git clone https://github.com/yourusername/Wality.git
+
+```
+Alternatively, download the ZIP file and extract it to your desired location.
