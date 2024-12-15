@@ -85,6 +85,7 @@ In your IDE or terminal, run the Flutter application:
 ```bash
 flutter run lib/main.dart
 ```
+Alternatively, You can click the main.dart file of the application and click on run
 
 ---
 
