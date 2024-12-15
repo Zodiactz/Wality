@@ -1,4 +1,4 @@
-# **Wality** The mobile application for water dispenser examination & Sustainability
+# **Wality**
 Capstone project
 
 # How to run the application
