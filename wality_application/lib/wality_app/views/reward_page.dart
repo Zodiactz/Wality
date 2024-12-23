@@ -16,6 +16,7 @@ import 'package:flutter/src/widgets/async.dart' as flutter_async;
 import 'package:realm_dart/src/session.dart' as realm_session;
 import 'package:wality_application/wality_app/repo/user_service.dart';
 import 'package:intl/intl.dart';
+import 'package:wality_application/wality_app/utils/constant.dart';
 
 final App app = App(AppConfiguration('wality-1-djgtexn'));
 final userId = app.currentUser?.id;
@@ -75,7 +76,7 @@ class _RewardPageState extends State<RewardPage> {
 
   Future<void> fetchUserCoupons() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/getCoupons/$userId'));
+        await http.get(Uri.parse('$baseUrl/getCoupons/$userId'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
