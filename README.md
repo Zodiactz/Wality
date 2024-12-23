@@ -95,7 +95,7 @@ Now, you should have the backend running and the Flutter app launched on your de
 
 ---
 
-## **Our group members**
+## **Our team members**
 
 - Ratchanon Burong  
   Address: 145/34 Lasalle 1 Sukhumvit105 Bangna Bangkok 10260  
