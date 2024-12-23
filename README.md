@@ -94,3 +94,22 @@ Alternatively, You can click the main.dart file of the application and click on 
 Now, you should have the backend running and the Flutter app launched on your device. Happy tracking! 🌊📱
 
 ---
+
+## **Our group members**
+
+- Ratchanon Burong  
+  Address: 145/34 Lasalle 1 Sukhumvit105 Bangna Bangkok 10260  
+  email: non20220@hotmail.com  
+  Tel: 099-0986333
+
+- Surapong Keawwongvan  
+  Address: 601 Wachiratham Sathit 57, Intersection 9 Phra Khanong Bangkok 10260  
+  email: supermark2546@gmail.com  
+  Tel: 091-7687886
+
+- Phongsaphak Fongsamut  
+  Address: 122 10 Wattananakorn Wattananakorn Sa-kaeo 27160  
+  email: notnot45@hotmail.com  
+  Tel: 083-4965642 
+  
+
