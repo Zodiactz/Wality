@@ -7,6 +7,7 @@ import 'package:wality_application/wality_app/views/change_pic_and_username_page
 import 'package:wality_application/wality_app/views/main_page.dart';
 import 'package:wality_application/wality_app/views/authen/resetpass_page.dart';
 import 'package:wality_application/wality_app/views/reward_page.dart';
+import 'package:wality_application/wality_app/views/shop_page.dart';
 import 'package:wality_application/wality_app/views/waterCheck/qr_scanner_page.dart';
 import 'package:wality_application/wality_app/views/authen/choose_way_page.dart';
 import 'package:wality_application/wality_app/views/authen/forget_password_page.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Wality',
       theme: ThemeData(),
-      home: const LogoPage() /*const MainPage()*/,
+      home: const /*LogoPage()*/ MainPage(),
       routes: {
         '/logopage': (context) => const LogoPage(),
         '/choosewaypage': (context) => const ChooseWayPage(),
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         '/tutorial': (context) => WaterTutorialPage(
               onComplete: () {},
             ),
+        '/shoppage': (context) => const ShopPage(),
       },
       onGenerateRoute: (RouteSettings settings) {
         // Check if the route is the reset password path

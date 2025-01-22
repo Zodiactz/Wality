@@ -69,6 +69,10 @@ void openAdminPage(BuildContext context) async {
   Navigator.pushNamed(context, '/adminpage');
 }
 
+void openShopPage(BuildContext context) async {
+  Navigator.pushNamed(context, '/shoppage');
+}
+
 void openWaterCheckingPage(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
   final XFile? image = await picker.pickImage(source: ImageSource.camera);

@@ -152,6 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
             sID: '',
             isAdmin: false,
             usedWcoin: 0,
+            isShop: false,
           );
 
           final result = await _authService.createUser(newUser);

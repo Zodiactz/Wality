@@ -249,6 +249,19 @@ class UserService {
     return null;
   }
 
+  Future<bool?> fetchUserShop(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data['isShop'];
+      }
+    } catch (e) {
+      throw Exception('Failed to load UserShop');
+    }
+    return null;
+  }
+
   Future<int?> fetchUserEventBot(String userId) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/userId/$userId'));

@@ -23,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String?> uidFuture = Future.value(null);
   Future<String?> realNameFuture = Future.value(null);
   Future<bool?> isAdminFuture = Future.value(null);
+  Future<bool?> isShopFuture = Future.value(null);
   Future<String?> sIDFuture = Future.value(null);
   String imgURL = "";
 
@@ -43,6 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
       sIDFuture = _userService.fetchSID(userId);
       realNameFuture = _userService.fetchRealName(userId);
       isAdminFuture = _userService.fetchUserAdmin(userId);
+      isShopFuture = _userService.fetchUserShop(userId);
     }
   }
 
@@ -112,7 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: Colors.blueAccent.withOpacity(0.8),
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.8),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -137,7 +140,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     future: usernameFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
-                                          flutter_async.ConnectionState.waiting) {
+                                          flutter_async
+                                              .ConnectionState.waiting) {
                                         return const Text(
                                           'Loading...',
                                           style: TextStyle(
@@ -186,7 +190,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     future: sIDFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
-                                          flutter_async.ConnectionState.waiting) {
+                                          flutter_async
+                                              .ConnectionState.waiting) {
                                         return const Text(
                                           'Loading...',
                                           style: TextStyle(
@@ -235,7 +240,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     future: realNameFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
-                                          flutter_async.ConnectionState.waiting) {
+                                          flutter_async
+                                              .ConnectionState.waiting) {
                                         return const Text(
                                           'Loading...',
                                           style: TextStyle(
@@ -261,7 +267,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 snapshot.data!.length > 50
                                             ? '${snapshot.data!.substring(0, 47)}...'
                                             : snapshot.data ?? '';
-      
+
                                         return SizedBox(
                                           width:
                                               200, // Adjust width to control wrapping
@@ -271,7 +277,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               fontSize: 16,
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
-                                              fontFamily: 'RobotoCondensed-Thin',
+                                              fontFamily:
+                                                  'RobotoCondensed-Thin',
                                             ),
                                             softWrap: true,
                                             maxLines:
@@ -294,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     },
                                   ),
                                 ),
-      
+
                                 /*
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
@@ -359,8 +366,41 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.only(top: 10, left: 16),
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 12,
+                          const SizedBox(height: 12),
+                          FutureBuilder<bool?>(
+                            future: isShopFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data == true) {
+                                return profilevm.buildProfileOption(
+                                  context,
+                                  icon: Icons.store,
+                                  title: 'Shop',
+                                  onTap: () => openShopPage(context),
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          ),
+                          FutureBuilder<bool?>(
+                            future: isShopFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data == true) {
+                                return Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                    profilevm.buildDivider(),
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
                           ),
                           profilevm.buildProfileOption(
                             context,
@@ -413,17 +453,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 return const SizedBox.shrink();
                               }
                             },
-                          ),
-                           const SizedBox(
-                            height: 12,
-                          ),
-                          profilevm.buildDivider(),
-                          const SizedBox(height: 12),
-                          profilevm.buildProfileOption(
-                            context,
-                            icon: Icons.book,
-                            title: 'Tutorial',
-                            onTap: () => OpenTutorialPage(context),
                           ),
                           const SizedBox(
                             height: 12,

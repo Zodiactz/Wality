@@ -21,6 +21,7 @@ class Users {
   final String sID;
   final bool isAdmin;
   final int usedWcoin;
+  final bool isShop;
 
   Users({
     this.userId,
@@ -43,6 +44,7 @@ class Users {
     required this.sID,
     required this.isAdmin,
     required this.usedWcoin,
+    required this.isShop,
   });
 
   // Convert a User instance to a map
@@ -68,6 +70,7 @@ class Users {
       'sID': sID,
       'isAdmin': isAdmin,
       'usedWcoin': usedWcoin,
+      'isShop': isShop,
     };
   }
 
@@ -100,6 +103,7 @@ class Users {
       sID: json['sID'],
       isAdmin: json['isAdmin'],
       usedWcoin: json['usedWcoin'],
+      isShop: json['isShop'],
     );
   }
 }
