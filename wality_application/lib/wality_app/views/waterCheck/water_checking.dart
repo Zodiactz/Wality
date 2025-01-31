@@ -31,10 +31,9 @@ class _WaterCheckingState extends State<WaterChecking>
   bool _isFillingStopped = false;
   int incrementAmount = 1;
   int totalAmountToFill = 0;
-  int initialTotalAmountToFill =
-      0; // New variable to store the original input amount
+  int initialTotalAmountToFill = 0;
   int remainingAmount = 0;
-  int totalWaterFilled = 0; // Track total water filled
+  int totalWaterFilled = 0;
   late AnimationController _waveAnimationController;
   late AnimationController _fillLevelController;
   late Animation<double> _fillLevelAnimation;
@@ -63,7 +62,7 @@ class _WaterCheckingState extends State<WaterChecking>
     _fillLevelAnimation =
         Tween<double>(begin: 0.0, end: mlSaved / maxMl).animate(CurvedAnimation(
       parent: _fillLevelController,
-      curve: Curves.linear, // Use linear curve for more accurate filling
+      curve: Curves.linear,
     ));
 
     _splashController = AnimationController(
@@ -83,7 +82,7 @@ class _WaterCheckingState extends State<WaterChecking>
                   savedCount += 1;
                 }
 
-                totalWaterFilled += mlSaved; // Update the total water filled
+                totalWaterFilled += mlSaved;
                 mlSaved = 0;
                 _fillLevelAnimation = Tween<double>(begin: 0.0, end: 0.0)
                     .animate(_fillLevelController);
@@ -95,7 +94,6 @@ class _WaterCheckingState extends State<WaterChecking>
                   _isFillingStopped = false;
                   startWaterFilling();
                 } else {
-                  // Show the popup after filling is complete
                   showWaterFilledPopup(context);
                 }
               });
@@ -103,8 +101,7 @@ class _WaterCheckingState extends State<WaterChecking>
             }
           });
 
-    initialTotalAmountToFill =
-        totalAmountToFill; // Store the initial input amount
+    initialTotalAmountToFill = totalAmountToFill;
     startWaterFilling();
   }
 
@@ -132,16 +129,13 @@ class _WaterCheckingState extends State<WaterChecking>
       int previousMlSaved = mlSaved;
       mlSaved += increment;
 
-      // Ensure we don't exceed the target amount
       if (mlSaved > totalAmountToFill) {
         mlSaved = totalAmountToFill;
       }
 
-      // Calculate the exact fill level
       double targetFillLevel = mlSaved / maxMl;
       double currentFillLevel = previousMlSaved / maxMl;
 
-      // Create a new animation from the current level to the target level
       _fillLevelAnimation = Tween<double>(
         begin: currentFillLevel,
         end: targetFillLevel,
@@ -161,10 +155,7 @@ class _WaterCheckingState extends State<WaterChecking>
     });
 
     if (!_isFillingStopped) {
-      // Calculate delay based on total amount to ensure smooth filling
       int delayDuration = initialTotalAmountToFill >= 1650 ? 20 : 20;
-
-      // Adjust increment based on total amount for smoother animation
       int adjustedIncrement = (totalAmountToFill > maxMl) ? 2 : 1;
 
       Future.delayed(Duration(milliseconds: delayDuration), () {
@@ -191,10 +182,7 @@ class _WaterCheckingState extends State<WaterChecking>
       context: context,
       builder: (BuildContext context) {
         return WillPopScope(
-          onWillPop: () async {
-                    // Returning false here prevents the back button from closing the dialog
-                    return false;
-                  },
+          onWillPop: () async => false,
           child: AlertDialog(
             backgroundColor: const Color(0xFF003545),
             shape: RoundedRectangleBorder(
@@ -210,10 +198,9 @@ class _WaterCheckingState extends State<WaterChecking>
               textAlign: TextAlign.center,
             ),
             content: SingleChildScrollView(
-              // Make content scrollable if necessary
               child: Center(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Adjusts to fit content
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
                       "Now, You just save:",
@@ -223,11 +210,11 @@ class _WaterCheckingState extends State<WaterChecking>
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8), // Add spacing
+                    const SizedBox(height: 8),
                     Image.memory(
                       animationvm.gifBytes!,
-                      width: screenWidth * 0.3, // Responsive width
-                      height: screenHeight * 0.15, // Responsive height
+                      width: screenWidth * 0.3,
+                      height: screenHeight * 0.15,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 8),
@@ -240,11 +227,11 @@ class _WaterCheckingState extends State<WaterChecking>
                       textAlign: TextAlign.center,
                     ),
                     if (savedCount > 0) ...[
-                      const SizedBox(height: 8), // Add spacing
+                      const SizedBox(height: 8),
                       Image.memory(
                         animationvm.gifBytes2!,
-                        width: screenWidth * 0.3, // Responsive width
-                        height: screenHeight * 0.15, // Responsive height
+                        width: screenWidth * 0.3,
+                        height: screenHeight * 0.15,
                         fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 8),
@@ -256,11 +243,11 @@ class _WaterCheckingState extends State<WaterChecking>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8), // Add spacing
+                      const SizedBox(height: 8),
                       Image.asset(
                         'assets/images/wCoin.png',
-                        width: screenWidth * 0.3, // Responsive width
-                        height: screenHeight * 0.15, // Responsive height
+                        width: screenWidth * 0.3,
+                        height: screenHeight * 0.15,
                         fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 8),
@@ -286,12 +273,11 @@ class _WaterCheckingState extends State<WaterChecking>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
                     ],
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       "Every 1 bottle saved = 1 W Coin and marine life saved!",
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.blue,
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
@@ -331,9 +317,7 @@ class _WaterCheckingState extends State<WaterChecking>
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+      onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
@@ -367,7 +351,6 @@ class _WaterCheckingState extends State<WaterChecking>
                                 width: 300,
                                 height: 300,
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.3),
@@ -375,16 +358,19 @@ class _WaterCheckingState extends State<WaterChecking>
                                       offset: const Offset(5, 5),
                                     ),
                                   ],
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 10,
-                                  ),
                                 ),
                               ),
-                              SizedBox(
-                                width: 280,
-                                height: 280,
-                                child: ClipOval(
+                              ClipPath(
+                                clipper: BottleClipper(),
+                                child: Container(
+                                  width: 280,
+                                  height: 280,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 3,
+                                    ),
+                                  ),
                                   child: AnimatedBuilder(
                                     animation: Listenable.merge([
                                       _waveAnimationController,
@@ -444,8 +430,7 @@ class _WaterCheckingState extends State<WaterChecking>
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10.0), // Adjust padding to create space
+                            padding: const EdgeInsets.only(top: 10.0),
                             child: Image.asset(
                               'assets/images/turtle1.png',
                               width: 150,
@@ -466,6 +451,66 @@ class _WaterCheckingState extends State<WaterChecking>
   }
 }
 
+class BottleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    
+    // Starting from top-center of the bottle cap
+    path.moveTo(size.width * 0.4, 0);
+    
+    // Bottle cap right side
+    path.lineTo(size.width * 0.6, 0);
+    
+    // Bottle neck right side
+    path.quadraticBezierTo(
+      size.width * 0.6, size.height * 0.1,
+      size.width * 0.7, size.height * 0.15
+    );
+    
+    // Bottle body right side
+    path.quadraticBezierTo(
+      size.width * 0.95,
+size.height * 0.2,
+      size.width * 0.95, size.height * 0.4
+    );
+    path.lineTo(size.width * 0.95, size.height * 0.9);
+    
+    // Bottle bottom right corner
+    path.quadraticBezierTo(
+      size.width * 0.95, size.height,
+      size.width * 0.8, size.height
+    );
+    
+    // Bottle bottom
+    path.lineTo(size.width * 0.2, size.height);
+    
+    // Bottle bottom left corner
+    path.quadraticBezierTo(
+      size.width * 0.05, size.height,
+      size.width * 0.05, size.height * 0.9
+    );
+    
+    // Bottle body left side
+    path.lineTo(size.width * 0.05, size.height * 0.4);
+    path.quadraticBezierTo(
+      size.width * 0.05, size.height * 0.2,
+      size.width * 0.3, size.height * 0.15
+    );
+    
+    // Bottle neck left side
+    path.quadraticBezierTo(
+      size.width * 0.4, size.height * 0.1,
+      size.width * 0.4, 0
+    );
+    
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
 class WavePainter extends CustomPainter {
   final double animationValue;
   final double fillRatio;
@@ -476,50 +521,89 @@ class WavePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double waveHeight = size.height * fillRatio;
+    // Adjust for bottle shape
+    double bottleNeckHeight = size.height * 0.15;
+    double bottleBodyHeight = size.height - bottleNeckHeight;
+    
+    // Calculate effective fill height considering bottle shape
+    double effectiveFillRatio = fillRatio;
+    double waveHeight;
+    
+    if (fillRatio <= 0.15) {
+      // In the neck of the bottle
+      waveHeight = bottleNeckHeight * (fillRatio / 0.15);
+    } else {
+      // In the main body of the bottle
+      waveHeight = bottleNeckHeight + (bottleBodyHeight * ((fillRatio - 0.15) / 0.85));
+    }
 
-    // Adjust wave amplitude based on fill level
-    double amplitude = 10 * (1 - (currentMl / maxMl)).clamp(0.3, 1.0);
+    // Adjust amplitude based on bottle width at current height
+    double currentHeight = size.height - waveHeight;
+    double bottleWidthAtHeight = getBottleWidthAtHeight(currentHeight, size);
+    double amplitude = (bottleWidthAtHeight * 0.05) * (1 - (currentMl / maxMl)).clamp(0.3, 1.0);
 
     Paint paint = Paint()
       ..color = const Color(0xFF4FC3F7).withOpacity(0.6)
       ..style = PaintingStyle.fill;
 
+    // First wave
     Path path = Path();
+    path.moveTo(0, size.height);
+    
     for (double i = 0; i <= size.width; i++) {
-      path.lineTo(
-        i,
-        size.height -
-            waveHeight -
-            sin((i / size.width * 2 * pi) + (animationValue * 2 * pi)) *
-                amplitude,
-      );
+      double x = i;
+      double normalizedX = i / size.width;
+      double y = size.height - waveHeight +
+          sin((normalizedX * 2 * pi) + (animationValue * 2 * pi)) * amplitude;
+      
+      // Adjust x position based on bottle shape
+      double bottleWidth = getBottleWidthAtHeight(y, size);
+      double xOffset = (size.width - bottleWidth) / 2;
+      x = xOffset + (normalizedX * bottleWidth);
+      
+      path.lineTo(x, y);
     }
     path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
     path.close();
-
     canvas.drawPath(path, paint);
 
-    // Second wave with adjusted phase and amplitude
+    // Second wave with different phase
     paint.color = const Color(0xFF0288D1).withOpacity(0.6);
     path = Path();
+    path.moveTo(0, size.height);
+    
     for (double i = 0; i <= size.width; i++) {
-      path.lineTo(
-        i,
-        size.height -
-            waveHeight -
-            sin((i / size.width * 2 * pi) +
-                    (animationValue * 2 * pi) +
-                    pi / 2) *
-                (amplitude * 0.8),
-      );
+      double x = i;
+      double normalizedX = i / size.width;
+      double y = size.height - waveHeight +
+          sin((normalizedX * 2 * pi) + (animationValue * 2 * pi) + pi / 2) * (amplitude * 0.8);
+      
+      // Adjust x position based on bottle shape
+      double bottleWidth = getBottleWidthAtHeight(y, size);
+      double xOffset = (size.width - bottleWidth) / 2;
+      x = xOffset + (normalizedX * bottleWidth);
+      
+      path.lineTo(x, y);
     }
     path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
     path.close();
-
     canvas.drawPath(path, paint);
+  }
+
+  double getBottleWidthAtHeight(double height, Size size) {
+    double normalizedHeight = height / size.height;
+    
+    if (normalizedHeight < 0.15) {
+      // Neck of the bottle
+      return size.width * 0.2;
+    } else if (normalizedHeight < 0.2) {
+      // Transition from neck to body
+      double progress = (normalizedHeight - 0.15) / 0.05;
+      return size.width * (0.2 + (0.7 * progress));
+    } else {
+      // Main body of the bottle
+      return size.width * 0.9;
+    }
   }
 
   @override
