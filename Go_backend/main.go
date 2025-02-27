@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
+	// "path/filepath"
 	"strings"
 	"time"
 
@@ -111,22 +111,20 @@ func main() {
 
 // Initialize Firebase storage
 func initializeFirebase() error {
-	// Set environment variable for Firebase credentials (or use your method)
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "key/walityfirebase-firebase-adminsdk-f5qqz-5c4256b53e.json")
-
-	// Create a new Firebase storage client
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to create Firebase storage client: %v", err)
-	}
-
-	// Get a reference to your storage bucket
-	bucket = client.Bucket("walityfirebase.appspot.com")
-	if bucket == nil {
-		return fmt.Errorf("failed to access Firebase storage bucket")
-	}
-	return nil
+    os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "key/walityfirebase-firebase-adminsdk-f5qqz-7d3011b201.json")
+    ctx := context.Background()
+    client, err := storage.NewClient(ctx)
+    if err != nil {
+        log.Printf("Failed to create Firebase storage client: %v", err)
+        return fmt.Errorf("failed to create Firebase storage client: %v", err)
+    }
+    bucket = client.Bucket("walityfirebase.appspot.com")
+    if bucket == nil {
+        log.Println("Failed to access Firebase storage bucket")
+        return fmt.Errorf("failed to access Firebase storage bucket")
+    }
+    log.Println("Firebase initialized successfully")
+    return nil
 }
 
 // Upload an image to Firebase storage
@@ -156,82 +154,82 @@ func uploadImage(c *fiber.Ctx) error {
 
 // Function to upload image to Firebase Storage
 func uploadToFirebaseStorage(fileName string, file multipart.File) (string, error) {
-	ctx := context.Background()
+    ctx := context.Background()
 
-	// Read the first 512 bytes to detect content type
-	buffer := make([]byte, 512)
-	_, err := file.Read(buffer)
-	if err != nil && err != io.EOF {
-		return "", fmt.Errorf("failed to read file header: %v", err)
-	}
+    // Read the first 512 bytes to detect content type
+    buffer := make([]byte, 512)
+    _, err := file.Read(buffer)
+    if err != nil && err != io.EOF {
+        log.Printf("Failed to read file header: %v", err)
+        return "", fmt.Errorf("failed to read file header: %v", err)
+    }
 
-	// Reset the file reader to the beginning
-	_, err = file.Seek(0, 0)
-	if err != nil {
-		return "", fmt.Errorf("failed to reset file reader: %v", err)
-	}
+    // Reset the file reader to the beginning
+    _, err = file.Seek(0, 0)
+    if err != nil {
+        log.Printf("Failed to reset file reader: %v", err)
+        return "", fmt.Errorf("failed to reset file reader: %v", err)
+    }
 
-	// Get file extension and convert to lowercase
-	ext := strings.ToLower(filepath.Ext(fileName))
-	
-	// Detect content type
-	contentType := http.DetectContentType(buffer)
-	
-	// Special handling for HEIC/HEIF files since they might not be detected correctly
-	if ext == ".heic" || ext == ".heif" {
-		contentType = "image/heic"
-	}
+    // Detect content type
+    contentType := http.DetectContentType(buffer)
+    log.Printf("Detected content type: %s", contentType)
 
-	// Validate that it's an image file
-	if !isValidImageType(contentType) {
-		return "", fmt.Errorf("invalid image type: %s", contentType)
-	}
+    // Validate that it's an image file
+    if !isValidImageType(contentType) {
+        log.Printf("Invalid image type: %s", contentType)
+        return "", fmt.Errorf("invalid image type: %s", contentType)
+    }
 
-	// Generate a unique identifier
-	uniqueID := generateRandomString(8)
-	uniqueFileName := fmt.Sprintf("%s-%s", uniqueID, fileName)
+    // Generate a unique identifier
+    uniqueID := generateRandomString(8)
+    uniqueFileName := fmt.Sprintf("%s-%s", uniqueID, fileName)
+    log.Printf("Generated unique file name: %s", uniqueFileName)
 
-	// Create an object in the bucket with the unique filename
-	object := bucket.Object(uniqueFileName)
-	writer := object.NewWriter(ctx)
-	writer.ContentType = contentType
+    // Create an object in the bucket with the unique filename
+    object := bucket.Object(uniqueFileName)
+    writer := object.NewWriter(ctx)
+    writer.ContentType = contentType
 
-	// Write file data to Firebase Storage
-	if _, err := io.Copy(writer, file); err != nil {
-		writer.Close()
-		return "", fmt.Errorf("failed to write file to Firebase Storage: %v", err)
-	}
+    // Write file data to Firebase Storage
+    if _, err := io.Copy(writer, file); err != nil {
+        writer.Close()
+        log.Printf("Failed to write file to Firebase Storage: %v", err)
+        return "", fmt.Errorf("failed to write file to Firebase Storage: %v", err)
+    }
 
-	// Close the writer
-	if err := writer.Close(); err != nil {
-		return "", fmt.Errorf("failed to close writer: %v", err)
-	}
+    // Close the writer
+    if err := writer.Close(); err != nil {
+        log.Printf("Failed to close writer: %v", err)
+        return "", fmt.Errorf("failed to close writer: %v", err)
+    }
 
-	// Get the public URL of the uploaded image
-	imageURL := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", 
-		"walityfirebase.appspot.com", 
-		url.QueryEscape(uniqueFileName))
+    // Get the public URL of the uploaded image
+    imageURL := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", 
+        "walityfirebase.appspot.com", 
+        url.QueryEscape(uniqueFileName))
+    log.Printf("Image uploaded successfully: %s", imageURL)
 
-	return imageURL, nil
+    return imageURL, nil
 }
 
 // isValidImageType checks if the content type is a valid image format
 func isValidImageType(contentType string) bool {
-	validTypes := map[string]bool{
-		"image/jpeg":     true,
-		"image/jpg":      true,
-		"image/png":      true,
-		"image/gif":      true,
-		"image/bmp":      true,
-		"image/webp":     true,
-		"image/svg+xml":  true,
-		"image/tiff":     true,
-		"image/x-icon":   true,
-		"image/heic":     true,
-		"image/heif":     true,
-	}
-	
-	return validTypes[contentType]
+    validTypes := map[string]bool{
+        "image/jpeg":     true,
+        "image/jpg":      true,
+        "image/png":      true,
+        "image/gif":      true,
+        "image/bmp":      true,
+        "image/webp":     true,
+        "image/svg+xml":  true,
+        "image/tiff":     true,
+        "image/x-icon":   true,
+        "image/heic":     true,
+        "image/heif":     true,
+    }
+    log.Printf("Checking content type: %s", contentType)
+    return validTypes[contentType]
 }
 
 func extractImageNameFromURL(imageURL string) (string, error) {
