@@ -23,6 +23,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/api/option"
+	firebase "firebase.google.com/go"
 )
 
 // Define a MongoDB client variable
@@ -111,7 +113,13 @@ func main() {
 
 // Initialize Firebase storage
 func initializeFirebase() error {
-    os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "key/walityfirebase-firebase-adminsdk-f5qqz-7d3011b201.json")
+    os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "key/serviceAccountKey.json")
+	opt := option.WithCredentialsFile("path/to/serviceAccountKey.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+	return fmt.Errorf("error initializing app: %v", err)
+	}
+	print("This is app:", app)
     ctx := context.Background()
     client, err := storage.NewClient(ctx)
     if err != nil {
