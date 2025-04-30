@@ -159,22 +159,35 @@ class _CustomFabState extends State<CustomFab> {
   }
 
   void _showFabOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: 150,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return Container(
+        // Using automatic height based on content
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
+        ),
+        // Wrap with SingleChildScrollView to prevent overflow
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min, // Use minimum space needed
             children: [
+              // Pull bar indicator
+              Container(
+                width: 48,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
               ListTile(
                 leading: const Icon(Icons.add, color: Color(0xFF342056)),
                 title: const Text('Create Coupon'),
@@ -191,12 +204,21 @@ class _CustomFabState extends State<CustomFab> {
                   _showCouponList(context);
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.shopping_bag, color: Color(0xFF342056)),
+                title: const Text('Shop'),
+                onTap: () {
+                  Navigator.of(context).pop(); // Close the FAB options sheet
+                  _showShop(context);
+                },
+              ),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   
   Future<File> getImageFile() async {
@@ -737,6 +759,620 @@ class _CustomFabState extends State<CustomFab> {
       },
     );
   }
+
+  void _showShop(BuildContext context) {
+  final List<Map<String, dynamic>> _shops = [
+    {
+      'shop_name': 'Green Bean Cafe',
+      'profileImg_link': 'https://example.com/images/shop1.jpg',
+      'shop_id': 'shop1',
+    },
+    {
+      'shop_name': 'Lung num shop',
+      'profileImg_link': 'https://example.com/images/shop2.jpg',
+      'shop_id': 'shop2',
+    },
+    {
+      'shop_name': 'Lung A shop',
+      'profileImg_link': 'https://example.com/images/shop3.jpg',
+      'shop_id': 'shop3',
+    },
+    {
+      'shop_name': 'Lung B shop',
+      'profileImg_link': 'https://example.com/images/shop4.jpg',
+      'shop_id': 'shop4',
+    },
+    {
+      'shop_name': 'Lung C shop',
+      'profileImg_link': 'https://example.com/images/shop5.jpg',
+      'shop_id': 'shop5',
+    }
+  ];
+
+  List<Map<String, dynamic>> _filteredShops = List.from(_shops);
+  TextEditingController searchController = TextEditingController();
+
+  void _filterShops(String query) {
+    if (query.isEmpty) {
+      _filteredShops = List.from(_shops);
+    } else {
+      _filteredShops = _shops.where((shop) {
+        final shopName = (shop['shop_name'] ?? '').toString().toLowerCase();
+        return shopName.contains(query.toLowerCase());
+      }).toList();
+    }
+  }
+
+  ImageProvider _getProfileImage(String? profileImgLink) {
+    if (profileImgLink != null && profileImgLink.isNotEmpty) {
+      return NetworkImage(profileImgLink);
+    } else {
+      return const AssetImage('assets/images/store.png');
+    }
+  }
+
+  // Helper method to build year filter tabs
+  Widget _buildYearFilterTab(String year, String selectedYear, VoidCallback onTap, BuildContext context) {
+    final isSelected = year == selectedYear;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0083AB) : Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF0083AB) : Colors.grey.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          year,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showShopMonthlyWCoinReport(BuildContext context, Map<String, dynamic> shop) {
+    // Sample data for monthly WCoin totals
+    final List<Map<String, dynamic>> monthlyData = [
+      {'month': '04-2025', 'wcoins': 1250},
+      {'month': '03-2025', 'wcoins': 980},
+      {'month': '02-2025', 'wcoins': 1430},
+      {'month': '01-2025', 'wcoins': 875},
+      {'month': '12-2024', 'wcoins': 1560},
+      {'month': '11-2024', 'wcoins': 1210},
+      {'month': '10-2024', 'wcoins': 990},
+      {'month': '09-2024', 'wcoins': 1080},
+      {'month': '08-2024', 'wcoins': 1340},
+      {'month': '07-2024', 'wcoins': 760},
+      {'month': '06-2024', 'wcoins': 1120},
+      {'month': '05-2024', 'wcoins': 940},
+    ];
+
+    // Filter state
+    List<Map<String, dynamic>> filteredMonthlyData = List.from(monthlyData);
+    String selectedYear = '2025';
+    
+    // Calculate available screen height for proper sizing
+    final screenHeight = MediaQuery.of(context).size.height;
+    final availableHeight = screenHeight - 80; // Subtract some padding to avoid overflow
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            
+            // Filter function for year selection
+            void filterByYear(String year) {
+              setState(() {
+                selectedYear = year;
+                if (year == 'All') {
+                  filteredMonthlyData = List.from(monthlyData);
+                } else {
+                  filteredMonthlyData = monthlyData
+                      .where((data) => data['month'].toString().endsWith(year))
+                      .toList();
+                }
+              });
+            }
+            
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              // Fix: Set the insetPadding to ensure enough space around the dialog
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: SingleChildScrollView(
+                // Fix: Wrap with SingleChildScrollView to ensure scrolling if dialog is too tall
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: const EdgeInsets.all(20),
+                  // Fix: Use constraints instead of fixed height to respect screen size
+                  constraints: BoxConstraints(
+                    maxHeight: availableHeight,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header with shop info
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: _getProfileImage(shop['profileImg_link']),
+                            radius: 25,
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  shop['shop_name'],
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Monthly WCoin Report',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Year filter tabs
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildYearFilterTab('All', selectedYear, () => filterByYear('All'), context),
+                            _buildYearFilterTab('2025', selectedYear, () => filterByYear('2025'), context),
+                            _buildYearFilterTab('2024', selectedYear, () => filterByYear('2024'), context),
+                            _buildYearFilterTab('2023', selectedYear, () => filterByYear('2023'), context),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      
+                      // Monthly data list - Fix: Use Flexible instead of ConstrainedBox
+                      Flexible(
+                        child: filteredMonthlyData.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  'No data available for selected year',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                // Fix: Add physics to ensure proper scrolling when content is too large
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: filteredMonthlyData.length,
+                                itemBuilder: (context, index) {
+                                  final data = filteredMonthlyData[index];
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          const Color(0xFF0083AB).withOpacity(0.1),
+                                          const Color(0xFF005678).withOpacity(0.2),
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: const Color(0xFF0083AB).withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.calendar_month,
+                                              color: Color(0xFF0083AB),
+                                              size: 22,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              data['month'],
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.monetization_on,
+                                              color: Color(0xFF342056),
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '${data['wcoins']} WCoins',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF342056),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Total for selected period
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF342056).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF342056).withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Total WCoins',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '${filteredMonthlyData.fold(0, (sum, item) => sum + (item['wcoins'] as int))} WCoins',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF342056),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+
+                      // Cut-off button for selected month
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: OutlinedButton.icon(
+                          onPressed: filteredMonthlyData.isEmpty 
+                              ? null 
+                              : () {
+                                  // Show confirmation dialog before cutting off
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      // Get current month to show in confirmation
+                                      String currentMonth = '';
+                                      if (selectedYear != 'All' && filteredMonthlyData.isNotEmpty) {
+                                        // Get the first month in filtered data for display
+                                        currentMonth = filteredMonthlyData.first['month'];
+                                      }
+                                      
+                                      return AlertDialog(
+                                        title: const Text('Confirm Cut-off'),
+                                        content: Text(
+                                          selectedYear == 'All'
+                                              ? 'Are you sure you want to cut off WCoin balance for all months? This action cannot be undone.'
+                                              : 'Are you sure you want to cut off WCoin balance for ${currentMonth.isEmpty ? selectedYear : currentMonth}? This action cannot be undone.'
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(),
+                                            child: const Text('Cancel'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              // Close confirmation dialog
+                                              Navigator.of(context).pop();
+                                              
+                                              // Show success message
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    selectedYear == 'All'
+                                                        ? 'Cut-off completed for all months'
+                                                        : 'Cut-off completed for ${currentMonth.isEmpty ? selectedYear : currentMonth}'
+                                                  ),
+                                                  backgroundColor: Colors.green,
+                                                  duration: const Duration(seconds: 2),
+                                                ),
+                                              );
+                                              
+                                              // In a real app, perform database update/reset here
+                                              // Example: resetBalance(shop['shop_id'], selectedYear, currentMonth);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red,
+                                            ),
+                                            child: const Text('Confirm Cut-off'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            side: BorderSide(
+                              color: filteredMonthlyData.isEmpty 
+                                  ? Colors.grey.withOpacity(0.5) 
+                                  : Colors.red,
+                              width: 1.5,
+                            ),
+                            foregroundColor: filteredMonthlyData.isEmpty 
+                                ? Colors.grey 
+                                : Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: const Icon(Icons.money_off),
+                          label: const Text(
+                            'Cut-off Balance for Selected Period',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      // Close button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0083AB),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text(
+                            'Close',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Fix: Get screen height minus status bar height to avoid bottom overflow
+  final screenHeight = MediaQuery.of(context).size.height;
+  final statusBarHeight = MediaQuery.of(context).padding.top;
+  final bottomSheetHeight = screenHeight - statusBarHeight;
+  
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
+              // Fix: Use FractionallySizedBox to make sure bottom sheet doesn't exceed screen height
+              height: bottomSheetHeight * 0.85,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF0083AB), Color(0xFF003545)],
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                // Fix: Set bottom to false to avoid double padding at the bottom
+                bottom: false,
+                child: Column(
+                  children: [
+                    // Pull Bar and Header
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          // Pull Bar
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            width: 48,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          // Header
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                              const Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'Shops',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'RobotoCondensed',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 48), // Balance the header
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Search Field
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Search shops...',
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _filterShops(value);
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Shop List - With tap functionality to show WCoin report
+                    Expanded(
+                      child: _filteredShops.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No shops found',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : ListView.builder(
+                              // Fix: Add padding at the bottom of the list to ensure last item is visible
+                              padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 16.0),
+                              itemCount: _filteredShops.length,
+                              itemBuilder: (context, index) {
+                                final shop = _filteredShops[index];
+                                
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Close the shops bottom sheet first
+                                    Navigator.pop(context);
+                                    // Then show the monthly WCoin report popup
+                                    _showShopMonthlyWCoinReport(context, shop);
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 16.0),
+                                    padding: const EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 25,
+                                          backgroundImage: _getProfileImage(
+                                              shop['profileImg_link']),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Text(
+                                            shop['shop_name'] ?? 'Unknown Shop',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Colors.white70,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
   Widget _buildRewardItem(
     BuildContext context,
